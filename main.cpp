@@ -1,25 +1,58 @@
-// Programming Assignment 2 - Three Dimensional Triangle
+// Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        10 Sept 2015
+// Date:        6 October 2015
 
 #include <iostream>
+#include <fstream>
 #include "Point.h"
 #include "Cluster.h"
+#include "KMeans.h"
 
 // Function prototypes
 void testPoint();
 void testCluster();
+void testFileIn();
+void testKMeans();
 
 int main()
 {
-    testPoint();
+    //testKMeans();
+    //testFileIn();
+    //testPoint();
     testCluster();
 
     return 0;
 }
 
 // Function definitions
+void testKMeans()
+{
+    std::string input = "input.csv";
+    std::string output = "output.csv";
+    Clustering::KMeans(4, input, output);
+}
+void testFileIn()
+{
+    std::ifstream inFile;
+
+    inFile.open("input.csv");
+    Clustering::Cluster c4;
+    inFile >> c4;
+    inFile.close();
+    std::cout << c4 << std::endl;
+
+    std::cout << c4.getSize() << std::endl;
+    std::cout << c4.getNumDimensions() << std::endl;
+    std::cout << c4.getCentroid() << std::endl;
+    std::cout << "c4.intraClusterDistance = " << c4.intraClusterDistance() << std::endl;
+    std::cout << "c4.getClusterEdges = " << c4.getClusterEdges() << std::endl;
+
+    Clustering::PointPtr *ptArray = new Clustering::PointPtr [3];
+
+    c4.pickPoints(3, ptArray);
+}
+
 void testPoint()
 {
     std::cout << "Testing Point implementation" << std::endl;
@@ -170,9 +203,9 @@ void testCluster()
     c4.add(&p7);
     c4.add(&p9);
 
-    std::cout << "c1: " << c1;
-    std::cout << "c2: " << c2;
-    std::cout << "c3: " << c3;
+    std::cout << "c1: " << c1 << std::endl;
+    std::cout << "c2: " << c2 << std::endl;
+    std::cout << "c3: " << c3 << std::endl;
     std::cout << "c4: " << c4 << std::endl;
 
     // Addition and subtraction operator (with Clusters)

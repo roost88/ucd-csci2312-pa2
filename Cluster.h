@@ -1,9 +1,9 @@
-// Programming Assignment 2 - Three Dimensional Triangle
+// Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        10 Sept 2015
+// Date:        6 October 2015
 
-// Cluster class definition
+// Cluster class header file
 
 // include guard
 #ifndef CLUSTERING_CLUSTER_H
@@ -13,11 +13,8 @@
 
 namespace Clustering
 {
-    // Alias for Point *
-    typedef Point *PointPtr;
-
-    // Alias for Node *
-    typedef struct ListNode *ListNodePtr;
+    typedef Point *PointPtr; // Point * alias
+    typedef struct ListNode *ListNodePtr; // ListNode * alias
 
     // Node structure supporting singly-linked list
     struct ListNode
@@ -30,66 +27,85 @@ namespace Clustering
     class Cluster
     {
     private:
-        int size; // Keeps track of the amount of Points in the Cluster
-        ListNodePtr head; // Points to the first node in the list
+        unsigned int        __id; // Unique Cluster ID number
+        static unsigned int __idGenerator; // Used to increment ID number
+        int                 __size; // Keeps track of the amount of Points in the Cluster
+        ListNodePtr         __head; // Points to the first node in the list
+        int                 __numDimensions; // Number of dimensions of Points in Cluster
+        PointPtr            __centroid; // Pointer to mean Point in Cluster
+        bool                __validCentroid; // Checks if Centroid of Cluster is valid
+
+        // Inner class Move - represents motion of a Point from one Cluster to another
+        class Move
+        {
+        private:
+            // Move members
+            PointPtr ptr; // Point that will be moved
+            Cluster  *from; // Cluster that Point will be moved from
+            Cluster *to; // Cluster that Point will be moved to
+
+        public:
+            // Move constructor
+            Move(const PointPtr &ptr, Cluster *from, Cluster *to);
+
+            // Move member functions
+            void perform(); // Moves a Point from one Cluster to another
+        };
 
     public:
-        // Constructors
-        // Default constructor
-        Cluster();
+        static const char POINT_CLUSTER_ID_DELIM; // Static Cluster delimiter value (for output)
 
-        Cluster(const Cluster &); // Copy Constructor
+        // Cluster constructors
+        Cluster(); // Default constructor
+        Cluster(const Cluster &);  // Copy Constructor
         Cluster &operator=(const Cluster &); // Overloaded assignment operator
         ~Cluster(); // Destructor
 
-        // Member functions
-        ListNodePtr deepCopy(ListNodePtr);
+        // Cluster member functions
+        ListNodePtr deepCopy(ListNodePtr); // Copy function
 
-        // Add or remove Points from Cluster
-        void add(const PointPtr &);
-        const PointPtr &remove(const PointPtr &);
+        void calcNumDimensions(); // Calculate dimensions of Points in Cluster
 
-        // Getters for testing
-        int getSize() { return size; }
-        ListNodePtr getHead() const { return head; };
-        ListNodePtr getNext() const { return head->next; };
+        void add(const PointPtr &); // Add a Point to a Cluster
+        const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
 
-        // Overloaded operator functions
-        // Overloaded iostream operators
-        // Allow us to output an entire Cluster
+        double intraClusterDistance() const; // Sum of distances between Points in Cluster
+        friend double interClusterDistance(const Cluster &, const Cluster &);
+        int getClusterEdges();
+
+        // Getters
+        int getID() { return __id; } // Return Cluster ID
+        int getSize() { return __size; } // Return Cluster size
+        ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
+        ListNodePtr getNext() const { return __head->next; } // Return Cluster linked-list next address
+        int getNumDimensions() { return __numDimensions; } // Return number of dimensions of Points in Cluster
+
+        // Centroid specific functions
+        void calcCentroid(); // Computes Centroid of Cluster
+        void setCentroid(const Point &); // Set Centroid of Cluster
+        void pickPoints(int, PointPtr[]); // Pick k Points from Cluster to use as initial Centroids
+        const Point getCentroid() { return *__centroid; } // Return Cluster Centroid
+
+        // Overloaded iostream operators (friends)
         friend std::ostream &operator <<(std::ostream &, const Cluster &);
-
-        // Allow us to input an entire Cluster
         friend std::istream &operator >>(std::istream &, Cluster &);
 
-        // Overloaded comparison operators (friend)
+        // Overloaded comparison operators (friends)
         friend bool operator ==(const Cluster &, const Cluster &);
         friend bool operator !=(const Cluster &, const Cluster &);
 
         // Overloaded compound assignment operators (members)
-        // Combines two Clusters into one (union)
         Cluster &operator +=(const Cluster &);
-
-        // Subtracts one Cluster from referenced Cluster
         Cluster &operator -=(const Cluster &);
 
-        // Add a Point to referenced Cluster
         Cluster &operator +=(const Point &);
-
-        // Remove a Point from referenced Cluster
         Cluster &operator -=(const Point &);
 
         // Overloaded binary arithmetic operators (friends)
-        // Add two Clusters together
         friend const Cluster operator +(const Cluster &, const Cluster &);
-
-        // Subtract one Cluster from another
         friend const Cluster operator -(const Cluster &, const Cluster &);
 
-        // Add a Point to a Cluster
         friend const Cluster operator +(const Cluster &, const PointPtr &);
-
-        // Subtract a Point from a Cluster
         friend const Cluster operator -(const Cluster &, const PointPtr &);
     };
 } // end Clustering namespace
