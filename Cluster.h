@@ -35,6 +35,9 @@ namespace Clustering
         PointPtr            __centroid; // Pointer to mean Point in Cluster
         bool                __validCentroid; // Checks if Centroid of Cluster is valid
 
+    public:
+        static const char POINT_CLUSTER_ID_DELIM; // Static Cluster delimiter value (for output)
+
         // Inner class Move - represents motion of a Point from one Cluster to another
         class Move
         {
@@ -49,11 +52,8 @@ namespace Clustering
             Move(const PointPtr &ptr, Cluster *from, Cluster *to);
 
             // Move member functions
-            void perform(); // Moves a Point from one Cluster to another
+            void perform(const PointPtr &ptr, Cluster *from, Cluster *to); // Moves a Point from one Cluster to another
         };
-
-    public:
-        static const char POINT_CLUSTER_ID_DELIM; // Static Cluster delimiter value (for output)
 
         // Cluster constructors
         Cluster(); // Default constructor
@@ -85,6 +85,7 @@ namespace Clustering
         void setCentroid(const Point &); // Set Centroid of Cluster
         void pickPoints(int, PointPtr[]); // Pick k Points from Cluster to use as initial Centroids
         const Point getCentroid() { return *__centroid; } // Return Cluster Centroid
+        bool centroidValidity() { return __validCentroid; }
 
         // Overloaded iostream operators (friends)
         friend std::ostream &operator <<(std::ostream &, const Cluster &);

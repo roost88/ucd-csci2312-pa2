@@ -17,10 +17,10 @@ void testKMeans();
 
 int main()
 {
-    //testKMeans();
+    testKMeans();
     //testFileIn();
     //testPoint();
-    testCluster();
+    //testCluster();
 
     return 0;
 }

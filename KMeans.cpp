@@ -5,6 +5,8 @@
 
 // KMeans class implementation
 
+#include <array>
+
 #include "KMeans.h"
 
 namespace Clustering
@@ -15,6 +17,7 @@ namespace Clustering
     // Constructors
     KMeans::KMeans(int k, std::string const &inputFile, std::string const &outputFile)
     {
+        /* Setup and Initialization */
         // Create a new Cluster to hold all Points
         point_space = new Cluster;
 
@@ -59,18 +62,84 @@ namespace Clustering
             std::cout << "Cluster " << (i+1) << " Centroid: " << kClusterArray[i].getCentroid() << std::endl;
         }
 
-        // Set Centroid of point_space
+        // Set Centroid of point_space to last Centroid in array
         point_space->setCentroid(*centroidArray[k-1]);
         std::cout << "point_space Centroid: " << point_space->getCentroid() << std::endl;
-
-        // Delete Centroid array
-        delete [] centroidArray;
-        centroidArray = nullptr;
 
         // Create variables to hold Clustering score and scoreDiff
         double score, scoreDiff;
         scoreDiff = SCORE_DIFF_THRESHOLD + 1;
 
+        /****************************************/
+
+        /* Perform Clustering */
+
+        // Copy point_space so we can loop through all Points
+        Cluster universe(*point_space);
+
+        // While loop iterates at least once
+        while (scoreDiff > SCORE_DIFF_THRESHOLD)
+        {
+            for (int i = 0; i < (k - 1); i++)
+            {
+                // Copy head of universe
+                ListNodePtr current = universe.getHead();
+
+                // Loop through all Points in universe
+                while (current != nullptr)
+                {
+                    // Variable for storing distance to point_space Centroid
+                    double compDist = current->p->distanceTo(point_space->getCentroid());
+                    std::cout << "compDist = " << compDist << std::endl;
+
+                    // Store distance to other Cluster
+                    std::cout << "current->p = " << *current->p << std::endl;
+                    std::cout << "kCluster Centroid = " << kClusterArray[i].getCentroid() << std::endl;
+                    double distance = current->p->distanceTo(kClusterArray[i].getCentroid());
+                    std::cout << "distance = " << distance << std::endl;
+
+                    if (compDist > distance)
+                    {
+                        // Move Point from point_space to current Cluster
+                        Cluster::Move *m1 = new Cluster::Move(current->p, point_space, &kClusterArray[i]);
+                        std::cout << "point_space = " << *point_space << std::endl;
+                        std::cout << "kCluster = " << kClusterArray[i] << std::endl;
+                        std::cout << "Break" << std::endl;
+                        delete m1;
+                        current = current->next;
+                    }
+                    else
+                    {
+                        current = current->next;
+                    }
+                }
+            }
+
+            // Loop through Clusters to re-calculate Centroids
+            for (int i = 0; i < (k - 1); i++)
+            {
+                if (!kClusterArray[i].centroidValidity())
+                {
+                    kClusterArray[i].calcCentroid();
+                }
+            }
+
+            // Recalculate Clustering score and set scoreDiff
+            score = computeClusteringScore();
+            score -= scoreDiff;
+            scoreDiff = fabs(score);
+
+            std::cout << "Running Clustering algorithm!" << std::endl;
+        }
+        /****************************************/
+
+        /* Write results to file and self-destruct */
+
+        // Delete Centroid array
+        delete [] centroidArray;
+        centroidArray = nullptr;
+
+        /****************************************/
     }
 
     // Destructor

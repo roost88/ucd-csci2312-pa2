@@ -22,7 +22,7 @@ namespace Clustering
         __head = nullptr; // head doesn't point to anything yet
         __numDimensions = 0; // There are no Points in the Cluster
         __centroid = nullptr; // The Cluster has no Centroid
-        __validCentroid = false; // Invalidate Centroid
+        __validCentroid = false; // Invalid Centroid
     }
 
     // Cluster copy constructor
@@ -68,11 +68,11 @@ namespace Clustering
     // Move constructor
     Cluster::Move::Move(const PointPtr &ptr, Cluster *from, Cluster *to)
     {
-
+        perform(ptr, from, to);
     }
 
     // Move member functions
-    void Cluster::Move::perform()
+    void Cluster::Move::perform(const PointPtr &ptr, Cluster *from, Cluster *to)
     {
         // Remove Point from Cluster and add to another Cluster
         to->add(from->remove(ptr));
@@ -128,14 +128,18 @@ namespace Clustering
     // Calculate number of dimensions in Cluster Points
     void Cluster::calcNumDimensions()
     {
-        // Reset number of dimensions to zero
-        __numDimensions = 0;
+        if (__size > 0)
+        {
+            // Copy Cluster head
+            ListNodePtr current = __head;
 
-        // Copy Cluster head
-        ListNodePtr current = __head;
-
-        // Set number of dimensions equal to dimensions of first Point in Cluster
-        __numDimensions = (*current->p).getDim();
+            // Set number of dimensions equal to dimensions of first Point in Cluster
+            __numDimensions = (*current->p).getDim();
+        }
+        else
+        {
+            __numDimensions = 0;
+        }
     }
 
     // Compute the Centroid of a Cluster
@@ -241,11 +245,8 @@ namespace Clustering
         // Increment size of Cluster
         __size++;
 
-        // Recalculate the number of dimensions
+        // Calculate number of Dimensions
         calcNumDimensions();
-
-        // Recalculate the Centroid
-        calcCentroid();
     }
 
     // Remove Point from Cluster
@@ -312,17 +313,8 @@ namespace Clustering
                 delete current;
                 current = nullptr;
 
-                // Recalculate the number of dimensions and the Centroid
-                if (__size > 0)
-                {
-                    calcNumDimensions();
-                    calcCentroid();
-                    return right;
-                }
-                else
-                {
-                    return right;
-                }
+                calcNumDimensions();
+                return right;
             }
         }
     }
