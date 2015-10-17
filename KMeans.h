@@ -26,7 +26,7 @@ namespace Clustering
         static const double SCORE_DIFF_THRESHOLD;
 
         // Constructors
-        KMeans(int, std::string const &, std::string const &);
+        KMeans(int numDims, int k, std::string const &inputFile, std::string const &outputFile);
         ~KMeans();
 
         // Member functions

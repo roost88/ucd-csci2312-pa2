@@ -53,15 +53,21 @@ namespace Clustering
     // Cluster destructor
     Cluster::~Cluster()
     {
-        ListNodePtr ptr = __head;
-        ListNodePtr temp;
-
-        while (ptr != nullptr)
+        if (__size != 0)
         {
-            temp = ptr->next;
-            delete ptr;
-            ptr = temp;
+            ListNodePtr temp;
+
+            while (__head != nullptr)
+            {
+                temp = __head->next;
+                delete __head->p;
+                delete __head;
+                __head = temp;
+            }
         }
+        __head = nullptr;
+        __size = 0;
+        std::cout << "Cluster destroyed!" << std::endl;
     }
     // ******************************************
 
@@ -125,23 +131,6 @@ namespace Clustering
         return newHd;
     }
 
-    // Calculate number of dimensions in Cluster Points
-    void Cluster::calcNumDimensions()
-    {
-        if (__size > 0)
-        {
-            // Copy Cluster head
-            ListNodePtr current = __head;
-
-            // Set number of dimensions equal to dimensions of first Point in Cluster
-            __numDimensions = (*current->p).getDim();
-        }
-        else
-        {
-            __numDimensions = 0;
-        }
-    }
-
     // Compute the Centroid of a Cluster
     void Cluster::calcCentroid()
     {
@@ -176,10 +165,6 @@ namespace Clustering
     // Set the Centroid of a Cluster
     void Cluster::setCentroid(const Point &right)
     {
-        // Delete old Centroid
-        delete __centroid;
-        __centroid = nullptr;
-
         // Create a new Centroid
         PointPtr newCentroid = new Point(right);
 
@@ -215,10 +200,14 @@ namespace Clustering
             while (current != nullptr)
             {
                 // Check Points - If current Point is greater than or equal to
-                if ((*current->p) >= (*newNode->p))
+                if (*current->p > *newNode->p)
                 {
                     // Break out of while loop and go to next case
                     break;
+                }
+                else if (*current->p == *newNode->p)
+                {
+                    return;
                 }
                 // Continue to loop through list
                 else
@@ -244,9 +233,6 @@ namespace Clustering
 
         // Increment size of Cluster
         __size++;
-
-        // Calculate number of Dimensions
-        calcNumDimensions();
     }
 
     // Remove Point from Cluster
@@ -260,7 +246,6 @@ namespace Clustering
         if (__head == nullptr)
         {
             std::cout << "Point cannot be deleted from an empty Cluster!" << std::endl;
-            return right;
         }
         else
         {
@@ -272,7 +257,7 @@ namespace Clustering
             while (current != nullptr)
             {
                 // If Points are equal, break out of loop
-                if (*(current->p) == *right)
+                if (*current->p == *right)
                 {
                     break;
                 }
@@ -288,7 +273,6 @@ namespace Clustering
             if (current == nullptr)
             {
                 std::cout << "Point " << *right << " was not found in the Cluster!" << std::endl;
-                return right;
             }
             else
             {
@@ -303,20 +287,16 @@ namespace Clustering
                 {
                     previous->next = current->next;
                 }
+                // delete Point from Cluster
+                delete current;
 
                 // Decrement size
                 __size--;
 
                 std::cout << "Point " << *right << " successfully removed!" << std::endl;
-
-                // delete Point from Cluster
-                delete current;
-                current = nullptr;
-
-                calcNumDimensions();
-                return right;
             }
         }
+        return right;
     }
 
     double Cluster::intraClusterDistance() const
@@ -369,7 +349,7 @@ namespace Clustering
         return numEdges;
     }
 
-    void Cluster::pickPoints(int k, PointPtr pointArray[])
+    void Cluster::pickPoints(int k, PointPtr *pointArray)
     {
         // Pick k Points from a Cluster to use as initial Centroids for Clustering
         // Store k Points into an array

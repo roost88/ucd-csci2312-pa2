@@ -15,6 +15,7 @@ namespace Clustering
 {
     typedef Point *PointPtr; // Point * alias
     typedef struct ListNode *ListNodePtr; // ListNode * alias
+    typedef class Cluster *ClusterPtr;
 
     // Node structure supporting singly-linked list
     struct ListNode
@@ -56,15 +57,13 @@ namespace Clustering
         };
 
         // Cluster constructors
-        Cluster(); // Default constructor
+        Cluster(); // Takes an int for the amount of dimensions in Points
         Cluster(const Cluster &);  // Copy Constructor
         Cluster &operator=(const Cluster &); // Overloaded assignment operator
         ~Cluster(); // Destructor
 
         // Cluster member functions
         ListNodePtr deepCopy(ListNodePtr); // Copy function
-
-        void calcNumDimensions(); // Calculate dimensions of Points in Cluster
 
         void add(const PointPtr &); // Add a Point to a Cluster
         const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
@@ -83,7 +82,7 @@ namespace Clustering
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
         void setCentroid(const Point &); // Set Centroid of Cluster
-        void pickPoints(int, PointPtr[]); // Pick k Points from Cluster to use as initial Centroids
+        void pickPoints(int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
         const Point getCentroid() { return *__centroid; } // Return Cluster Centroid
         bool centroidValidity() { return __validCentroid; }
 

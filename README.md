@@ -58,3 +58,5 @@ I've created two functions, testPoint() and testCluster(), which use snippets of
 ####Notes
 The overloaded > operator for the Point class has been changed, as it was not reading Points into the Cluster in lexicographic order.
 
+Cluster destructor fixed.
+

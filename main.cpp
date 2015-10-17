@@ -14,13 +14,15 @@ void testPoint();
 void testCluster();
 void testFileIn();
 void testKMeans();
+void testClusterAddRemove();
 
 int main()
 {
     testKMeans();
-    //testFileIn();
-    //testPoint();
-    //testCluster();
+//    testFileIn();
+//    testPoint();
+//    testCluster();
+//    testClusterAddRemove();
 
     return 0;
 }
@@ -30,7 +32,7 @@ void testKMeans()
 {
     std::string input = "input.csv";
     std::string output = "output.csv";
-    Clustering::KMeans(4, input, output);
+    Clustering::KMeans(5, 4, input, output);
 }
 void testFileIn()
 {
@@ -228,6 +230,32 @@ void testCluster()
     std::cout << "c2 -= c3: " << c2;
 
     std::cout << "Cluster testing complete." << std::endl;
+}
+
+void testClusterAddRemove()
+{
+    Clustering::Point p1(3);
+    p1.setValue(1, 4.2);
+    p1.setValue(2, 54.5);
+    p1.setValue(3, 102.1);
+
+    Clustering::Cluster *c1 = new Clustering::Cluster;
+    c1->add(&p1);
+
+    Clustering::Cluster *c2 = new Clustering::Cluster;
+    c2->add(c1->remove(&p1));
+
+    std::cout << "c1: " << *c1 << std::endl;
+    std::cout << "c2: " << *c2 << std::endl;
+
+    Clustering::Cluster c3;
+    c3.add(&p1);
+
+    Clustering::Cluster c4;
+    c4.add(c3.remove(&p1));
+
+    delete c1;
+    delete c2;
 }
 
 

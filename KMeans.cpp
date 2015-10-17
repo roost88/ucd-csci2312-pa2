@@ -12,13 +12,14 @@
 namespace Clustering
 {
     // Initialize SCORE_DIFF_THRESHOLD variable
-    const double KMeans::SCORE_DIFF_THRESHOLD = 1;
+    const double KMeans::SCORE_DIFF_THRESHOLD = 10;
 
     // Constructors
-    KMeans::KMeans(int k, std::string const &inputFile, std::string const &outputFile)
+    KMeans::KMeans(int numDims, int k, std::string const &inputFile, std::string const &outputFile)
     {
         /* Setup and Initialization */
-        // Create a new Cluster to hold all Points
+
+        // Create a new Cluster to hold all Points, set numDimensions = k
         point_space = new Cluster;
 
         // Create a new input file stream
@@ -36,8 +37,9 @@ namespace Clustering
         }
         else
         {
-            // Display error message
+            // Display error message and exit
             std::cout << "File did not open!" << std::endl;
+            exit(EXIT_FAILURE);
         }
 
         // Create empty array of Centroids
@@ -46,100 +48,63 @@ namespace Clustering
         // Pick Centroids from Cluster
         point_space->pickPoints(k, centroidArray);
 
-        // Display Centroids
-        for (int i = 0; i < k; i++)
-        {
-            std::cout << "Centroid " << (i+1) << ": " << *centroidArray[i] << std::endl;
-        }
+        // Set point_space Centroid to first Centroid in array
+        point_space->setCentroid(*centroidArray[0]);
+        std::cout << "point_space Centroid: " << point_space->getCentroid() << std::endl;
 
-        // Create dynamic array of ClusterPtrs
-        kClusterArray = new Cluster [k-1];
+        // Create dynamic array of k ClusterPtrs
+        kClusterArray = new Cluster[k-1];
 
         // Set Centroids of dynamic Clusters
         for (int i = 0; i < (k-1); i++)
         {
-            kClusterArray[i].setCentroid((*centroidArray[i]));
-            std::cout << "Cluster " << (i+1) << " Centroid: " << kClusterArray[i].getCentroid() << std::endl;
+            kClusterArray[i].setCentroid((*centroidArray[i+1]));
+            std::cout << "kCluster " << (i+1) << " Centroid: " << kClusterArray[i].getCentroid() << std::endl;
         }
-
-        // Set Centroid of point_space to last Centroid in array
-        point_space->setCentroid(*centroidArray[k-1]);
-        std::cout << "point_space Centroid: " << point_space->getCentroid() << std::endl;
 
         // Create variables to hold Clustering score and scoreDiff
         double score, scoreDiff;
-        scoreDiff = SCORE_DIFF_THRESHOLD + 1;
+        scoreDiff = SCORE_DIFF_THRESHOLD + 1; // Ensures we iterate at least once
 
         /****************************************/
 
         /* Perform Clustering */
 
-        // Copy point_space so we can loop through all Points
-        Cluster universe(*point_space);
-
-        // While loop iterates at least once
-        while (scoreDiff > SCORE_DIFF_THRESHOLD)
+        // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
+        while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
-            for (int i = 0; i < (k - 1); i++)
-            {
-                // Copy head of universe
-                ListNodePtr current = universe.getHead();
+            // Loop through all Clusters
 
-                // Loop through all Points in universe
-                while (current != nullptr)
-                {
-                    // Variable for storing distance to point_space Centroid
-                    double compDist = current->p->distanceTo(point_space->getCentroid());
-                    std::cout << "compDist = " << compDist << std::endl;
+                // Loop through all Points
 
-                    // Store distance to other Cluster
-                    std::cout << "current->p = " << *current->p << std::endl;
-                    std::cout << "kCluster Centroid = " << kClusterArray[i].getCentroid() << std::endl;
-                    double distance = current->p->distanceTo(kClusterArray[i].getCentroid());
-                    std::cout << "distance = " << distance << std::endl;
+                    // Find distance between Point and Centroid
 
-                    if (compDist > distance)
-                    {
-                        // Move Point from point_space to current Cluster
-                        Cluster::Move *m1 = new Cluster::Move(current->p, point_space, &kClusterArray[i]);
-                        std::cout << "point_space = " << *point_space << std::endl;
-                        std::cout << "kCluster = " << kClusterArray[i] << std::endl;
-                        std::cout << "Break" << std::endl;
-                        delete m1;
-                        current = current->next;
-                    }
-                    else
-                    {
-                        current = current->next;
-                    }
-                }
-            }
+                    // If Centroid not of current Cluster
 
-            // Loop through Clusters to re-calculate Centroids
-            for (int i = 0; i < (k - 1); i++)
-            {
-                if (!kClusterArray[i].centroidValidity())
-                {
-                    kClusterArray[i].calcCentroid();
-                }
-            }
+                        // Perform Move
 
-            // Recalculate Clustering score and set scoreDiff
-            score = computeClusteringScore();
-            score -= scoreDiff;
-            scoreDiff = fabs(score);
+            // Loop through all Clusters
 
-            std::cout << "Running Clustering algorithm!" << std::endl;
+                // If Centroid is invalid
+
+                    // Compute new Centroid
+
+            // Compute new clusteringScore
+
+            // Compute absolute difference and set scoreDiff
+            scoreDiff--;
         }
         /****************************************/
 
         /* Write results to file and self-destruct */
 
-        // Delete Centroid array
-        delete [] centroidArray;
-        centroidArray = nullptr;
+        // Write out the Clustering results to a file
 
-        /****************************************/
+        // Delete everything
+        std::cout << "****************" << std::endl;
+        delete point_space;
+
+        delete [] kClusterArray;
     }
 
     // Destructor

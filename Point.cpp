@@ -58,7 +58,7 @@ namespace Clustering
         else
         {
             // Delete old values
-            delete[] values;
+            delete [] values;
 
             // Set dimensions
             dim = right.dim;
@@ -80,7 +80,8 @@ namespace Clustering
     Point::~Point()
     {
         // Destroy Point and delete values array
-        delete[] values;
+        delete [] values;
+        std::cout << "Point destructor called!" << std::endl;
     }
     // ******************************************
 
