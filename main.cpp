@@ -15,10 +15,14 @@ void testCluster();
 void testFileIn();
 void testKMeans();
 void testClusterAddRemove();
+void testMove();
+void testCalcSetCentroid();
 
 int main()
 {
     testKMeans();
+//    testCalcSetCentroid();
+//    testMove();
 //    testFileIn();
 //    testPoint();
 //    testCluster();
@@ -34,6 +38,45 @@ void testKMeans()
     std::string output = "output.csv";
     Clustering::KMeans(5, 4, input, output);
 }
+
+void testCalcSetCentroid()
+{
+    std::ifstream inFile;
+    inFile.open("input.csv");
+
+    Clustering::Cluster c1(5);
+
+    inFile >> c1;
+
+    std::cout << c1.getSize() << std::endl;
+
+    std::cout << "c1:\n" << c1 << std::endl;
+
+    c1.calcCentroid();
+
+    std::cout << "Centroid: " << c1.getCentroid() << std::endl;
+}
+
+void testMove()
+{
+    Clustering::Point p3(3); p3.setValue(1, 5); p3.setValue(2, 36); p3.setValue(3, 103);
+    Clustering::Point p4(3); p4.setValue(1, 26); p4.setValue(2, 158); p4.setValue(3, 14);
+
+    Clustering::Cluster c1;
+    Clustering::Cluster c2;
+
+    c1.add(&p3);
+    c2.add(&p4);
+    std::cout << "c1: \n" << c1 << std::endl;
+
+    Clustering::Cluster::Move *m1 = new Clustering::Cluster::Move(&p3, &c1, &c2);
+
+    std::cout << "c1:\n" << c1 << std::endl;
+    std::cout << "c2:\n" << c2 << std::endl;
+
+    delete m1;
+}
+
 void testFileIn()
 {
     std::ifstream inFile;
@@ -234,19 +277,19 @@ void testCluster()
 
 void testClusterAddRemove()
 {
-    Clustering::Point p1(3);
-    p1.setValue(1, 4.2);
-    p1.setValue(2, 54.5);
-    p1.setValue(3, 102.1);
+    Clustering::Point p1(3); p1.setValue(1, 4.2); p1.setValue(2, 54.5); p1.setValue(3, 102.1);
 
+    Clustering::Cluster *c0 = new Clustering::Cluster;
     Clustering::Cluster *c1 = new Clustering::Cluster;
     c1->add(&p1);
 
     Clustering::Cluster *c2 = new Clustering::Cluster;
     c2->add(c1->remove(&p1));
+    c0->add(c1->remove(&p1));
 
     std::cout << "c1: " << *c1 << std::endl;
     std::cout << "c2: " << *c2 << std::endl;
+    std::cout << "c0: " << *c0 << std::endl;
 
     Clustering::Cluster c3;
     c3.add(&p1);

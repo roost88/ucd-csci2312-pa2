@@ -18,15 +18,16 @@ namespace Clustering
     class KMeans
     {
     private:
+        int k;
         ClusterPtr point_space; // Pointer to initial Cluster that holds all Points
-        ClusterPtr kClusterArray; // Pointer to array of ClusterPtrs
+        ClusterPtr *kClusterArray; // Pointer to array of ClusterPtrs
 
     public:
         // Member variables
         static const double SCORE_DIFF_THRESHOLD;
 
         // Constructors
-        KMeans(int numDims, int k, std::string const &inputFile, std::string const &outputFile);
+        KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile);
         ~KMeans();
 
         // Member functions

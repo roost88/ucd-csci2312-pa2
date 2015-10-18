@@ -79,9 +79,10 @@ namespace Clustering
     // Destructor
     Point::~Point()
     {
+        std::cout << "Point (" << *this;
         // Destroy Point and delete values array
         delete [] values;
-        std::cout << "Point destructor called!" << std::endl;
+        std::cout << ") destroyed!" << std::endl;
     }
     // ******************************************
 

@@ -6,6 +6,7 @@
 // KMeans class implementation
 
 #include <array>
+#include <cfloat>
 
 #include "KMeans.h"
 
@@ -15,12 +16,15 @@ namespace Clustering
     const double KMeans::SCORE_DIFF_THRESHOLD = 10;
 
     // Constructors
-    KMeans::KMeans(int numDims, int k, std::string const &inputFile, std::string const &outputFile)
+    KMeans::KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
     {
         /* Setup and Initialization */
 
+        // Assign k
+        k = numClusters;
+
         // Create a new Cluster to hold all Points, set numDimensions = k
-        point_space = new Cluster;
+        point_space = new Cluster(numDims);
 
         // Create a new input file stream
         std::ifstream inFile(inputFile);
@@ -48,46 +52,99 @@ namespace Clustering
         // Pick Centroids from Cluster
         point_space->pickPoints(k, centroidArray);
 
-        // Set point_space Centroid to first Centroid in array
-        point_space->setCentroid(*centroidArray[0]);
-        std::cout << "point_space Centroid: " << point_space->getCentroid() << std::endl;
-
         // Create dynamic array of k ClusterPtrs
-        kClusterArray = new Cluster[k-1];
-
-        // Set Centroids of dynamic Clusters
-        for (int i = 0; i < (k-1); i++)
+        kClusterArray = new ClusterPtr[k];
+        for (int i = 0; i < k; i++)
         {
-            kClusterArray[i].setCentroid((*centroidArray[i+1]));
-            std::cout << "kCluster " << (i+1) << " Centroid: " << kClusterArray[i].getCentroid() << std::endl;
+            kClusterArray[i] = new Cluster(numDims);
+        }
+
+        // Set point_space as first Cluster in array
+        *kClusterArray[0] = *point_space;
+
+        // Set Centroids and dimensions of dynamic Clusters
+        for (int i = 0; i < k; i++)
+        {
+            kClusterArray[i]->setCentroid((*centroidArray[i]));
+            std::cout << "kCluster " << (i+1) << " Centroid: " << kClusterArray[i]->getCentroid() << std::endl;
         }
 
         // Create variables to hold Clustering score and scoreDiff
         double score, scoreDiff;
-        scoreDiff = SCORE_DIFF_THRESHOLD + 1; // Ensures we iterate at least once
+        scoreDiff = SCORE_DIFF_THRESHOLD + 8; // Ensures we iterate at least once
 
         /****************************************/
 
         /* Perform Clustering */
 
+        // Copy point_space to get a list of all Points
+        ListNodePtr universe = point_space->getHead();
+
         // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
         while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
             // Loop through all Clusters
+            for (int i = 0; i < k; i++)
+            {
+                // Current Cluster variable
+                ClusterPtr current = kClusterArray[i];
+                ListNodePtr curr = kClusterArray[i]->getHead();
 
                 // Loop through all Points
+                while (curr != nullptr)
+                {
+                    // Point variable
+                    PointPtr pt = curr->p;
 
-                    // Find distance between Point and Centroid
+                    // Other Cluster variable
+                    ClusterPtr other;
 
-                    // If Centroid not of current Cluster
+                    // Find the smallest distance between current Point and a Centroid
+                    double minDist = DBL_MAX;
+                    PointPtr currCentroid;
 
-                        // Perform Move
+                    for (int j = 0; j < k; j++)
+                    {
+                        // Calculate distance from current Point to each Centroid
+                        double currDist = curr->p->distanceTo(*centroidArray[j]);
 
-            // Loop through all Clusters
+                        if (minDist > currDist)
+                        {
+                            // Save the nearest Centroid
+                            minDist = currDist;
+                            currCentroid = centroidArray[j];
+                        }
+                    }
 
-                // If Centroid is invalid
+                    if (*currCentroid != current->getCentroid())
+                    {
+                        // Search for Cluster that has matching Centroid
+                        for (int h = 0; h < k; h++)
+                        {
+                            if (*currCentroid == kClusterArray[h]->getCentroid())
+                            {
+                                other = kClusterArray[h];
+                            }
+                        }
 
-                    // Compute new Centroid
+                        // Perform move
+                        Cluster::Move *m = new Cluster::Move(pt, current, other);
+                        delete m;
+                    }
+                    curr = curr->next;
+                }
+            }
+
+            // If Centroids are invalid, recalculate Centroids for each Cluster
+//            for (int i = 0; i < k; i++)
+//            {
+//                if (!kClusterArray[i]->centroidValidity())
+//                {
+//                    kClusterArray[i]->calcCentroid();
+//                    *centroidArray[i] = kClusterArray[i]->getCentroid();
+//                    std::cout << "*" << kClusterArray[i]->getCentroid() << std::endl;
+//                }
+//            }
 
             // Compute new clusteringScore
 
@@ -99,18 +156,35 @@ namespace Clustering
         /* Write results to file and self-destruct */
 
         // Write out the Clustering results to a file
+//        std::cout << "point_space(AFTER):\n" << *point_space << std::endl;
+
+        for (int i = 0; i < k; i++)
+        {
+            std::cout << "kCluster " << i+1 << " (AFTER):\n" << *kClusterArray[i] << std::endl;
+        }
 
         // Delete everything
         std::cout << "****************" << std::endl;
-        delete point_space;
 
-        delete [] kClusterArray;
     }
 
     // Destructor
     KMeans::~KMeans()
     {
+        // Destroy point_space Cluster and all Points within
+        ListNodePtr pSpace = point_space->getHead();
+        while (pSpace != nullptr)
+        {
+            delete pSpace->p;
+            pSpace = pSpace->next;
+        }
+        delete point_space;
 
+        // Delete kClusterArray and all Points within
+        for (int i = 0; i < k; i++)
+        {
+            delete kClusterArray[i];
+        }
     }
 
     // Member functions

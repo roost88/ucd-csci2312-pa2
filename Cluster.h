@@ -51,13 +51,15 @@ namespace Clustering
         public:
             // Move constructor
             Move(const PointPtr &ptr, Cluster *from, Cluster *to);
+            ~Move() { std::cout << "Move destroyed!" << std::endl; };
 
             // Move member functions
             void perform(const PointPtr &ptr, Cluster *from, Cluster *to); // Moves a Point from one Cluster to another
         };
 
         // Cluster constructors
-        Cluster(); // Takes an int for the amount of dimensions in Points
+        Cluster(); // Default
+        Cluster(int); // Takes an int for the amount of dimensions in Points
         Cluster(const Cluster &);  // Copy Constructor
         Cluster &operator=(const Cluster &); // Overloaded assignment operator
         ~Cluster(); // Destructor
@@ -72,6 +74,10 @@ namespace Clustering
         friend double interClusterDistance(const Cluster &, const Cluster &);
         int getClusterEdges();
 
+        // Setters
+        void setDimensions(int); // Set Point dimensions of Cluster
+        void setCentroid(const Point &); // Set Centroid of Cluster
+
         // Getters
         int getID() { return __id; } // Return Cluster ID
         int getSize() { return __size; } // Return Cluster size
@@ -81,7 +87,6 @@ namespace Clustering
 
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
-        void setCentroid(const Point &); // Set Centroid of Cluster
         void pickPoints(int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
         const Point getCentroid() { return *__centroid; } // Return Cluster Centroid
         bool centroidValidity() { return __validCentroid; }
