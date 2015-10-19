@@ -68,6 +68,7 @@ void testMove()
     c1.add(&p3);
     c2.add(&p4);
     std::cout << "c1: \n" << c1 << std::endl;
+    std::cout << "cluster edges: " << c1.getClusterEdges() << std::endl;
 
     Clustering::Cluster::Move *m1 = new Clustering::Cluster::Move(&p3, &c1, &c2);
 

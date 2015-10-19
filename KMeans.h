@@ -9,6 +9,8 @@
 #ifndef CLUSTERING_KMEANS_H
 #define CLUSTERING_KMEANS_H
 
+#include <vector>
+
 #include "Cluster.h"
 
 namespace Clustering
@@ -31,7 +33,7 @@ namespace Clustering
         ~KMeans();
 
         // Member functions
-        double computeClusteringScore(); // implement Beta-CV criterion (coefficient variation)
+        double computeClusteringScore(ClusterPtr *); // implement Beta-CV criterion (coefficient variation)
     };
 }
 

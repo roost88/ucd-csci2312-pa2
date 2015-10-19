@@ -11,7 +11,7 @@
 namespace Clustering
 {
     // Member variables
-    unsigned int Cluster::__idGenerator = 1; // Initialize Cluster ID value to 1
+    unsigned int Cluster::__idGenerator = 0; // Initialize Cluster ID value to 1
     const char Cluster::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
 
     // Cluster Constructors
@@ -39,7 +39,7 @@ namespace Clustering
     Cluster::Cluster(const Cluster &right)
     {
         // Copy all values from right into left Cluster
-        __id = right.__id;
+        __id = Cluster::__idGenerator++;;
         __size = right.__size;
         __head = deepCopy(right.__head);
         __numDimensions = right.__numDimensions;
@@ -51,7 +51,7 @@ namespace Clustering
     Cluster &Cluster::operator=(const Cluster &right)
     {
         // Copy all values from right into left and return
-        __id = right.__id;
+        __id = Cluster::__idGenerator++;;
         __size = right.__size;
         __head = deepCopy(right.__head);
         __numDimensions = right.__numDimensions;
@@ -140,39 +140,37 @@ namespace Clustering
     // Compute the Centroid of a Cluster
     void Cluster::calcCentroid()
     {
-        // Copy Cluster head
-        ListNodePtr current = __head;
+        // Copy Cluster
+        ClusterPtr c1 = new Cluster(*this);
+        ListNodePtr current = c1->getHead();
 
         // Create a new Point
-        PointPtr newCent = new Point(__numDimensions);
+        Point newCent(__numDimensions);
 
-        // Add up values of all Points
-        while (current != nullptr)
+        if (__size == 1)
         {
-            *newCent += *current->p;
-            current = current->next;
+            newCent = *current->p;
+            setCentroid(newCent);
         }
-
-        // Divide sum of Point values by size of Cluster
-        if (__size > 0)
+        else if (__size > 1)
         {
+            while (current != nullptr)
+            {
+                newCent += *current->p;
+                current = current->next;
+            }
+
             // Divide the sum of all Points by the size of the Cluster
-            *newCent /= __size;
+            newCent = newCent / getSize();
 
             // Set the Centroid
-            setCentroid(*newCent);
-        }
-        else
-        {
-            return;
+            setCentroid(newCent);
         }
     }
 
     // Set the Centroid of a Cluster
     void Cluster::setCentroid(const Point &right)
     {
-        delete __centroid;
-
         // Create a new Centroid
         PointPtr newCentroid = new Point(right);
 
@@ -387,12 +385,14 @@ namespace Clustering
                 // Iterate through list
                 current = current->next;
             }
+            // Copy current Point
+            PointPtr pt = new Point(*current->p);
+
+            // Write the Point we chose into the Centroid array
+            pointArray[i] = pt;
 
             // Increment count by the value of div
             count += div;
-
-            // Write the Point we chose into the Centroid array
-            pointArray[i] = current->p;
         }
     }
     // ******************************************
