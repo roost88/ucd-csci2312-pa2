@@ -5,7 +5,7 @@
 
 // KMeans class implementation
 
-#include <array>
+//#include <array>
 #include <cfloat>
 
 #include "KMeans.h"
@@ -13,7 +13,7 @@
 namespace Clustering
 {
     // Initialize SCORE_DIFF_THRESHOLD variable
-    const double KMeans::SCORE_DIFF_THRESHOLD = 0.7;
+    const double KMeans::SCORE_DIFF_THRESHOLD = 0.3;
 
     // Constructors
     KMeans::KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
@@ -32,8 +32,12 @@ namespace Clustering
         // Check if file opened
         if (inFile)
         {
+            std::cout << "Input file opened!" << std::endl;
+
             // Read Points from file into point_space Cluster
             inFile >> *point_space;
+
+            std::cout << point_space->getSize() << " Points read in from file!" << std::endl;
 
             // Close the file
             inFile.close();
@@ -67,10 +71,11 @@ namespace Clustering
         for (int i = 0; i < k; i++)
         {
             kClusterArray[i]->setCentroid((*centroidArray[i]));
-            std::cout << "kCluster " << (i+1) << " Centroid: " << kClusterArray[i]->getCentroid() << std::endl;
+            std::cout << "Initial kCluster " << (i+1) << " Centroid: " << kClusterArray[i]->getCentroid() << std::endl;
         }
 
         // Create variables to hold Clustering score and scoreDiff
+        int iterations = 0; // Keep track of iterations
         double score, scoreDiff;
         scoreDiff = SCORE_DIFF_THRESHOLD + 1; // Ensures we iterate at least once
 
@@ -81,7 +86,7 @@ namespace Clustering
         // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
         while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
-            std::cout << "scoreDiff: " << scoreDiff << std::endl;
+            std::cout << "\n******\nscoreDiff: " << scoreDiff << std::endl << std::endl;
 
             // Loop through all Clusters
             for (int i = 0; i < k; i++)
@@ -97,7 +102,7 @@ namespace Clustering
                     PointPtr pt = curr->p;
 
                     // Other Cluster variable
-                    ClusterPtr other;
+                    ClusterPtr other = nullptr;
 
                     // Find the smallest distance between current Point and a Centroid
                     double minDist = DBL_MAX;
@@ -135,22 +140,27 @@ namespace Clustering
                 }
             }
 
+            std::cout << std::endl;
+
             // If Centroids are invalid, recalculate Centroids for each Cluster
             for (int i = 0; i < k; i++)
             {
-                if (!kClusterArray[i]->centroidValidity())
+                if (!kClusterArray[i]->getCentroidValidity())
                 {
                     kClusterArray[i]->calcCentroid();
-                    std::cout << "*" << kClusterArray[i]->getCentroid() << std::endl;
+                    std::cout << "New kCluster " << (i+1) << " Centroid: "
+                    << kClusterArray[i]->getCentroid() << std::endl;
                 }
             }
 
             // Compute new clusteringScore
             score = computeClusteringScore(kClusterArray);
-            std::cout << "Clustering Score = " << score << std::endl;
+            std::cout << "\n******\nClustering Score = " << score << std::endl;
 
             // Compute absolute difference and set scoreDiff
             scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
+
+            iterations++;
         }
         /****************************************/
 
@@ -159,9 +169,11 @@ namespace Clustering
         // Write out the Clustering results to a file
         for (int i = 0; i < k; i++)
         {
-            std::cout << "\nkCluster " << i+1 << " (AFTER):\n" << "Size: " << kClusterArray[i]->getSize() << "\nCentroid: " << kClusterArray[i]->getCentroid() << "\n" << *kClusterArray[i];
+            std::cout << "\nkCluster " << i+1 << " (AFTER):\n" << "Size: " << kClusterArray[i]->getSize()
+            << "\nCentroid: " << kClusterArray[i]->getCentroid() << "\n" << *kClusterArray[i];
         }
 
+        std::cout << "\nIterations: " << iterations << std::endl;
         // Delete everything
         std::cout << "****************" << std::endl;
 
@@ -185,11 +197,12 @@ namespace Clustering
             delete kClusterArray[i];
         }
     }
+    // ******************************************
 
-    // Member functions
+    /* Member functions */
+    // Implement Beta-CV criterion (coefficient of variation)
     double KMeans::computeClusteringScore(ClusterPtr *clusterArray)
     {
-        // Implement Beta-CV criterion (coefficient of variation)
         double W_in = 0;
         double W_out = 0;
         double N_in = 0;
@@ -234,8 +247,6 @@ namespace Clustering
             }
         }
         N_out /= 2.0; // Divide by 2 since we calculated each twice
-
-        std::cout << "W_in: " << W_in << "\nN_in: " << N_in << "\nW_out: " << W_out << "\nN_out: " << N_out << std::endl;
 
         result = (W_in / N_in) / (W_out / N_out);
 

@@ -33,7 +33,7 @@ namespace Clustering
         int                 __size; // Keeps track of the amount of Points in the Cluster
         ListNodePtr         __head; // Points to the first node in the list
         int                 __numDimensions; // Number of dimensions of Points in Cluster
-        PointPtr            __centroid; // Pointer to mean Point in Cluster
+        Point               __centroid; // Mean center Point of Cluster
         bool                __validCentroid; // Checks if Centroid of Cluster is valid
 
     public:
@@ -42,54 +42,61 @@ namespace Clustering
         // Inner class Move - represents motion of a Point from one Cluster to another
         class Move
         {
-        private:
-            // Move members
-            PointPtr ptr; // Point that will be moved
-            Cluster  *from; // Cluster that Point will be moved from
-            Cluster *to; // Cluster that Point will be moved to
-
         public:
             // Move constructor
             Move(const PointPtr &ptr, Cluster *from, Cluster *to);
-            ~Move() { std::cout << "Move destroyed!" << std::endl; };
+            ~Move(){}
 
             // Move member functions
             void perform(const PointPtr &ptr, Cluster *from, Cluster *to); // Moves a Point from one Cluster to another
         };
 
         // Cluster constructors
-        Cluster(); // Default
-        Cluster(int); // Takes an int for the amount of dimensions in Points
-        Cluster(const Cluster &);  // Copy Constructor
-        Cluster &operator=(const Cluster &); // Overloaded assignment operator
+        // Takes an int for the amount of dimensions in Points
+        Cluster(int numDims) :
+                __id(__idGenerator++),
+                __size(0),
+                __head(nullptr),
+                __numDimensions(numDims),
+                __centroid(__numDimensions),
+                __validCentroid(false){}
+
+        // Copy constructor
+        Cluster(const Cluster &right) :
+                __id(__idGenerator++),
+                __size(right.__size),
+                __head(deepCopy(right.__head)),
+                __numDimensions(right.__numDimensions),
+                __centroid(right.__centroid),
+                __validCentroid(right.__validCentroid){}
+
+        Cluster &operator =(const Cluster &); // Overloaded assignment operator
         ~Cluster(); // Destructor
 
-        // Cluster member functions
-        ListNodePtr deepCopy(ListNodePtr); // Copy function
-
-        void add(const PointPtr &); // Add a Point to a Cluster
-        const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
-
-        double intraClusterDistance() const; // Sum of distances between Points in Cluster
-        friend double interClusterDistance(const Cluster &, const Cluster &);
-        int getClusterEdges();
-
         // Setters
-        void setDimensions(int); // Set Point dimensions of Cluster
         void setCentroid(const Point &); // Set Centroid of Cluster
 
         // Getters
         int getID() { return __id; } // Return Cluster ID
         int getSize() { return __size; } // Return Cluster size
         ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
-        ListNodePtr getNext() const { return __head->next; } // Return Cluster linked-list next address
         int getNumDimensions() { return __numDimensions; } // Return number of dimensions of Points in Cluster
+        const Point getCentroid() { return __centroid; } // Return Cluster Centroid
+        bool getCentroidValidity() { return __validCentroid; } // Return if Centroid is valid or not
+
+        // Cluster member functions
+        ListNodePtr deepCopy(ListNodePtr); // Copy function
+        void add(const PointPtr &); // Add a Point to a Cluster
+        const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
+
+        // KMeans computeClusteringScore functions
+        double intraClusterDistance() const; // Sum of distances between Points in Cluster
+        friend double interClusterDistance(const Cluster &, const Cluster &);
+        int getClusterEdges();
 
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
         void pickPoints(int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
-        const Point getCentroid() { return *__centroid; } // Return Cluster Centroid
-        bool centroidValidity() { return __validCentroid; }
 
         // Overloaded iostream operators (friends)
         friend std::ostream &operator <<(std::ostream &, const Cluster &);

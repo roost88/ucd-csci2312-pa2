@@ -8,13 +8,13 @@
 #include "Point.h"
 #include "Cluster.h"
 
-// namespace wrap
+/* namespace wrap */
 namespace Clustering
 {
-    // Member variables
+    /* Public member variables */
     const char Point::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
 
-    // Constructors
+    /* Constructors */
     Point::Point(int dimensions)
     {
         // Default to two dimensions
@@ -47,7 +47,7 @@ namespace Clustering
     }
 
     // Overloaded assignment operator
-    Point &Point::operator=(const Point &right)
+    Point &Point::operator =(const Point &right)
     {
         // If Points already equal each other, return left side
         if (this == &right)
@@ -76,49 +76,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Destructor
-    Point::~Point()
-    {
-        std::cout << "Point (" << *this;
-        // Destroy Point and delete values array
-        delete [] values;
-        std::cout << ") destroyed!" << std::endl;
-    }
-    // ******************************************
-
-    // Mutator methods
-    void Point::setValue(int element, double value) const
-    {
-        if (element >= 1 && element <= dim)
-        {
-            values[element - 1] = value;
-        }
-        else
-        {
-            // Display error message
-            std::cout << "That element does not exist in the array!" << std::endl;
-        }
-    }
-    // ******************************************
-
-    // Accessors
-    double Point::getValue(int element) const
-    {
-        if (element >= 1 && element <= dim)
-        {
-            return values[element - 1];
-        }
-        else
-        {
-            // Display error message
-            std::cout << "That element does not exist in the array!" << std::endl;
-            return 0;
-        }
-    }
-    // ******************************************
-
+    /* Member functions */
     // Calculates distance between two points
-    // Uses Pythagorean theorem
     double Point::distanceTo(const Point &p) const
     {
         // Create variables to increment
@@ -140,8 +99,39 @@ namespace Clustering
     }
     // ******************************************
 
-    // Overloaded compound assignment operators
-    Point &Point::operator*=(double d)
+    /* Setters */
+    void Point::setValue(int element, double value) const
+    {
+        if (element >= 1 && element <= dim)
+        {
+            values[element - 1] = value;
+        }
+        else
+        {
+            // Display error message
+            std::cout << "That element does not exist in the array!" << std::endl;
+        }
+    }
+    // ******************************************
+
+    /* Getters */
+    double Point::getValue(int element) const
+    {
+        if (element >= 1 && element <= dim)
+        {
+            return values[element - 1];
+        }
+        else
+        {
+            // Display error message
+            std::cout << "That element does not exist in the array!" << std::endl;
+            return 0;
+        }
+    }
+    // ******************************************
+
+    /* Overloaded compound assignment operators */
+    Point &Point::operator *=(double d)
     {
         // Loop through values of Point
         for (int i = 0; i < dim; i++)
@@ -152,7 +142,7 @@ namespace Clustering
         return *this;
     }
 
-    Point &Point::operator/=(double d)
+    Point &Point::operator /=(double d)
     {
         // Check if d == 0
         if (d != 0)
@@ -172,8 +162,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Overloaded arithmetic operators
-    const Point Point::operator*(double d) const
+    /* Overloaded arithmetic operators */
+    const Point Point::operator *(double d) const
     {
         // Copy left hand Point
         Point result = *this;
@@ -183,7 +173,7 @@ namespace Clustering
         return result;
     }
 
-    const Point Point::operator/(double d) const
+    const Point Point::operator /(double d) const
     {
         // Copy point
         Point result = *this;
@@ -194,8 +184,9 @@ namespace Clustering
     }
     // ******************************************
 
+    /* Overloaded iostream operators */
     // Overloaded insertion operator
-    std::ostream &operator<<(std::ostream &output, const Point &right)
+    std::ostream &operator <<(std::ostream &output, const Point &right)
     {
         // Output will look like: x, y, z
         // Loop through values
@@ -214,7 +205,7 @@ namespace Clustering
     }
 
     // Overloaded extraction operator
-    std::istream &operator>>(std::istream &input, Point &right)
+    std::istream &operator >>(std::istream &input, Point &right)
     {
         /* These are here in case we read directly from a file */
         // Create empty string
@@ -245,8 +236,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Overloaded compound assignment operators
-    Point &operator+=(Point &left, const Point &right)
+    /* Overloaded compound assignment operators */
+    Point &operator +=(Point &left, const Point &right)
     {
         // Loop through values and add right to left
         for (int i = 0; i < right.dim; i++)
@@ -257,7 +248,7 @@ namespace Clustering
         return left;
     }
 
-    Point &operator-=(Point &left, const Point &right)
+    Point &operator -=(Point &left, const Point &right)
     {
         // Loop through values and subtract right from left
         for (int i = 0; i < left.dim; i++)
@@ -269,8 +260,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Overloaded binary arithmetic operators
-    const Point operator+(const Point &left, const Point &right)
+    /* Overloaded binary arithmetic operators */
+    const Point operator +(const Point &left, const Point &right)
     {
         // Copy left hand Point
         Point result = left;
@@ -283,7 +274,7 @@ namespace Clustering
         return result;
     }
 
-    const Point operator-(const Point &left, const Point &right)
+    const Point operator -(const Point &left, const Point &right)
     {
         // Copy left hand Point
         Point result = left;
@@ -297,8 +288,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Overloaded relational operators (bools)
-    bool operator==(const Point &left, const Point &right)
+    /* Overloaded relational operators (bools) */
+    bool operator ==(const Point &left, const Point &right)
     {
         // Loop through values
         for (int i = 0; i < left.dim; i++)
@@ -319,13 +310,13 @@ namespace Clustering
         return true;
     }
 
-    bool operator!=(const Point &left, const Point &right)
+    bool operator !=(const Point &left, const Point &right)
     {
         // Use overloaded == operator to see if they are equal
         return !(left == right);
     }
 
-    bool operator>(const Point &left, const Point &right)
+    bool operator >(const Point &left, const Point &right)
     {
         // Loop through values
         for (int i = 0; i < left.dim; i++)
@@ -344,24 +335,25 @@ namespace Clustering
             else
             {
                 // If left value is not >= right value, return false
-                return false;
+                break;
             }
         }
+        return false;
     }
 
-    bool operator<(const Point &left, const Point &right)
+    bool operator <(const Point &left, const Point &right)
     {
         // Use overloaded > operator to compare
         return !(left > right);
     }
 
-    bool operator>=(const Point &left, const Point &right)
+    bool operator >=(const Point &left, const Point &right)
     {
         // Use overloaded > and == to compare
         return (left > right || left == right);
     }
 
-    bool operator<=(const Point &left, const Point &right)
+    bool operator <=(const Point &left, const Point &right)
     {
         // Use overloaded < and == to compare
         return (left < right || left == right);

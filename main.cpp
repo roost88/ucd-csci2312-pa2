@@ -65,8 +65,8 @@ void testMove()
     Clustering::Point p3(3); p3.setValue(1, 5); p3.setValue(2, 36); p3.setValue(3, 103);
     Clustering::Point p4(3); p4.setValue(1, 26); p4.setValue(2, 158); p4.setValue(3, 14);
 
-    Clustering::Cluster c1;
-    Clustering::Cluster c2;
+    Clustering::Cluster c1(3);
+    Clustering::Cluster c2(3);
 
     c1.add(&p3);
     c2.add(&p4);
@@ -86,7 +86,7 @@ void testFileIn()
     std::ifstream inFile;
 
     inFile.open("input.csv");
-    Clustering::Cluster c4;
+    Clustering::Cluster c4(5);
     inFile >> c4;
     inFile.close();
     std::cout << c4 << std::endl;
@@ -223,7 +223,7 @@ void testCluster()
     std::cout << "p9: " << p9 << std:: endl;
     std::cout << "p10: " << p10 << std::endl << std::endl;
 
-    Clustering::Cluster c1; // Default constructor
+    Clustering::Cluster c1(3); // Default constructor
 
     // Add Points to Cluster
     c1.add(&p3);
@@ -247,7 +247,7 @@ void testCluster()
     std::cout << "c1: " << c1 << std::endl;
     std::cout << "c1 -= p4: " << (c1 -= p4) << std::endl;
 
-    Clustering::Cluster c4;
+    Clustering::Cluster c4(3);
     c4.add(&p6);
     c4.add(&p7);
     c4.add(&p9);
@@ -283,11 +283,11 @@ void testClusterAddRemove()
 {
     Clustering::Point p1(3); p1.setValue(1, 4.2); p1.setValue(2, 54.5); p1.setValue(3, 102.1);
 
-    Clustering::Cluster *c0 = new Clustering::Cluster;
-    Clustering::Cluster *c1 = new Clustering::Cluster;
+    Clustering::Cluster *c0 = new Clustering::Cluster(3);
+    Clustering::Cluster *c1 = new Clustering::Cluster(3);
     c1->add(&p1);
 
-    Clustering::Cluster *c2 = new Clustering::Cluster;
+    Clustering::Cluster *c2 = new Clustering::Cluster(3);
     c2->add(c1->remove(&p1));
     c0->add(c1->remove(&p1));
 
@@ -295,10 +295,10 @@ void testClusterAddRemove()
     std::cout << "c2: " << *c2 << std::endl;
     std::cout << "c0: " << *c0 << std::endl;
 
-    Clustering::Cluster c3;
+    Clustering::Cluster c3(3);
     c3.add(&p1);
 
-    Clustering::Cluster c4;
+    Clustering::Cluster c4(3);
     c4.add(c3.remove(&p1));
 
     delete c1;

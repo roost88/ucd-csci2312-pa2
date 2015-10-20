@@ -13,39 +13,21 @@ namespace Clustering
     // Member variables
     unsigned int Cluster::__idGenerator = 0; // Initialize Cluster ID value to 1
     const char Cluster::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
+    // ******************************************
 
-    // Cluster Constructors
-    Cluster::Cluster()
+    // Move constructor
+    Cluster::Move::Move(const PointPtr &ptr, Cluster *from, Cluster *to)
     {
-        __id = Cluster::__idGenerator++; // Increment ID with each new Cluster
-        __size = 0; // Initialize size to 0 (empty Cluster)
-        __head = nullptr; // head doesn't point to anything yet
-        __numDimensions = 0; // There are no Points in the Cluster
-        __centroid = nullptr; // The Cluster has no Centroid
-        __validCentroid = false; // Invalid Centroid
+        perform(ptr, from, to);
     }
 
-    Cluster::Cluster(int numDims)
+    // Move member functions
+    void Cluster::Move::perform(const PointPtr &ptr, Cluster *from, Cluster *to)
     {
-        __id = Cluster::__idGenerator++; // Increment ID with each new Cluster
-        __size = 0; // Initialize size to 0 (empty Cluster)
-        __head = nullptr; // head doesn't point to anything yet
-        __numDimensions = numDims; // There are no Points in the Cluster
-        __centroid = nullptr; // The Cluster has no Centroid
-        __validCentroid = false; // Invalid Centroid
+        // Remove Point from Cluster and add to another Cluster
+        to->add(from->remove(ptr));
     }
-
-    // Cluster copy constructor
-    Cluster::Cluster(const Cluster &right)
-    {
-        // Copy all values from right into left Cluster
-        __id = Cluster::__idGenerator++;;
-        __size = right.__size;
-        __head = deepCopy(right.__head);
-        __numDimensions = right.__numDimensions;
-        __centroid = right.__centroid;
-        __validCentroid = right.__validCentroid;
-    }
+    // ******************************************
 
     // Overloaded assignment operator (Cluster)
     Cluster &Cluster::operator=(const Cluster &right)
@@ -63,8 +45,9 @@ namespace Clustering
     // Cluster destructor
     Cluster::~Cluster()
     {
-        int id = getID();
+        int id = getID(); // Get ID to show which Cluster was destroyed
 
+        // If there are Points in the Cluster
         if (__size != 0)
         {
             ListNodePtr current = __head;
@@ -76,23 +59,22 @@ namespace Clustering
     }
     // ******************************************
 
-    // Move constructor
-    Cluster::Move::Move(const PointPtr &ptr, Cluster *from, Cluster *to)
+    // Setters
+    // Set the Centroid of a Cluster
+    void Cluster::setCentroid(const Point &right)
     {
-        perform(ptr, from, to);
-    }
+        // Create a new Centroid
+        PointPtr newCentroid = new Point(right);
 
-    // Move member functions
-    void Cluster::Move::perform(const PointPtr &ptr, Cluster *from, Cluster *to)
-    {
-        // Remove Point from Cluster and add to another Cluster
-        to->add(from->remove(ptr));
-        std::cout << "Performing move!" << std::endl;
-    }
+        // Set Cluster's Centroid equal to new Centroid
+        __centroid = *newCentroid;
 
+        // Re-validate Centroid
+        __validCentroid = true;
+    }
     // ******************************************
 
-    // Cluster member functions
+    /* Cluster member functions */
     // Copy function
     ListNodePtr Cluster::deepCopy(ListNodePtr hd)
     {
@@ -137,58 +119,7 @@ namespace Clustering
         return newHd;
     }
 
-    // Compute the Centroid of a Cluster
-    void Cluster::calcCentroid()
-    {
-        // Copy Cluster
-        ClusterPtr c1 = new Cluster(*this);
-        ListNodePtr current = c1->getHead();
-
-        // Create a new Point
-        Point newCent(__numDimensions);
-
-        if (__size == 1)
-        {
-            newCent = *current->p;
-            setCentroid(newCent);
-        }
-        else if (__size > 1)
-        {
-            while (current != nullptr)
-            {
-                newCent += *current->p;
-                current = current->next;
-            }
-
-            // Divide the sum of all Points by the size of the Cluster
-            newCent = newCent / getSize();
-
-            // Set the Centroid
-            setCentroid(newCent);
-        }
-    }
-
-    // Set the Centroid of a Cluster
-    void Cluster::setCentroid(const Point &right)
-    {
-        // Create a new Centroid
-        PointPtr newCentroid = new Point(right);
-
-        // Set Cluster's Centroid equal to new Centroid
-        __centroid = newCentroid;
-
-        // Re-validate Centroid
-        __validCentroid = true;
-    }
-
-    // Set Point dimensions of Cluster
-    void Cluster::setDimensions(int numDims)
-    {
-        __numDimensions = numDims;
-    }
-
-
-    // Add Point straight to Cluster in lexicographic order
+    // Add Point to Cluster in lexicographic order
     void Cluster::add(const PointPtr &right)
     {
         if (right != nullptr)
@@ -236,20 +167,21 @@ namespace Clustering
                     newNode->next = __head;
                     __head = newNode;
                 }
-                    // Case 3 - insert somewhere after the head (linked-list not empty)
+
+                // Case 3 - insert somewhere after the head (linked-list not empty)
                 else
                 {
                     newNode->next = current;
                     previous->next = newNode;
                 }
             }
+
             // Increment size of Cluster
             __size++;
         }
     }
 
-    // Remove Point from Cluster
-    // Will return the removed Point so we can add it to another Cluster
+    // Remove Point from Cluster; returns removed Point
     const PointPtr &Cluster::remove(const PointPtr &right)
     {
         // Invalidate Centroid
@@ -297,7 +229,7 @@ namespace Clustering
                     // Isolate node to be deleted
                     __head = __head->next;
                 }
-                // Case 4 - delete from beyond head node
+                    // Case 4 - delete from beyond head node
                 else
                 {
                     previous->next = current->next;
@@ -313,11 +245,11 @@ namespace Clustering
         }
         return right;
     }
+    // ******************************************
 
+    // Inside Cluster distance between Points
     double Cluster::intraClusterDistance() const
     {
-        // Inside Cluster distance between Points
-
         double sum = 0; // Initialize sum
 
         // Double loop through linked-list of Cluster
@@ -341,10 +273,9 @@ namespace Clustering
         return sum;
     }
 
+    // Returns sum of distance between Points between all Clusters
     double interClusterDistance(const Cluster &c1, const Cluster &c2)
     {
-        // Between Clusters distance between Points
-
         // Check if Clusters equal each other
         if (c1 == c2)
         {
@@ -367,21 +298,51 @@ namespace Clustering
         return sum;
     }
 
+    // Returns the number of distinct edges in a Cluster
     int Cluster::getClusterEdges()
     {
-        // Returns the number of distinct edges in a Cluster
         // Every two distinct Points has an imaginary edge between them
         // It's length is the distance between the two Points
         int clusterSize = getSize();
         int numEdges = clusterSize * (clusterSize - 1) / 2;
         return numEdges;
     }
+    // ******************************************
 
+    // Compute the Centroid of a Cluster
+    void Cluster::calcCentroid()
+    {
+        // Copy Cluster
+        ClusterPtr c1 = new Cluster(*this);
+        ListNodePtr current = c1->getHead();
+
+        // Create a new Point
+        Point newCent(__numDimensions);
+
+        if (__size == 1)
+        {
+            newCent = *current->p;
+            setCentroid(newCent);
+        }
+        else if (__size > 1)
+        {
+            while (current != nullptr)
+            {
+                newCent += *current->p;
+                current = current->next;
+            }
+
+            // Divide the sum of all Points by the size of the Cluster
+            newCent = newCent / getSize();
+
+            // Set the Centroid
+            setCentroid(newCent);
+        }
+    }
+
+    // Pick k Points from a Cluster to use as initial Centroids for Clustering
     void Cluster::pickPoints(int k, PointPtr *pointArray)
     {
-        // Pick k Points from a Cluster to use as initial Centroids for Clustering
-        // Store k Points into an array
-
         // Divide Cluster size by how many Centroids we want
         int div = getSize() / k; // This is what we'll increment count by
         int count = 0;
@@ -438,7 +399,7 @@ namespace Clustering
         while (std::getline(input, line, '\n'))
         {
             // Count number of commas in the line
-            int num_com = (std::count(line.begin(), line.end(), Clustering::Point::POINT_VALUE_DELIM));
+            int num_com = (int)(std::count(line.begin(), line.end(), Clustering::Point::POINT_VALUE_DELIM));
 
             // Add one to number of commas to use as Point dimensions
             num_com += 1;
