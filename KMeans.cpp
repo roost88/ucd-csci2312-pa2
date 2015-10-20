@@ -13,15 +13,12 @@
 namespace Clustering
 {
     // Initialize SCORE_DIFF_THRESHOLD variable
-    const double KMeans::SCORE_DIFF_THRESHOLD = 0.3;
+    const double KMeans::SCORE_DIFF_THRESHOLD = 0.3; // Must be less than 1.0 and greater than 0
 
     // Constructors
     KMeans::KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
     {
         /* Setup and Initialization */
-
-        // Assign k
-        k = numClusters;
 
         // Create a new Cluster to hold all Points, set numDimensions = k
         point_space = new Cluster(numDims);
@@ -46,7 +43,18 @@ namespace Clustering
         else
         {
             // Display error message and exit
-            std::cout << "File did not open!" << std::endl;
+            std::cout << "Input file did not open!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        // Assign k; k cannot be greater than the number of Points read in
+        if (numClusters <= point_space->getSize())
+        {
+            k = numClusters;
+        }
+        else
+        {
+            std::cout << "k cannot be greater than the number of Points read in!" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -160,23 +168,39 @@ namespace Clustering
             // Compute absolute difference and set scoreDiff
             scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
 
-            iterations++;
+            iterations++; // Increment iterations
         }
         /****************************************/
 
-        /* Write results to file and self-destruct */
-
-        // Write out the Clustering results to a file
+        /* Output results to terminal */
         for (int i = 0; i < k; i++)
         {
             std::cout << "\nkCluster " << i+1 << " (AFTER):\n" << "Size: " << kClusterArray[i]->getSize()
             << "\nCentroid: " << kClusterArray[i]->getCentroid() << "\n" << *kClusterArray[i];
         }
-
         std::cout << "\nIterations: " << iterations << std::endl;
-        // Delete everything
-        std::cout << "****************" << std::endl;
 
+        /* Write results to file */
+        // Write out the Clustering results to a file
+        std::ofstream outFile(outputFile); // Open output file
+
+        if (outFile)
+        {
+            std::cout << "Output file opened!" << std::endl;
+
+            // Loop through cluster array and output to file
+            for (int i = 0; i < k; i++)
+            {
+                outFile << *kClusterArray[i] << std::endl;
+            }
+        }
+        else
+        {
+            // Display error message and exit
+            std::cout << "Output file did not open!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        /****************************************/
     }
 
     // Destructor
