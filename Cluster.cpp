@@ -326,7 +326,14 @@ namespace Clustering
             for (ListNodePtr nxt = __head; nxt != nullptr; nxt = nxt->next)
             {
                 // Calculate distance between Points and add to sum
-                sum += curr->p->distanceTo(*nxt->p);
+                if (curr->p == nxt->p)
+                {
+                    sum += 0;
+                }
+                else
+                {
+                    sum += curr->p->distanceTo(*nxt->p);
+                }
             }
         }
         // Divide sum by two since we looped through twice and return
@@ -337,6 +344,12 @@ namespace Clustering
     double interClusterDistance(const Cluster &c1, const Cluster &c2)
     {
         // Between Clusters distance between Points
+
+        // Check if Clusters equal each other
+        if (c1 == c2)
+        {
+            return 0;
+        }
 
         double sum = 0; // Initialize sum
 

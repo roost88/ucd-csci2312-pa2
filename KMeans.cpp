@@ -13,7 +13,7 @@
 namespace Clustering
 {
     // Initialize SCORE_DIFF_THRESHOLD variable
-    const double KMeans::SCORE_DIFF_THRESHOLD = 20;
+    const double KMeans::SCORE_DIFF_THRESHOLD = 0.7;
 
     // Constructors
     KMeans::KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
@@ -81,6 +81,8 @@ namespace Clustering
         // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
         while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
+            std::cout << "scoreDiff: " << scoreDiff << std::endl;
+
             // Loop through all Clusters
             for (int i = 0; i < k; i++)
             {
@@ -131,15 +133,15 @@ namespace Clustering
                     }
                     curr = curr->next;
                 }
+            }
 
-                // If Centroids are invalid, recalculate Centroids for each Cluster
-                for (int i = 0; i < k; i++)
+            // If Centroids are invalid, recalculate Centroids for each Cluster
+            for (int i = 0; i < k; i++)
+            {
+                if (!kClusterArray[i]->centroidValidity())
                 {
-                    if (!kClusterArray[i]->centroidValidity())
-                    {
-                        kClusterArray[i]->calcCentroid();
-                        std::cout << "*" << kClusterArray[i]->getCentroid() << std::endl;
-                    }
+                    kClusterArray[i]->calcCentroid();
+                    std::cout << "*" << kClusterArray[i]->getCentroid() << std::endl;
                 }
             }
 
@@ -148,8 +150,7 @@ namespace Clustering
             std::cout << "Clustering Score = " << score << std::endl;
 
             // Compute absolute difference and set scoreDiff
-            scoreDiff = fabs(scoreDiff - score);
-//            scoreDiff--;
+            scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
         }
         /****************************************/
 
@@ -189,52 +190,54 @@ namespace Clustering
     double KMeans::computeClusteringScore(ClusterPtr *clusterArray)
     {
         // Implement Beta-CV criterion (coefficient of variation)
-        // Ratio of mean intra-cluster distance and mean inter-cluster distance
-        // The smaller, the better
-        // Use:
-//         intraClusterDistance();
-//         interClusterDistance(const Cluster &c1, const Cluster &c2);
-//         getClusterEdges();
+        double W_in = 0;
+        double W_out = 0;
+        double N_in = 0;
+        double N_out = 0;
+        double result = 0;
 
-        double numer = 0;
-        double denom = 0;
-        double temp, result;
-
-        // Calculate intraCluster distance for each Cluster and add to numer
+        // Calculate W_in: sum of intraCluster distances
         for (int i = 0; i < k; i++)
         {
-            numer += clusterArray[i]->intraClusterDistance();
-            std::cout << "numer+= " << numer << std::endl;
-            temp = clusterArray[i]->getClusterEdges();
-            std::cout << "temp = " << temp << std::endl;
-
-            if (temp > 0)
-            {
-                numer /= temp;
-                std::cout << "numer /= temp: " << numer << std::endl;
-            }
+            W_in += clusterArray[i]->intraClusterDistance();
         }
-        std::cout << "numer final: " << numer << std::endl;
 
-        // Calculate interCluster distance between each Cluster and add to denom
+        // Calculate W_out: sum of interCluster distances
         for (int i = 0; i < k; i++)
         {
             for (int j = 0; j < k; j++)
             {
-                denom += interClusterDistance(*clusterArray[i], *clusterArray[j]);
-                std::cout << "denom += " << denom << std::endl;
+                W_out += interClusterDistance(*clusterArray[i], *clusterArray[j]);
             }
         }
+        W_out /= 2.0; // Divide by 2 since we calculated each twice
 
-        // Divide denom by 2 since we calculated it twice
-        denom /= 2.0;
-        std::cout << "denom /= 2: " << denom << std::endl;
+        // Calculate N_in: number of distinct intraCluster edges
+        for (int i = 0; i < k; i++)
+        {
+            N_in += clusterArray[i]->getClusterEdges();
+        }
 
-        // Divide denom by number of k Clusters to get mean
-        denom /= k;
-        std::cout << "denom /= k: " << denom << std::endl;
+        // Calculate N_out: number of distinct interCluster edges
+        for (int i = 0; i < k; i++)
+        {
+            for (int j = 0; j < k; j++)
+            {
+                if (i == j)
+                {
+                    N_out += 0;
+                }
+                else
+                {
+                    N_out += (clusterArray[i]->getSize() * clusterArray[j]->getSize());
+                }
+            }
+        }
+        N_out /= 2.0; // Divide by 2 since we calculated each twice
 
-        result = numer / denom;
+        std::cout << "W_in: " << W_in << "\nN_in: " << N_in << "\nW_out: " << W_out << "\nN_out: " << N_out << std::endl;
+
+        result = (W_in / N_in) / (W_out / N_out);
 
         return result;
     }

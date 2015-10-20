@@ -9,8 +9,6 @@
 #ifndef CLUSTERING_KMEANS_H
 #define CLUSTERING_KMEANS_H
 
-#include <vector>
-
 #include "Cluster.h"
 
 namespace Clustering

@@ -34,9 +34,12 @@ int main()
 // Function definitions
 void testKMeans()
 {
+    int numDims = 5;
+    int k = 4;
     std::string input = "input.csv";
     std::string output = "output.csv";
-    Clustering::KMeans(5, 4, input, output);
+
+    Clustering::KMeans(numDims, k, input, output);
 }
 
 void testCalcSetCentroid()
