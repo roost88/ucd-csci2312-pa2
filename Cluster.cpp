@@ -1,7 +1,7 @@
 // Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        6 October 2015
+// Date:        20 October 2015
 
 // Cluster class implementation
 
@@ -16,13 +16,13 @@ namespace Clustering
     // ******************************************
 
     // Move constructor
-    Cluster::Move::Move(const PointPtr &ptr, Cluster *from, Cluster *to)
+    Cluster::Move::Move(const PointPtr &ptr, ClusterPtr from, ClusterPtr to)
     {
         perform(ptr, from, to);
     }
 
     // Move member functions
-    void Cluster::Move::perform(const PointPtr &ptr, Cluster *from, Cluster *to)
+    void Cluster::Move::perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to)
     {
         // Remove Point from Cluster and add to another Cluster
         to->add(from->remove(ptr));
@@ -30,10 +30,10 @@ namespace Clustering
     // ******************************************
 
     // Overloaded assignment operator (Cluster)
-    Cluster &Cluster::operator=(const Cluster &right)
+    Cluster &Cluster::operator =(const Cluster &right)
     {
         // Copy all values from right into left and return
-        __id = Cluster::__idGenerator++;;
+        __id = __idGenerator++;;
         __size = right.__size;
         __head = deepCopy(right.__head);
         __numDimensions = right.__numDimensions;
@@ -152,6 +152,8 @@ namespace Clustering
                     }
                     else if (*current->p == *newNode->p)
                     {
+                        std::cout << "Point " << *right << " already exists in Cluster " << getID() << "!"
+                        << std::endl;
                         return;
                     }
                     else
@@ -178,6 +180,8 @@ namespace Clustering
 
             // Increment size of Cluster
             __size++;
+
+            std::cout << "Point " << *right << " added to Cluster " << getID() << "!" << std::endl;
         }
     }
 
@@ -218,7 +222,7 @@ namespace Clustering
             // Case 2 - Point not found in Cluster linked list
             if (current == nullptr)
             {
-                std::cout << "Point " << *right << " was not found in the Cluster!" << std::endl;
+                std::cout << "Point " << *right << " was not found in Cluster " << getID() << "!" << std::endl;
                 return nullptr;
             }
             else
@@ -240,7 +244,7 @@ namespace Clustering
                 // Decrement size
                 __size--;
 
-                std::cout << "Point " << *right << " successfully removed!" << std::endl;
+                std::cout << "Point " << *right << " removed from Cluster " << getID() << "!" << std::endl;
             }
         }
         return right;
@@ -285,9 +289,9 @@ namespace Clustering
         double sum = 0; // Initialize sum
 
         // Loop through linked-lists of both Clusters
-        for (ListNodePtr right = c1.__head; right != nullptr; right = right->next)
+        for (ListNodePtr right = c1.getHead(); right != nullptr; right = right->next)
         {
-            for (ListNodePtr left = c2.__head; left != nullptr; left = left->next)
+            for (ListNodePtr left = c2.getHead(); left != nullptr; left = left->next)
             {
                 // Calculate distance between Points and add to sum
                 sum += right->p->distanceTo(*left->p);
@@ -302,10 +306,22 @@ namespace Clustering
     int Cluster::getClusterEdges()
     {
         // Every two distinct Points has an imaginary edge between them
-        // It's length is the distance between the two Points
         int clusterSize = getSize();
-        int numEdges = clusterSize * (clusterSize - 1) / 2;
-        return numEdges;
+        int result = clusterSize * (clusterSize - 1) / 2;
+        return result;
+    }
+
+    // Returns the number of distinct edges between Clusters
+    int interClusterEdges(const Cluster &c1, const Cluster &c2)
+    {
+        if (c1 == c2)
+        {
+            return 0;
+        }
+        int size1 = c1.__size;
+        int size2 = c2.__size;
+        int result = size1 * size2;
+        return result;
     }
     // ******************************************
 
@@ -319,13 +335,16 @@ namespace Clustering
         // Create a new Point
         Point newCent(__numDimensions);
 
+        // If there's only one Point in the Cluster
         if (__size == 1)
         {
+            // The Centroid equals the Point
             newCent = *current->p;
             setCentroid(newCent);
         }
         else if (__size > 1)
         {
+            // Sum of all Points in the Cluster
             while (current != nullptr)
             {
                 newCent += *current->p;
@@ -344,13 +363,14 @@ namespace Clustering
     void Cluster::pickPoints(int k, PointPtr *pointArray)
     {
         // Divide Cluster size by how many Centroids we want
+        // TODO: Divide by zero exception
         int div = getSize() / k; // This is what we'll increment count by
         int count = 0;
 
         // Iterate k times to get k Centroids
         for (int i = 0; i < k; i++)
         {
-            // Set current to the beginning of the lis
+            // Set current to the beginning of the list
             ListNodePtr current = __head;
 
             // Use count to iterate through the list to find the Point we want
@@ -373,7 +393,7 @@ namespace Clustering
 
     // Overloaded iostream operators
     // Allow us to output an entire Cluster
-    std::ostream &operator<<(std::ostream &out, const Cluster &right)
+    std::ostream &operator <<(std::ostream &out, const Cluster &right)
     {
         // Output will look like: x, y, z : [Cluster ID]
 
@@ -390,8 +410,9 @@ namespace Clustering
     }
 
     // Allow us to input an entire Cluster
-    std::istream &operator>>(std::istream &input, Cluster &right)
+    std::istream &operator >>(std::istream &input, Cluster &right)
     {
+        // TODO: check for proper input formatting (x,y,z,,)
         // Create a new string to read into
         std::string line;
 
@@ -425,7 +446,7 @@ namespace Clustering
     // ******************************************
 
     // Overloaded assignment operator (friend)
-    bool operator==(const Cluster &left, const Cluster &right)
+    bool operator ==(const Cluster &left, const Cluster &right)
     {
         // Check sizes and heads of Clusters first
         if (left.__size != right.__size || left.__head != right.__head)
@@ -466,7 +487,7 @@ namespace Clustering
 
     // Overloaded compound assignment operators (members)
     // Combines two Clusters into one (union)
-    Cluster &Cluster::operator+=(const Cluster &right)
+    Cluster &Cluster::operator +=(const Cluster &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
@@ -477,7 +498,7 @@ namespace Clustering
     }
 
     // Subtracts one Cluster from referenced Cluster
-    Cluster &Cluster::operator-=(const Cluster &right)
+    Cluster &Cluster::operator -=(const Cluster &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
@@ -488,7 +509,7 @@ namespace Clustering
     }
 
     // Add a Point to referenced Cluster
-    Cluster &Cluster::operator+=(const Point &right)
+    Cluster &Cluster::operator +=(const Point &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
@@ -524,7 +545,7 @@ namespace Clustering
     }
 
     // Remove a Point from referenced Cluster
-    Cluster &Cluster::operator-=(const Point &right)
+    Cluster &Cluster::operator -=(const Point &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
@@ -562,7 +583,7 @@ namespace Clustering
 
     // Overloaded binary arithmetic operators (friends)
     // Add two Clusters together
-    const Cluster operator+(const Cluster &left, const Cluster &right)
+    const Cluster operator +(const Cluster &left, const Cluster &right)
     {
         // Create a new Cluster that is equal to left-hand Cluster
         Cluster *newLeft = new Cluster(left);
@@ -584,7 +605,7 @@ namespace Clustering
     }
 
     // Subtract one Cluster from another
-    const Cluster operator-(const Cluster &left, const Cluster &right)
+    const Cluster operator -(const Cluster &left, const Cluster &right)
     {
         // Create a new Cluster that is equal to left-hand Cluster
         Cluster *newLeft = new Cluster(left);
@@ -608,7 +629,7 @@ namespace Clustering
     }
 
     // Add a Point to a Cluster
-    const Cluster operator+(const Cluster &left, const PointPtr &right)
+    const Cluster operator +(const Cluster &left, const PointPtr &right)
     {
         // Copy Cluster
         Cluster *newCluster = new Cluster(left);
@@ -626,7 +647,7 @@ namespace Clustering
     }
 
     // Subtract a Point from a Cluster
-    const Cluster operator-(const Cluster &left, const PointPtr &right)
+    const Cluster operator -(const Cluster &left, const PointPtr &right)
     {
         // Copy Cluster
         Cluster *newCluster = new Cluster(left);

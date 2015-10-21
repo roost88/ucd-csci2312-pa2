@@ -1,8 +1,8 @@
 ##CSCI 2312: Programming Assignment 3
 
-**Point Cluster Program**
+**KMeans Clustering**
 * Author:     Dylan Lang
-* Date:       6 October 2015
+* Date:       20 October 2015
 
 **System Info -**
 * Operating System:   Windows 8.1 64-bit
@@ -21,18 +21,19 @@
 * Point.h       - Point function declaration/header file
 * Cluster.cpp   - Cluster implementation file
 * Cluster.h     - Cluster function declaration/header file
+* KMeans.cpp    - KMeans implementation file
+* KMeans.h      - KMeans function declaration/header file
 * readme.md
 
 ####Purpose
 The purpose of this program is use a KMeans Clustering algorithm to separate Points input from a file into several
 Clusters.
 Each Cluster will contain a Centroid (center Point which is the mean average of all the Points in the Cluster).
-Points will be assigned to the Cluster whose Centroid is within the closes distance to it.
+Points will be assigned to the Cluster whose Centroid is closest to it.
 
 ####Design
 _Point Class -_
-* Points can contain an arbitrary number of dimensions (i.e. Point p4 can have dimensions 1, 2, and 3, while Point p6
-can have dimensions 4, 5, 6, 7, and 8, and so on).
+* Points can contain an arbitrary number of dimensions.
 * Point dimensions are stored in an array call "values".
 * Points are allowed full functionality of the program by overloading arithmetic, assignment, comparison, and insertion
 operators that work with other Points, as well as integers (i.e. Points can be divided by 2, multiplied by 5, and
@@ -66,12 +67,10 @@ Clustering algorithm.
 will be used to break the Clustering algorithm loop.
 * Contains method for computing Clustering score each time Clustering algorithm is run. This is used as an iterator for
 the Clustering algorithm.
-* To use KMeans, the constructor takes an int value for the number of dimensions for the Points in the file. This
-should be set to match the number of dimensions of the majority of Points in the file.
+* To use KMeans, the constructor takes an int value for the number of dimensions for the Points in the file.
 * The constructor also takes an int for "k", which is how many Clusters you want the program to use for the output.
 * The constructor also takes strings for the name of the input file, and the name of the output file.
 
-* What does it do?
 * Opens an input file and reads Points from file into a Cluster called "point_space"
 * Picks k initial Centroids evenly from throughout point_space and stores them in a Centroid array
 * Creates an array of k Clusters for use in Clustering algorithm. Each of these Clusters is assigned a unique Centroid
@@ -102,7 +101,11 @@ Cluster constructor definitions have been moved from Cluster.cpp to Cluster.h
 
 Cluster destructor fixed.
 
-The "k" value in the KMeans constructor cannot be greater than the number of Points being read in from file.
+The numDims variable in the KMeans constructor should match the dimensions of the Points you intend to read in
+from the input file.
+
+The "k" value in the KMeans constructor should be greater than 0 and cannot be greater than the number of Points
+being read in from file.
 
 SCORE_DIFF_THRESHOLD in Cluster.cpp must be set to a double that is less than 1.0 and greater than 0.
 Best value found so far is 0.3.

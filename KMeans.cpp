@@ -1,12 +1,11 @@
 // Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        6 October 2015
+// Date:        20 October 2015
 
 // KMeans class implementation
 
-//#include <array>
-#include <cfloat>
+#include <cfloat> // for DBL_MAX
 
 #include "KMeans.h"
 
@@ -29,12 +28,13 @@ namespace Clustering
         // Check if file opened
         if (inFile)
         {
-            std::cout << "Input file opened!" << std::endl;
+            std::cout << "\nInput file opened!" << std::endl;
+            std::cout << "Reading Points from input file into point_space..." << std::endl;
 
             // Read Points from file into point_space Cluster
             inFile >> *point_space;
 
-            std::cout << point_space->getSize() << " Points read in from file!" << std::endl;
+            std::cout << "\n" << point_space->getSize() << " Points read in from file!" << std::endl;
 
             // Close the file
             inFile.close();
@@ -62,6 +62,7 @@ namespace Clustering
         Clustering::PointPtr *centroidArray = new Clustering::PointPtr[k];
 
         // Pick Centroids from Cluster
+        std::cout << "Picking Points to use as Centroids..." << std::endl;
         point_space->pickPoints(k, centroidArray);
 
         // Create dynamic array of k ClusterPtrs
@@ -90,12 +91,10 @@ namespace Clustering
         /****************************************/
 
         /* Perform Clustering */
-
+        std::cout << "\nRunning Clustering algorithm..." << std::endl << std::endl;
         // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
         while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
-            std::cout << "\n******\nscoreDiff: " << scoreDiff << std::endl << std::endl;
-
             // Loop through all Clusters
             for (int i = 0; i < k; i++)
             {
@@ -151,19 +150,17 @@ namespace Clustering
             std::cout << std::endl;
 
             // If Centroids are invalid, recalculate Centroids for each Cluster
+            std::cout << "Recalculating Centroids..." << std::endl;
             for (int i = 0; i < k; i++)
             {
                 if (!kClusterArray[i]->getCentroidValidity())
                 {
                     kClusterArray[i]->calcCentroid();
-                    std::cout << "New kCluster " << (i+1) << " Centroid: "
-                    << kClusterArray[i]->getCentroid() << std::endl;
                 }
             }
 
             // Compute new clusteringScore
             score = computeClusteringScore(kClusterArray);
-            std::cout << "\n******\nClustering Score = " << score << std::endl;
 
             // Compute absolute difference and set scoreDiff
             scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
@@ -172,13 +169,14 @@ namespace Clustering
         }
         /****************************************/
 
-        /* Output results to terminal */
+        /* Output results to console */
+        std::cout << "\nClustering took " << iterations << " iterations to complete!" << std::endl;
+
         for (int i = 0; i < k; i++)
         {
-            std::cout << "\nkCluster " << i+1 << " (AFTER):\n" << "Size: " << kClusterArray[i]->getSize()
-            << "\nCentroid: " << kClusterArray[i]->getCentroid() << "\n" << *kClusterArray[i];
+            std::cout << "\nkCluster " << i+1 << " (FINAL):\n"
+            << "Centroid: " << kClusterArray[i]->getCentroid() << "\n" << *kClusterArray[i];
         }
-        std::cout << "\nIterations: " << iterations << std::endl;
 
         /* Write results to file */
         // Write out the Clustering results to a file
@@ -186,13 +184,16 @@ namespace Clustering
 
         if (outFile)
         {
-            std::cout << "Output file opened!" << std::endl;
+            std::cout << "\nOutput file opened!" << std::endl;
+            std::cout << "Writing data to output file..." << std::endl;
 
             // Loop through cluster array and output to file
             for (int i = 0; i < k; i++)
             {
                 outFile << *kClusterArray[i] << std::endl;
             }
+
+            std::cout << "Output successfully written to file!" << std::endl;
         }
         else
         {
@@ -200,6 +201,20 @@ namespace Clustering
             std::cout << "Output file did not open!" << std::endl;
             exit(EXIT_FAILURE);
         }
+
+        /* Cleanup */
+        // All Clusters and Points are destroyed by KMeans destructor
+        // Destroy centroidArray
+        std::cout << "\nPerforming cleanup..." << std::endl;
+
+        for (int i = 0; i < k; i++)
+        {
+            delete centroidArray[i];
+        }
+
+        delete [] centroidArray;
+
+        std::cout << "Centroid array destroyed!" << std::endl;
         /****************************************/
     }
 
@@ -240,14 +255,13 @@ namespace Clustering
         }
 
         // Calculate W_out: sum of interCluster distances
-        for (int i = 0; i < k; i++)
+        for (int i = 0; i < (k-1); i++)
         {
-            for (int j = 0; j < k; j++)
+            for (int j = i+1; j < k; j++)
             {
                 W_out += interClusterDistance(*clusterArray[i], *clusterArray[j]);
             }
         }
-        W_out /= 2.0; // Divide by 2 since we calculated each twice
 
         // Calculate N_in: number of distinct intraCluster edges
         for (int i = 0; i < k; i++)
@@ -256,21 +270,13 @@ namespace Clustering
         }
 
         // Calculate N_out: number of distinct interCluster edges
-        for (int i = 0; i < k; i++)
+        for (int i = 0; i < (k-1); i++)
         {
-            for (int j = 0; j < k; j++)
+            for (int j = i+1; j < k; j++)
             {
-                if (i == j)
-                {
-                    N_out += 0;
-                }
-                else
-                {
-                    N_out += (clusterArray[i]->getSize() * clusterArray[j]->getSize());
-                }
+                N_out += interClusterEdges(*kClusterArray[i], *kClusterArray[j]);
             }
         }
-        N_out /= 2.0; // Divide by 2 since we calculated each twice
 
         result = (W_in / N_in) / (W_out / N_out);
 

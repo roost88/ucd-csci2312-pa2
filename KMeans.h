@@ -1,7 +1,7 @@
 // Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        6 October 2015
+// Date:        20 October 2015
 
 // KMeans Class header file
 
@@ -13,8 +13,6 @@
 
 namespace Clustering
 {
-    typedef Cluster *ClusterPtr;
-
     class KMeans
     {
     private:

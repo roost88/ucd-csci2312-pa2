@@ -1,7 +1,7 @@
 // Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        6 October 2015
+// Date:        20 October 2015
 
 // Point class implementation
 
@@ -207,6 +207,7 @@ namespace Clustering
     // Overloaded extraction operator
     std::istream &operator >>(std::istream &input, Point &right)
     {
+        // TODO: check for proper input formatting (x,y,z,,)
         /* These are here in case we read directly from a file */
         // Create empty string
         std::string line;

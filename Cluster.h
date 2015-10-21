@@ -1,7 +1,7 @@
 // Programming Assignment 3 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        6 October 2015
+// Date:        20 October 2015
 
 // Cluster class header file
 
@@ -44,11 +44,11 @@ namespace Clustering
         {
         public:
             // Move constructor
-            Move(const PointPtr &ptr, Cluster *from, Cluster *to);
+            Move(const PointPtr &ptr, ClusterPtr from, ClusterPtr to);
             ~Move(){}
 
             // Move member functions
-            void perform(const PointPtr &ptr, Cluster *from, Cluster *to); // Moves a Point from one Cluster to another
+            void perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to); // Moves a Point from one Cluster to another
         };
 
         // Cluster constructors
@@ -91,8 +91,9 @@ namespace Clustering
 
         // KMeans computeClusteringScore functions
         double intraClusterDistance() const; // Sum of distances between Points in Cluster
-        friend double interClusterDistance(const Cluster &, const Cluster &);
-        int getClusterEdges();
+        friend double interClusterDistance(const Cluster &, const Cluster &); // Dist between Points between Clusters
+        int getClusterEdges(); // Number of unique "edges" between Points in a Cluster
+        friend int interClusterEdges(const Cluster &, const Cluster &); // Num of edges between Points between Clusters
 
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
