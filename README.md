@@ -61,15 +61,17 @@ Cluster).
 and the unique "edges" between each Point in a Cluster.
 
 _KMeans Class -_
+* KMeans constructor takes the following parameters (in order):
+- An int for the number of dimensions of the Points being read in from file
+- An int to represent k, which is the amount of Clusters you want in the output
+- An input file name in a string
+- An output file name in a string
 * Contains private member variables for storing "k", all Points read in from file, and an array of Clusters used in
 Clustering algorithm.
 * Contains public static constant double member variable SCORE_DIFF_THRESHOLD that contains the initial double that
-will be used to break the Clustering algorithm loop.
+will be used to break the Clustering algorithm loop (currently set to 0.3).
 * Contains method for computing Clustering score each time Clustering algorithm is run. This is used as an iterator for
 the Clustering algorithm.
-* To use KMeans, the constructor takes an int value for the number of dimensions for the Points in the file.
-* The constructor also takes an int for "k", which is how many Clusters you want the program to use for the output.
-* The constructor also takes strings for the name of the input file, and the name of the output file.
 
 * Opens an input file and reads Points from file into a Cluster called "point_space"
 * Picks k initial Centroids evenly from throughout point_space and stores them in a Centroid array
