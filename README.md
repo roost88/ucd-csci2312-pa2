@@ -1,8 +1,8 @@
-##CSCI 2312: Programming Assignment 3
+##CSCI 2312: Programming Assignment 4
 
 **KMeans Clustering**
 * Author:     Dylan Lang
-* Date:       20 October 2015
+* Date:       28 October 2015
 
 **System Info -**
 * Operating System:   Windows 8.1 64-bit

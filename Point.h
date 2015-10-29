@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // Point class header file
 
@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <vector>
 
 /* namespace wrap */
 namespace Clustering
@@ -24,8 +25,11 @@ namespace Clustering
     class Point
     {
     private:
-        int     dim; // Point dimensions variable
-        double  *values; // Point values array
+        unsigned int        __id; // Unique Point ID
+        static unsigned int __idGenerator; // Used to increment ID number
+        int                 __dim; // Point dimensions variable
+        // TODO: Make __values an std::vector<double>
+        double *            __values; // Point values array
 
     public:
         /* Public member variables */
@@ -35,7 +39,7 @@ namespace Clustering
         Point(int);
         Point(const Point &); // Copy constructor
         Point &operator=(const Point &); // Overloaded assignment operator
-        ~Point() { delete [] values; }; // Destructor
+        ~Point() { delete [] __values; } // Destructor
 
         /* Member functions */
         double distanceTo(const Point &) const; // Calculates distance between two points
@@ -44,7 +48,8 @@ namespace Clustering
         void setValue(int, double) const; // Set value of Point
 
         /* Getters */
-        int getDim() const { return dim; }; // Return dimensions of Point
+        unsigned int getID() const { return __id; }
+        int getDim() const { return __dim; } // Return dimensions of Point
         double getValue(int) const; // Return value in Point array
 
         /* Overloaded operators dimension-wise (members) */
@@ -54,7 +59,7 @@ namespace Clustering
         const Point operator /(double) const;
 
         /* Overloaded array operator */
-        double &operator[](int index) { return values[index - 1]; }
+        double &operator[](int index) { return __values[index - 1]; }
 
         /* Overloaded insertion/extraction operators (friends) */
         friend std::ostream &operator <<(std::ostream &, const Point &);

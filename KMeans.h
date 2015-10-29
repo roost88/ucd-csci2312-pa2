@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // KMeans Class header file
 
@@ -16,6 +16,7 @@ namespace Clustering
     class KMeans
     {
     private:
+        // TODO: add __ before each variable
         int k;
         ClusterPtr point_space; // Pointer to initial Cluster that holds all Points
         ClusterPtr *kClusterArray; // Pointer to array of ClusterPtrs

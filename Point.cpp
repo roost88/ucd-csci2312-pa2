@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // Point class implementation
 
@@ -12,11 +12,15 @@
 namespace Clustering
 {
     /* Public member variables */
+    unsigned int Point::__idGenerator = 1; // Initialize Point ID value to 1
     const char Point::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
 
     /* Constructors */
     Point::Point(int dimensions)
     {
+        // TODO: Throw DimensionalityMismatchEx exception
+        __id = __idGenerator++;
+
         // Default to two dimensions
         if (dimensions == 0)
         {
@@ -24,25 +28,27 @@ namespace Clustering
         }
 
         // Set dimensions of Point
-        dim = dimensions;
+        __dim = dimensions;
 
-        // Create new values array
-        values = new double[dim];
+        // Create new __values array
+        __values = new double[__dim];
     }
 
     // Copy constructor
     Point::Point(const Point &right)
     {
+        __id = right.getID();
+
         // Set dimensions
-        dim = right.dim;
+        __dim = right.getDim();
 
-        // Create values array for left side
-        values = new double[dim];
+        // Create __values array for left side
+        __values = new double[__dim];
 
-        // Loop to copy values from right into left
-        for (int i = 0; i < dim; i++)
+        // Loop to copy __values from right into left
+        for (int i = 0; i < __dim; i++)
         {
-            values[i] = right.values[i];
+            __values[i] = right.__values[i];
         }
     }
 
@@ -54,22 +60,24 @@ namespace Clustering
         {
             return *this;
         }
-        // If they don't, reset values array
+        // If they don't, reset __values array
         else
         {
-            // Delete old values
-            delete [] values;
+            __id = right.getID();
+
+            // Delete old __values
+            delete [] __values;
 
             // Set dimensions
-            dim = right.dim;
+            __dim = right.getDim();
 
-            // Create new values array
-            values = new double[dim];
+            // Create new __values array
+            __values = new double[__dim];
 
-            // Loop to copy values from right into left
-            for (int i = 0; i < dim; i++)
+            // Loop to copy __values from right into left
+            for (int i = 0; i < __dim; i++)
             {
-                values[i] = right.values[i];
+                __values[i] = right.__values[i];
             }
             return *this;
         }
@@ -84,11 +92,11 @@ namespace Clustering
         double sum = 0;
         double distance = 0;
 
-        // Loop through values
-        for (int i = 0; i < dim; i++)
+        // Loop through __values
+        for (int i = 0; i < __dim; i++)
         {
-            // Compute difference between values
-            double diff = values[i] - p.values[i];
+            // Compute difference between __values
+            double diff = __values[i] - p.__values[i];
 
             // Add square to difference to sum (will be a positive number)
             sum += diff * diff;
@@ -102,9 +110,9 @@ namespace Clustering
     /* Setters */
     void Point::setValue(int element, double value) const
     {
-        if (element >= 1 && element <= dim)
+        if (element >= 1 && element <= __dim)
         {
-            values[element - 1] = value;
+            __values[element - 1] = value;
         }
         else
         {
@@ -117,9 +125,9 @@ namespace Clustering
     /* Getters */
     double Point::getValue(int element) const
     {
-        if (element >= 1 && element <= dim)
+        if (element >= 1 && element <= __dim)
         {
-            return values[element - 1];
+            return __values[element - 1];
         }
         else
         {
@@ -133,11 +141,11 @@ namespace Clustering
     /* Overloaded compound assignment operators */
     Point &Point::operator *=(double d)
     {
-        // Loop through values of Point
-        for (int i = 0; i < dim; i++)
+        // Loop through __values of Point
+        for (int i = 0; i < __dim; i++)
         {
-            // Multiply values by d
-            values[i] *= d;
+            // Multiply __values by d
+            __values[i] *= d;
         }
         return *this;
     }
@@ -147,10 +155,10 @@ namespace Clustering
         // Check if d == 0
         if (d != 0)
         {
-            // Loop through values and divide by d
-            for (int i = 0; i < dim; i++)
+            // Loop through __values and divide by d
+            for (int i = 0; i < __dim; i++)
             {
-                values[i] /= d;
+                __values[i] /= d;
             }
         }
         else
@@ -189,14 +197,14 @@ namespace Clustering
     std::ostream &operator <<(std::ostream &output, const Point &right)
     {
         // Output will look like: x, y, z
-        // Loop through values
-        for (int i = 0; i < right.dim; i++)
+        // Loop through __values
+        for (int i = 0; i < right.getDim(); i++)
         {
-            // Output Point values to one decimal place
-            output << std::fixed << std::setprecision(1) << right.values[i];
+            // Output Point __values to one decimal place
+            output << std::fixed << std::setprecision(1) << right.__values[i];
 
             // Add in ',' and space if not the end of array
-            if (i < (right.dim) - 1)
+            if (i < (right.getDim()) - 1)
             {
                 output << Point::POINT_VALUE_DELIM << " ";
             }
@@ -218,8 +226,8 @@ namespace Clustering
         // Turn string into a stream
         std::stringstream lineStr(line);
 
-        // Loop through comma-separated values
-        for (int i = 1; i <= right.dim; i++)
+        // Loop through comma-separated __values
+        for (int i = 1; i <= right.getDim(); i++)
         {
             // Create string to hold value
             std::string value;
@@ -230,7 +238,7 @@ namespace Clustering
             // Transform value into a double
             double val = atof(value.c_str());
 
-            // Set Point's dimension values
+            // Set Point's dimension __values
             right.setValue(i, val);
         }
         return input;
@@ -240,10 +248,10 @@ namespace Clustering
     /* Overloaded compound assignment operators */
     Point &operator +=(Point &left, const Point &right)
     {
-        // Loop through values and add right to left
-        for (int i = 0; i < right.dim; i++)
+        // Loop through __values and add right to left
+        for (int i = 0; i < right.getDim(); i++)
         {
-            left.values[i] += right.values[i];
+            left.__values[i] += right.__values[i];
         }
         // Return new left side
         return left;
@@ -251,10 +259,10 @@ namespace Clustering
 
     Point &operator -=(Point &left, const Point &right)
     {
-        // Loop through values and subtract right from left
-        for (int i = 0; i < left.dim; i++)
+        // Loop through __values and subtract right from left
+        for (int i = 0; i < left.getDim(); i++)
         {
-            left.values[i] -= right.values[i];
+            left.__values[i] -= right.__values[i];
         }
         // Return new left side
         return left;
@@ -267,10 +275,10 @@ namespace Clustering
         // Copy left hand Point
         Point result = left;
 
-        // Loop through values and add right to new left
-        for (int i = 0; i < result.dim; i++)
+        // Loop through __values and add right to new left
+        for (int i = 0; i < result.getDim(); i++)
         {
-            result.values[i] += right.values[i];
+            result.__values[i] += right.__values[i];
         }
         return result;
     }
@@ -280,10 +288,10 @@ namespace Clustering
         // Copy left hand Point
         Point result = left;
 
-        // Loop through values and add right to new left
-        for (int i = 0; i < result.dim; i++)
+        // Loop through __values and add right to new left
+        for (int i = 0; i < result.getDim(); i++)
         {
-            result.values[i] -= right.values[i];
+            result.__values[i] -= right.__values[i];
         }
         return result;
     }
@@ -292,18 +300,19 @@ namespace Clustering
     /* Overloaded relational operators (bools) */
     bool operator ==(const Point &left, const Point &right)
     {
-        // Loop through values
-        for (int i = 0; i < left.dim; i++)
+        // TODO: Compare __id and __values
+        // Loop through __values
+        for (int i = 0; i < left.getDim(); i++)
         {
             // Compare for equality
-            if (left.values[i] != right.values[i])
+            if (left.__values[i] != right.__values[i])
             {
-                // If values are not equal, return false
+                // If __values are not equal, return false
                 return false;
             }
             else
             {
-                // If values are equal, move on to next value
+                // If __values are equal, move on to next value
                 continue;
             }
         }
@@ -319,18 +328,18 @@ namespace Clustering
 
     bool operator >(const Point &left, const Point &right)
     {
-        // Loop through values
-        for (int i = 0; i < left.dim; i++)
+        // Loop through __values
+        for (int i = 0; i < left.getDim(); i++)
         {
-            // Compare values
-            if (left.values[i] > right.values[i])
+            // Compare __values
+            if (left.__values[i] > right.__values[i])
             {
                 // If left > right, return true
                 return true;
             }
-            else if (left.values[i] == right.values[i])
+            else if (left.__values[i] == right.__values[i])
             {
-                // If values are equal, move to next value
+                // If __values are equal, move to next value
                 continue;
             }
             else

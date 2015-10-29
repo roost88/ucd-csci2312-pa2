@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 #include <iostream>
 #include <fstream>

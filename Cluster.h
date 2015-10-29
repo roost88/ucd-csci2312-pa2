@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // Cluster class header file
 
@@ -64,11 +64,11 @@ namespace Clustering
         // Copy constructor
         Cluster(const Cluster &right) :
                 __id(__idGenerator++),
-                __size(right.__size),
-                __head(deepCopy(right.__head)),
-                __numDimensions(right.__numDimensions),
-                __centroid(right.__centroid),
-                __validCentroid(right.__validCentroid){}
+                __size(right.getSize()),
+                __head(deepCopy(right.getHead())),
+                __numDimensions(right.getNumDimensions()),
+                __centroid(right.getCentroid()),
+                __validCentroid(right.getCentroidValidity()){}
 
         Cluster &operator =(const Cluster &); // Overloaded assignment operator
         ~Cluster(); // Destructor
@@ -77,12 +77,12 @@ namespace Clustering
         void setCentroid(const Point &); // Set Centroid of Cluster
 
         // Getters
-        int getID() { return __id; } // Return Cluster ID
-        int getSize() { return __size; } // Return Cluster size
+        int getID() const { return __id; } // Return Cluster ID
+        int getSize() const { return __size; } // Return Cluster size
         ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
-        int getNumDimensions() { return __numDimensions; } // Return number of dimensions of Points in Cluster
-        const Point getCentroid() { return __centroid; } // Return Cluster Centroid
-        bool getCentroidValidity() { return __validCentroid; } // Return if Centroid is valid or not
+        int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points in Cluster
+        const Point getCentroid() const { return __centroid; } // Return Cluster Centroid
+        bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
 
         // Cluster member functions
         ListNodePtr deepCopy(ListNodePtr); // Copy function

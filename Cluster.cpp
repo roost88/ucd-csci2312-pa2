@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // Cluster class implementation
 
@@ -34,11 +34,11 @@ namespace Clustering
     {
         // Copy all values from right into left and return
         __id = __idGenerator++;;
-        __size = right.__size;
-        __head = deepCopy(right.__head);
-        __numDimensions = right.__numDimensions;
-        __centroid = right.__centroid;
-        __validCentroid = right.__validCentroid;
+        __size = right.getSize();
+        __head = deepCopy(right.getHead());
+        __numDimensions = right.getNumDimensions();
+        __centroid = right.getCentroid();
+        __validCentroid = right.getCentroidValidity();
         return *this;
     }
 

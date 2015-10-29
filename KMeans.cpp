@@ -1,7 +1,7 @@
-// Programming Assignment 3 - KMeans Clustering
+// Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        20 October 2015
+// Date:        28 October 2015
 
 // KMeans class implementation
 
@@ -11,6 +11,7 @@
 
 namespace Clustering
 {
+    // TODO: Add __ before each private variable
     // Initialize SCORE_DIFF_THRESHOLD variable
     const double KMeans::SCORE_DIFF_THRESHOLD = 0.3; // Must be less than 1.0 and greater than 0
 
