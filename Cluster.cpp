@@ -11,7 +11,7 @@
 namespace Clustering
 {
     // Member variables
-    unsigned int Cluster::__idGenerator = 0; // Initialize Cluster ID value to 1
+    unsigned int Cluster::__idGenerator = 1; // Initialize Cluster ID value to 1
     const char Cluster::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
     // ******************************************
 
@@ -120,6 +120,7 @@ namespace Clustering
     }
 
     // Add Point to Cluster in lexicographic order
+    // TODO: Reimplement using const Point &
     void Cluster::add(const PointPtr &right)
     {
         if (right != nullptr)
@@ -186,6 +187,7 @@ namespace Clustering
     }
 
     // Remove Point from Cluster; returns removed Point
+    // TODO: Reimplement using const Point &
     const PointPtr &Cluster::remove(const PointPtr &right)
     {
         // Invalidate Centroid
@@ -420,7 +422,8 @@ namespace Clustering
         while (std::getline(input, line, '\n'))
         {
             // Count number of commas in the line
-            int num_com = (int)(std::count(line.begin(), line.end(), Clustering::Point::POINT_VALUE_DELIM));
+            unsigned long int num_com;
+            num_com = (unsigned)(std::count(line.begin(), line.end(), Clustering::Point::POINT_VALUE_DELIM));
 
             // Add one to number of commas to use as Point dimensions
             num_com += 1;
@@ -629,6 +632,7 @@ namespace Clustering
     }
 
     // Add a Point to a Cluster
+    // TODO: Reimplement using const Point &
     const Cluster operator +(const Cluster &left, const PointPtr &right)
     {
         // Copy Cluster
@@ -647,6 +651,7 @@ namespace Clustering
     }
 
     // Subtract a Point from a Cluster
+    // TODO: Reimplement using const Point &
     const Cluster operator -(const Cluster &left, const PointPtr &right)
     {
         // Copy Cluster

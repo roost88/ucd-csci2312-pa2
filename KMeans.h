@@ -19,6 +19,7 @@ namespace Clustering
         // TODO: add __ before each variable
         int k;
         ClusterPtr point_space; // Pointer to initial Cluster that holds all Points
+        // TODO: reimplement kClusterArray as an std::vector<Cluster>
         ClusterPtr *kClusterArray; // Pointer to array of ClusterPtrs
 
     public:
@@ -26,7 +27,7 @@ namespace Clustering
         static const double SCORE_DIFF_THRESHOLD;
 
         // Constructors
-        KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile);
+        KMeans(unsigned long int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile);
         ~KMeans();
 
         // Member functions

@@ -25,31 +25,30 @@ namespace Clustering
     class Point
     {
     private:
-        unsigned int        __id; // Unique Point ID
-        static unsigned int __idGenerator; // Used to increment ID number
-        int                 __dim; // Point dimensions variable
-        // TODO: Make __values an std::vector<double>
-        double *            __values; // Point values array
+        unsigned int            __id;           // Unique Point ID
+        static unsigned int     __idGenerator;  // Used to increment ID number
+        unsigned long int       __dim;          // Point dimensions variable
+        std::vector<double>     __values;       // Holds Point dimension values
 
     public:
         /* Public member variables */
         static const char POINT_VALUE_DELIM; // Static Point delimiter (for I/O)
 
         /* Constructors */
-        Point(int);
+        Point(unsigned long int);
         Point(const Point &); // Copy constructor
         Point &operator=(const Point &); // Overloaded assignment operator
-        ~Point() { delete [] __values; } // Destructor
+        ~Point() {} // Destructor
 
         /* Member functions */
         double distanceTo(const Point &) const; // Calculates distance between two points
 
         /* Setters */
-        void setValue(int, double) const; // Set value of Point
+        void setValue(int, double); // Set value of Point
 
         /* Getters */
         unsigned int getID() const { return __id; }
-        int getDim() const { return __dim; } // Return dimensions of Point
+        unsigned long int getDim() const { return __dim; } // Return dimensions of Point
         double getValue(int) const; // Return value in Point array
 
         /* Overloaded operators dimension-wise (members) */
@@ -59,7 +58,7 @@ namespace Clustering
         const Point operator /(double) const;
 
         /* Overloaded array operator */
-        double &operator[](int index) { return __values[index - 1]; }
+        double &operator[](int index) { return __values[index - 1]; } // TODO: Throw OutOfBoundsEx
 
         /* Overloaded insertion/extraction operators (friends) */
         friend std::ostream &operator <<(std::ostream &, const Point &);

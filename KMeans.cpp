@@ -16,7 +16,7 @@ namespace Clustering
     const double KMeans::SCORE_DIFF_THRESHOLD = 0.3; // Must be less than 1.0 and greater than 0
 
     // Constructors
-    KMeans::KMeans(int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
+    KMeans::KMeans(unsigned long int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
     {
         /* Setup and Initialization */
 
@@ -34,6 +34,8 @@ namespace Clustering
 
             // Read Points from file into point_space Cluster
             inFile >> *point_space;
+
+            // TODO: report how many Points were read in OK and how many failed due to Dimensionality Mismatch
 
             std::cout << "\n" << point_space->getSize() << " Points read in from file!" << std::endl;
 

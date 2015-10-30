@@ -21,7 +21,6 @@ namespace Clustering
     public:
         PointDimensionalityMismatchEx();
         ~PointDimensionalityMismatchEx();
-
     };
 
     class PointOutOfBoundsEx

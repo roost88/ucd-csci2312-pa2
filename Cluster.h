@@ -9,6 +9,8 @@
 #ifndef CLUSTERING_CLUSTER_H
 #define CLUSTERING_CLUSTER_H
 
+#include <forward_list>
+
 #include "Point.h"
 
 namespace Clustering
@@ -28,32 +30,35 @@ namespace Clustering
     class Cluster
     {
     private:
-        unsigned int        __id; // Unique Cluster ID number
-        static unsigned int __idGenerator; // Used to increment ID number
-        int                 __size; // Keeps track of the amount of Points in the Cluster
-        ListNodePtr         __head; // Points to the first node in the list
-        int                 __numDimensions; // Number of dimensions of Points in Cluster
-        Point               __centroid; // Mean center Point of Cluster
-        bool                __validCentroid; // Checks if Centroid of Cluster is valid
+        unsigned int            __id;               // Unique Cluster ID number
+        static unsigned int     __idGenerator;      // Used to increment ID number
+        int                     __size;             // Keeps track of the amount of Points in the Cluster
+        // TODO: Reimplement __head as std::forward_list<Point>
+        ListNodePtr             __head;             // Points to the first node in the list
+        unsigned long int       __numDimensions;    // Number of dimensions of Points in Cluster
+        Point                   __centroid;         // Mean center Point of Cluster
+        bool                    __validCentroid;    // Checks if Centroid of Cluster is valid
+        // TODO: Implement static std::unordered_map
 
     public:
-        static const char POINT_CLUSTER_ID_DELIM; // Static Cluster delimiter value (for output)
+        static const char POINT_CLUSTER_ID_DELIM;   // Static Cluster delimiter value (for output)
 
         // Inner class Move - represents motion of a Point from one Cluster to another
         class Move
         {
         public:
             // Move constructor
+            // TODO: Reimplement Move class to work with Point instead of PointPtr
             Move(const PointPtr &ptr, ClusterPtr from, ClusterPtr to);
             ~Move(){}
 
             // Move member functions
-            void perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to); // Moves a Point from one Cluster to another
+            void perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to); // Moves a Point
         };
 
         // Cluster constructors
         // Takes an int for the amount of dimensions in Points
-        Cluster(int numDims) :
+        Cluster(unsigned long int numDims) :
                 __id(__idGenerator++),
                 __size(0),
                 __head(nullptr),
@@ -80,12 +85,20 @@ namespace Clustering
         int getID() const { return __id; } // Return Cluster ID
         int getSize() const { return __size; } // Return Cluster size
         ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
-        int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points in Cluster
+        unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
         const Point getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
+        // TODO: implement bool contains(const Point &) method
+//        bool contains(const Point &);
+        // TODO: implement numberImported() and numberFailed() methods
+//        unsigned int numberImported();
+//        unsigned int numberFailed();
 
         // Cluster member functions
         ListNodePtr deepCopy(ListNodePtr); // Copy function
+        // TODO: Reimplement add()/remove() to work with const Point &
+//        void add(const Point &);
+//        const Point &remove(const Point &);
         void add(const PointPtr &); // Add a Point to a Cluster
         const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
 
@@ -118,6 +131,7 @@ namespace Clustering
         friend const Cluster operator +(const Cluster &, const Cluster &);
         friend const Cluster operator -(const Cluster &, const Cluster &);
 
+        // TODO: Reimplement using const Point &
         friend const Cluster operator +(const Cluster &, const PointPtr &);
         friend const Cluster operator -(const Cluster &, const PointPtr &);
     };

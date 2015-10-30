@@ -16,34 +16,30 @@ namespace Clustering
     const char Point::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
 
     /* Constructors */
-    Point::Point(int dimensions)
+    Point::Point(unsigned long int dimensions)
     {
         // TODO: Throw DimensionalityMismatchEx exception
+        // Create new Point ID
         __id = __idGenerator++;
-
-        // Default to two dimensions
-        if (dimensions == 0)
-        {
-            dimensions = 2;
-        }
 
         // Set dimensions of Point
         __dim = dimensions;
 
-        // Create new __values array
-        __values = new double[__dim];
+        // Set capacity of __values vector
+        __values.reserve(__dim);
     }
 
     // Copy constructor
     Point::Point(const Point &right)
     {
+        // Copy Point ID
         __id = right.getID();
 
         // Set dimensions
         __dim = right.getDim();
 
-        // Create __values array for left side
-        __values = new double[__dim];
+        // Set capacity of __values vector
+        __values.reserve(__dim);
 
         // Loop to copy __values from right into left
         for (int i = 0; i < __dim; i++)
@@ -65,14 +61,14 @@ namespace Clustering
         {
             __id = right.getID();
 
-            // Delete old __values
-            delete [] __values;
+            // Clear old __values
+            __values.clear();
 
             // Set dimensions
             __dim = right.getDim();
 
-            // Create new __values array
-            __values = new double[__dim];
+            // Set capacity of __values vector
+            __values.reserve(__dim);
 
             // Loop to copy __values from right into left
             for (int i = 0; i < __dim; i++)
@@ -108,7 +104,7 @@ namespace Clustering
     // ******************************************
 
     /* Setters */
-    void Point::setValue(int element, double value) const
+    void Point::setValue(int element, double value)
     {
         if (element >= 1 && element <= __dim)
         {
@@ -300,24 +296,26 @@ namespace Clustering
     /* Overloaded relational operators (bools) */
     bool operator ==(const Point &left, const Point &right)
     {
-        // TODO: Compare __id and __values
-        // Loop through __values
-        for (int i = 0; i < left.getDim(); i++)
+        // Compare __id and __values of Points
+        if (left.getID() == right.getID())
         {
-            // Compare for equality
-            if (left.__values[i] != right.__values[i])
+            // Loop through __values
+            for (int i = 0; i < left.getDim(); i++)
             {
-                // If __values are not equal, return false
-                return false;
+                // Compare for equality
+                if (left.__values[i] != right.__values[i])
+                {
+                    // If __values are not equal, return false
+                    return false;
+                }
             }
-            else
-            {
-                // If __values are equal, move on to next value
-                continue;
-            }
+            // If loop terminates without returning, return true
+            return true;
         }
-        // If loop terminates without returning, return true
-        return true;
+        else
+        {
+            return false;
+        }
     }
 
     bool operator !=(const Point &left, const Point &right)
