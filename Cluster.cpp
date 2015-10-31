@@ -6,6 +6,7 @@
 // Cluster class implementation
 
 #include "Cluster.h"
+#include "Exceptions.h"
 
 // namespace wrap
 namespace Clustering
@@ -24,8 +25,16 @@ namespace Clustering
     // Move member functions
     void Cluster::Move::perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to)
     {
+        // TODO: Throw RemoveFromEmpty exception
         // Remove Point from Cluster and add to another Cluster
-        to->add(from->remove(ptr));
+        try
+        {
+            to->add(from->remove(ptr));
+        }
+        catch(RemoveFromEmptyEx e)
+        {
+            std::cerr << e << std::endl;
+        }
     }
     // ******************************************
 
@@ -45,8 +54,6 @@ namespace Clustering
     // Cluster destructor
     Cluster::~Cluster()
     {
-        int id = getID(); // Get ID to show which Cluster was destroyed
-
         // If there are Points in the Cluster
         if (__size != 0)
         {
@@ -55,7 +62,7 @@ namespace Clustering
         }
         __head = nullptr;
         __size = 0;
-        std::cout << "Cluster " << id << " destroyed!" << std::endl;
+        std::cout << "Cluster " << getID() << " destroyed!" << std::endl;
     }
     // ******************************************
 
@@ -121,6 +128,11 @@ namespace Clustering
 
     // Add Point to Cluster in lexicographic order
     // TODO: Reimplement using const Point &
+//    void Cluster::add(const Point &right)
+//    {
+//
+//    }
+
     void Cluster::add(const PointPtr &right)
     {
         if (right != nullptr)
@@ -194,11 +206,13 @@ namespace Clustering
         __validCentroid = false;
 
         // Case 1 - remove Point from empty linked list
+        // TODO: Throw RemoveFromEmpty exception
         if (__head == nullptr)
-        {
-            std::cout << "Point cannot be deleted from an empty Cluster!" << std::endl;
-            return nullptr;
-        }
+            throw RemoveFromEmptyEx(right->getID(), this->getID());
+//        {
+//            std::cout << "Point cannot be deleted from an empty Cluster!" << std::endl;
+//            return nullptr;
+//        }
         else
         {
             // Copy head into current
@@ -316,13 +330,15 @@ namespace Clustering
     // Returns the number of distinct edges between Clusters
     int interClusterEdges(const Cluster &c1, const Cluster &c2)
     {
+        int size1, size2, result;
+
         if (c1 == c2)
         {
             return 0;
         }
-        int size1 = c1.__size;
-        int size2 = c2.__size;
-        int result = size1 * size2;
+        size1 = c1.__size;
+        size2 = c2.__size;
+        result = size1 * size2;
         return result;
     }
     // ******************************************
@@ -337,14 +353,18 @@ namespace Clustering
         // Create a new Point
         Point newCent(__numDimensions);
 
+        // TODO: Throw RemoveFromEmpty exception
+        if (__size <= 0)
+            throw RemoveFromEmptyEx(newCent.getID(), c1->getID());
+
         // If there's only one Point in the Cluster
-        if (__size == 1)
+        else if (__size == 1)
         {
             // The Centroid equals the Point
             newCent = *current->p;
             setCentroid(newCent);
         }
-        else if (__size > 1)
+        else
         {
             // Sum of all Points in the Cluster
             while (current != nullptr)
@@ -393,6 +413,13 @@ namespace Clustering
     }
     // ******************************************
 
+    // Overloaded [] operator
+    // TODO: Implement this
+    Point &Cluster::operator[](unsigned int index)
+    {
+        // TODO: Throw Out-Of-Bounds exception
+    }
+
     // Overloaded iostream operators
     // Allow us to output an entire Cluster
     std::ostream &operator <<(std::ostream &out, const Cluster &right)
@@ -417,33 +444,31 @@ namespace Clustering
         // TODO: check for proper input formatting (x,y,z,,)
         // Create a new string to read into
         std::string line;
+        unsigned long int numDims = right.getNumDimensions();
 
         // While we are able to read from input into string
         while (std::getline(input, line, '\n'))
         {
-            // Count number of commas in the line
-            unsigned long int num_com;
-            num_com = (unsigned)(std::count(line.begin(), line.end(), Clustering::Point::POINT_VALUE_DELIM));
+            Clustering::PointPtr pt = new Clustering::Point(numDims);
 
-            // Add one to number of commas to use as Point dimensions
-            num_com += 1;
+            // Convert the string line into a stringstream
+            std::stringstream lineStr(line);
 
-            // Check each line of input for proper dimensions
-            if (num_com == right.__numDimensions)
+            try
             {
-                // Create a new Point with dimensions equal to num_com
-                Clustering::PointPtr pt = new Clustering::Point(num_com);
-
-                // Convert the string line into a stringstream
-                std::stringstream lineStr(line);
-
                 // Read values into new Point (uses Point extraction operator)
                 lineStr >> *pt;
 
                 // Add new Point to the Cluster
                 right.add(pt);
             }
+
+            catch (DimensionalityMismatchEx e)
+            {
+                std::cerr << e << std::endl;
+            }
         }
+
         return input;
     }
     // ******************************************
@@ -618,7 +643,14 @@ namespace Clustering
 
         for (; rightHead != nullptr; rightHead = rightHead->next)
         {
-            newLeft->remove(rightHead->p);
+            try
+            {
+                newLeft->remove(rightHead->p);
+            }
+            catch(RemoveFromEmptyEx e)
+            {
+                std::cerr << e << std::endl;
+            }
         }
 
         // Copy result

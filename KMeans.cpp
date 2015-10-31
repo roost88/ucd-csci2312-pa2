@@ -8,6 +8,7 @@
 #include <cfloat> // for DBL_MAX
 
 #include "KMeans.h"
+#include "Exceptions.h"
 
 namespace Clustering
 {

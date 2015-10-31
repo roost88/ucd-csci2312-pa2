@@ -82,7 +82,7 @@ namespace Clustering
         void setCentroid(const Point &); // Set Centroid of Cluster
 
         // Getters
-        int getID() const { return __id; } // Return Cluster ID
+        unsigned int getID() const { return __id; } // Return Cluster ID
         int getSize() const { return __size; } // Return Cluster size
         ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
         unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
@@ -111,6 +111,10 @@ namespace Clustering
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
         void pickPoints(int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
+
+        // Overloaded [] operator
+        // TODO: Implement this
+        Point &operator [](unsigned int);
 
         // Overloaded iostream operators (friends)
         friend std::ostream &operator <<(std::ostream &, const Cluster &);

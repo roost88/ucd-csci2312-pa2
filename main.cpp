@@ -8,6 +8,7 @@
 #include "Point.h"
 #include "Cluster.h"
 #include "KMeans.h"
+#include "Exceptions.h"
 
 // TODO: Create Testing .h and .cpp files
 
@@ -26,7 +27,7 @@ int main()
 // Function definitions
 void testKMeans()
 {
-    int numDims = 5;
+    unsigned long int numDims = 5;
     int k = 4;
     std::string input = "input.csv";
     std::string output = "output.csv";
@@ -44,11 +45,14 @@ void testPointBool()
     p2.setValue(1, 2.0);
     p2.setValue(2, 5.0);
 
-    Clustering::Point p3(p2);
-    std::cout << p3 << std::endl;
-    std::cout << p2 << std::endl;
+    Clustering::Cluster c1(2);
+    c1.add(&p1);
+    c1.add(&p2);
 
-    std::cout << (p1==p2) << std::endl;
-    std::cout << (p2 == p3);
+    Clustering::Cluster c2(2);
+    c2.add(&p1);
+    c2.add(&p2);
+
+    c2 - c1;
 }
 

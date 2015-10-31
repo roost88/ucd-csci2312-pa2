@@ -18,6 +18,7 @@
 #include <array>
 #include <fstream>
 #include <vector>
+#include <exception>
 
 /* namespace wrap */
 namespace Clustering
@@ -58,7 +59,7 @@ namespace Clustering
         const Point operator /(double) const;
 
         /* Overloaded array operator */
-        double &operator[](int index) { return __values[index - 1]; } // TODO: Throw OutOfBoundsEx
+        double &operator [](unsigned int);
 
         /* Overloaded insertion/extraction operators (friends) */
         friend std::ostream &operator <<(std::ostream &, const Point &);

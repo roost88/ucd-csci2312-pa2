@@ -12,47 +12,68 @@
 
 namespace Clustering
 {
-    /* Exceptions for class Point */
-    class PointDimensionalityMismatchEx
+    /* Exceptions */
+
+    class DimensionalityMismatchEx
     {
     private:
-        std::string name;
+        std::string         __name;
+        unsigned long int   __currDim;
+        unsigned long int   __inputDim;
 
     public:
-        PointDimensionalityMismatchEx();
-        ~PointDimensionalityMismatchEx();
+        DimensionalityMismatchEx(unsigned long int, unsigned long int);
+        ~DimensionalityMismatchEx();
+
+        /* Getters */
+        std::string getName() const { return __name; }
+        unsigned long int getCurr() const { return __currDim; }
+        unsigned long int getInput() const { return __inputDim; }
+
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const DimensionalityMismatchEx &);
     };
+    // ******************************************
 
-    class PointOutOfBoundsEx
+    class OutOfBoundsEx
     {
     private:
-        std::string name;
+        std::string         __name;
+        unsigned long int   __currSize;
+        unsigned int        __inputIndex;
 
     public:
-        PointOutOfBoundsEx();
-        ~PointOutOfBoundsEx();
+        OutOfBoundsEx(unsigned long int, unsigned int);
+        ~OutOfBoundsEx();
+
+        /* Getters */
+        std::string getName() const { return __name; }
+        unsigned long int getSize() const { return __currSize; }
+        unsigned int getIndex() const { return __inputIndex; }
+        
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const OutOfBoundsEx &);
     };
-    /******************************************************/
+    // ******************************************
 
-    /* Exceptions for class Cluster */
-    class ClusterRemoveFromEmptyEx
+    class RemoveFromEmptyEx
     {
     private:
-        std::string name;
+        std::string     __name;
+        unsigned int    __pointID;
+        unsigned int    __clusterID;
 
     public:
-        ClusterRemoveFromEmptyEx();
-        ~ClusterRemoveFromEmptyEx();
-    };
+        RemoveFromEmptyEx(unsigned int, unsigned int);
+        ~RemoveFromEmptyEx();
 
-    class ClusterOutOfBoundsEx
-    {
-    private:
-        std::string name;
+        /* Getters */
+        std::string getName() const { return __name; }
+        unsigned int getPID() const { return __pointID; }
+        unsigned int getCID() const { return __clusterID; }
 
-    public:
-        ClusterOutOfBoundsEx();
-        ~ClusterOutOfBoundsEx();
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const RemoveFromEmptyEx &);
     };
 
 } // end namespace Clustering
