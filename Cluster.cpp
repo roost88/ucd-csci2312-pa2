@@ -17,19 +17,19 @@ namespace Clustering
     // ******************************************
 
     // Move constructor
-    Cluster::Move::Move(const PointPtr &ptr, ClusterPtr from, ClusterPtr to)
+    Cluster::Move::Move(const Point &p, ClusterPtr from, ClusterPtr to)
     {
-        perform(ptr, from, to);
+        perform(p, from, to);
     }
 
     // Move member functions
-    void Cluster::Move::perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to)
+    void Cluster::Move::perform(const Point &p, ClusterPtr from, ClusterPtr to)
     {
         // TODO: Throw RemoveFromEmpty exception
         // Remove Point from Cluster and add to another Cluster
         try
         {
-            to->add(from->remove(ptr));
+            to->add(from->remove(p));
         }
         catch(RemoveFromEmptyEx e)
         {
@@ -128,79 +128,75 @@ namespace Clustering
 
     // Add Point to Cluster in lexicographic order
     // TODO: Reimplement using const Point &
-//    void Cluster::add(const Point &right)
-//    {
-//
-//    }
-
-    void Cluster::add(const PointPtr &right)
+    void Cluster::add(const Point &right)
     {
-        if (right != nullptr)
+        // Invalidate Centroid
+        __validCentroid = false;
+
+        // Copy Point
+        PointPtr pt = new Point(right);
+
+        // Create a new Node and copy right values
+        ListNodePtr newNode = new ListNode(pt, nullptr);
+
+        // Case 1 - add Point to empty linked list
+        if (__head == nullptr)
         {
-            // Invalidate Centroid
-            __validCentroid = false;
+            // head now points to the new List Node
+            __head = newNode;
+        }
+        else
+        {
+            // Copy Cluster head and create NULL pointer
+            ListNodePtr current = __head;
+            ListNodePtr previous = nullptr;
 
-            // Create a new Node and copy right values
-            ListNodePtr newNode = new ListNode(right, nullptr);
-
-            // Case 1 - add Point to empty linked list
-            if (__head == nullptr)
+            // Loop through linked-list to find insertion point
+            while (current != nullptr)
             {
-                // head now points to the new List Node
-                __head = newNode;
-            }
-            else {
-                // Copy Cluster head and create NULL pointer
-                ListNodePtr current = __head;
-                ListNodePtr previous = nullptr;
-
-                // Loop through linked-list to find insertion point
-                while (current != nullptr)
+                // Check Points - If current Point is greater than or equal to
+                if (*current->p > *newNode->p)
                 {
-                    // Check Points - If current Point is greater than or equal to
-                    if (*current->p > *newNode->p)
-                    {
-                        // Break out of while loop and go to next case
-                        break;
-                    }
-                    else if (*current->p == *newNode->p)
-                    {
-                        std::cout << "Point " << *right << " already exists in Cluster " << getID() << "!"
-                        << std::endl;
-                        return;
-                    }
-                    else
-                    {
-                        previous = current;
-                        current = current->next;
-                    }
+                    // Break out of while loop and go to next case
+                    break;
                 }
-
-                // Case 2 - insert at head (linked-list not empty)
-                if (current == __head)
+                else if (*current->p == *newNode->p)
                 {
-                    newNode->next = __head;
-                    __head = newNode;
+                    std::cout << "Point " << right << " already exists in Cluster " << getID() << "!"
+                    << std::endl;
+                    return;
                 }
-
-                // Case 3 - insert somewhere after the head (linked-list not empty)
                 else
                 {
-                    newNode->next = current;
-                    previous->next = newNode;
+                    previous = current;
+                    current = current->next;
                 }
             }
 
-            // Increment size of Cluster
-            __size++;
+            // Case 2 - insert at head (linked-list not empty)
+            if (current == __head)
+            {
+                newNode->next = __head;
+                __head = newNode;
+            }
 
-            std::cout << "Point " << *right << " added to Cluster " << getID() << "!" << std::endl;
+                // Case 3 - insert somewhere after the head (linked-list not empty)
+            else
+            {
+                newNode->next = current;
+                previous->next = newNode;
+            }
         }
+
+        // Increment size of Cluster
+        __size++;
+
+        std::cout << "Point " << right << " added to Cluster " << getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point
     // TODO: Reimplement using const Point &
-    const PointPtr &Cluster::remove(const PointPtr &right)
+    const Point &Cluster::remove(const Point &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
@@ -208,7 +204,7 @@ namespace Clustering
         // Case 1 - remove Point from empty linked list
         // TODO: Throw RemoveFromEmpty exception
         if (__head == nullptr)
-            throw RemoveFromEmptyEx(right->getID(), this->getID());
+            throw RemoveFromEmptyEx(right.getID(), this->getID());
 //        {
 //            std::cout << "Point cannot be deleted from an empty Cluster!" << std::endl;
 //            return nullptr;
@@ -223,7 +219,7 @@ namespace Clustering
             while (current != nullptr)
             {
                 // If Points are equal, break out of loop
-                if (*current->p == *right)
+                if (*current->p == right)
                 {
                     break;
                 }
@@ -238,8 +234,9 @@ namespace Clustering
             // Case 2 - Point not found in Cluster linked list
             if (current == nullptr)
             {
-                std::cout << "Point " << *right << " was not found in Cluster " << getID() << "!" << std::endl;
-                return nullptr;
+                // TODO: Throw exception
+                std::cout << "Point " << right << " was not found in Cluster " << getID() << "!" << std::endl;
+//                return nullptr;
             }
             else
             {
@@ -260,7 +257,7 @@ namespace Clustering
                 // Decrement size
                 __size--;
 
-                std::cout << "Point " << *right << " removed from Cluster " << getID() << "!" << std::endl;
+                std::cout << "Point " << right << " removed from Cluster " << getID() << "!" << std::endl;
             }
         }
         return right;
@@ -460,7 +457,7 @@ namespace Clustering
                 lineStr >> *pt;
 
                 // Add new Point to the Cluster
-                right.add(pt);
+                right.add(*pt);
             }
 
             catch (DimensionalityMismatchEx e)
@@ -539,72 +536,14 @@ namespace Clustering
     // Add a Point to referenced Cluster
     Cluster &Cluster::operator +=(const Point &right)
     {
-        // Invalidate Centroid
-        __validCentroid = false;
-
-        // Copy head pointer
-        ListNodePtr leftHead = __head;
-
-        // Create a dynamic Point using right
-        PointPtr pt = new Point(right);
-
-        // Create a new ListNode using pt
-        ListNodePtr newNode = new ListNode(pt, nullptr);
-
-        // Look through linked-list
-        while (leftHead != nullptr)
-        {
-            if (*leftHead->p != right)
-            {
-                leftHead = leftHead->next;
-            }
-            else
-            {
-                // Display error message and return
-                std::cout << "Cluster already contains Point " << right << " !" << std::endl;
-                return *this;
-            }
-        }
-
-        // If while loop terminates without returning, add Point to Cluster and return
-        add(newNode->p);
-        delete newNode;
+        this->add(right);
         return *this;
     }
 
     // Remove a Point from referenced Cluster
     Cluster &Cluster::operator -=(const Point &right)
     {
-        // Invalidate Centroid
-        __validCentroid = false;
-
-        // Copy head pointer
-        ListNodePtr leftHead = __head;
-
-        // Create a dynamic Point using right
-        PointPtr pt = new Point(right);
-
-        // Create a new ListNode using pt
-        ListNodePtr newNode = new ListNode(pt, nullptr);
-
-        // Loop through linked-list
-        while (leftHead != nullptr)
-        {
-            // If Point is found in Cluster
-            if (*leftHead->p == *newNode->p)
-            {
-                remove(newNode->p);
-                break;
-            }
-            else
-            {
-                leftHead = leftHead->next;
-            }
-        }
-
-        // Delete dynamic objects and return
-        delete pt;
-        delete newNode;
+        this->remove(right);
         return *this;
     }
     // ******************************************
@@ -645,7 +584,7 @@ namespace Clustering
         {
             try
             {
-                newLeft->remove(rightHead->p);
+                newLeft->remove(*rightHead->p);
             }
             catch(RemoveFromEmptyEx e)
             {
@@ -664,40 +603,26 @@ namespace Clustering
     }
 
     // Add a Point to a Cluster
-    // TODO: Reimplement using const Point &
-    const Cluster operator +(const Cluster &left, const PointPtr &right)
+    const Cluster operator +(const Cluster &left, const Point &right)
     {
-        // Copy Cluster
-        Cluster *newCluster = new Cluster(left);
+        // Copy const Cluster
+        Cluster c(left);
 
-        // Add the Point
-        newCluster->add(right);
+        // Add Point to Cluster
+        c.add(right);
 
-        // Copy the result
-        Cluster result(*newCluster);
-
-        delete newCluster;
-
-        // Return the new Cluster
-        return result;
+        return c;
     }
 
     // Subtract a Point from a Cluster
-    // TODO: Reimplement using const Point &
-    const Cluster operator -(const Cluster &left, const PointPtr &right)
+    const Cluster operator -(const Cluster &left, const Point &right)
     {
-        // Copy Cluster
-        Cluster *newCluster = new Cluster(left);
+        // Copy const Cluster
+        Cluster c(left);
 
-        // Remove the Point
-        *newCluster -= *right;
+        // Remove Point from Cluster
+        c.remove(right);
 
-        // Copy result
-        Cluster result(*newCluster);
-
-        delete newCluster;
-
-        // Return the new Cluster
-        return result;
+        return c;
     }
 } // end namespace Clustering

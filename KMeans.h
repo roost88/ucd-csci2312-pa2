@@ -17,10 +17,11 @@ namespace Clustering
     {
     private:
         // TODO: add __ before each variable
-        int k;
-        ClusterPtr point_space; // Pointer to initial Cluster that holds all Points
+        int             __k;
+        ClusterPtr      __point_space; // Pointer to initial Cluster that holds all Points
         // TODO: reimplement kClusterArray as an std::vector<Cluster>
-        ClusterPtr *kClusterArray; // Pointer to array of ClusterPtrs
+//        std::vector<Cluster> __kClusterArray;
+        ClusterPtr *    __kClusterArray; // Pointer to array of ClusterPtrs
 
     public:
         // Member variables

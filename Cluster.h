@@ -30,14 +30,15 @@ namespace Clustering
     class Cluster
     {
     private:
-        unsigned int            __id;               // Unique Cluster ID number
-        static unsigned int     __idGenerator;      // Used to increment ID number
-        int                     __size;             // Keeps track of the amount of Points in the Cluster
+        unsigned int                __id;               // Unique Cluster ID number
+        static unsigned int         __idGenerator;      // Used to increment ID number
+        int                         __size;             // Keeps track of the amount of Points in the Cluster
         // TODO: Reimplement __head as std::forward_list<Point>
-        ListNodePtr             __head;             // Points to the first node in the list
-        unsigned long int       __numDimensions;    // Number of dimensions of Points in Cluster
-        Point                   __centroid;         // Mean center Point of Cluster
-        bool                    __validCentroid;    // Checks if Centroid of Cluster is valid
+//        std::forward_list<Point>    __head;
+        ListNodePtr                 __head;             // Points to the first node in the list
+        unsigned long int           __numDimensions;    // Number of dimensions of Points in Cluster
+        Point                       __centroid;         // Mean center Point of Cluster
+        bool                        __validCentroid;    // Checks if Centroid of Cluster is valid
         // TODO: Implement static std::unordered_map
 
     public:
@@ -48,12 +49,11 @@ namespace Clustering
         {
         public:
             // Move constructor
-            // TODO: Reimplement Move class to work with Point instead of PointPtr
-            Move(const PointPtr &ptr, ClusterPtr from, ClusterPtr to);
+            Move(const Point &p, ClusterPtr from, ClusterPtr to);
             ~Move(){}
 
             // Move member functions
-            void perform(const PointPtr &ptr, ClusterPtr from, ClusterPtr to); // Moves a Point
+            void perform(const Point &p, ClusterPtr from, ClusterPtr to); // Moves a Point
         };
 
         // Cluster constructors
@@ -99,8 +99,8 @@ namespace Clustering
         // TODO: Reimplement add()/remove() to work with const Point &
 //        void add(const Point &);
 //        const Point &remove(const Point &);
-        void add(const PointPtr &); // Add a Point to a Cluster
-        const PointPtr &remove(const PointPtr &); // Remove a Point from a Cluster
+        void add(const Point &); // Add a Point to a Cluster
+        const Point &remove(const Point &); // Remove a Point from a Cluster
 
         // KMeans computeClusteringScore functions
         double intraClusterDistance() const; // Sum of distances between Points in Cluster
@@ -136,8 +136,8 @@ namespace Clustering
         friend const Cluster operator -(const Cluster &, const Cluster &);
 
         // TODO: Reimplement using const Point &
-        friend const Cluster operator +(const Cluster &, const PointPtr &);
-        friend const Cluster operator -(const Cluster &, const PointPtr &);
+        friend const Cluster operator +(const Cluster &, const Point &);
+        friend const Cluster operator -(const Cluster &, const Point &);
     };
 } // end Clustering namespace
 #endif //CLUSTERING_CLUSTER_H

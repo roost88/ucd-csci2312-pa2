@@ -42,17 +42,22 @@ void testPointBool()
     p1.setValue(2, 5.0);
 
     Clustering::Point p2(2);
-    p2.setValue(1, 2.0);
-    p2.setValue(2, 5.0);
+    p2.setValue(1, 6.0);
+    p2.setValue(2, 90.0);
 
     Clustering::Cluster c1(2);
-    c1.add(&p1);
-    c1.add(&p2);
+    c1.add(p1);
+    c1 += p2;
 
-    Clustering::Cluster c2(2);
-    c2.add(&p1);
-    c2.add(&p2);
+    std::cout << c1 << std::endl;
 
-    c2 - c1;
+    c1 -= p1;
+
+    std::cout << c1 << std::endl;
+
+    std::cout << (c1 + p1) << std::endl;
+
+    std::cout << (c1 - p2) << std::endl;
+
 }
 
