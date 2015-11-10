@@ -17,9 +17,11 @@ namespace Clustering
 {
     typedef Point *PointPtr; // Point * alias
     typedef struct ListNode *ListNodePtr; // ListNode * alias
-    typedef class Cluster *ClusterPtr;
+    typedef class Cluster *ClusterPtr; // Cluster * alias
+    typedef std::forward_list<Point> fList; // Forward List alias
 
     // Node structure supporting singly-linked list
+    // TODO: Do we still need this?
     struct ListNode
     {
         PointPtr p; // Points to specific Point stored in the struct
@@ -30,16 +32,14 @@ namespace Clustering
     class Cluster
     {
     private:
-        unsigned int                __id;               // Unique Cluster ID number
-        static unsigned int         __idGenerator;      // Used to increment ID number
-        int                         __size;             // Keeps track of the amount of Points in the Cluster
-        // TODO: Reimplement __head as std::forward_list<Point>
-//        std::forward_list<Point>    __head;
-        ListNodePtr                 __head;             // Points to the first node in the list
-        unsigned long int           __numDimensions;    // Number of dimensions of Points in Cluster
-        Point                       __centroid;         // Mean center Point of Cluster
-        bool                        __validCentroid;    // Checks if Centroid of Cluster is valid
-        // TODO: Implement static std::unordered_map
+        unsigned int        __id;               // Unique Cluster ID number
+        static unsigned int __idGenerator;      // Used to increment ID number
+        int                 __size;             // Keeps track of the amount of Points in the Cluster
+        fList               __head;
+        unsigned long int   __numDimensions;    // Number of dimensions of Points in Cluster
+        Point               __centroid;         // Mean center Point of Cluster
+        bool                __validCentroid;    // Checks if Centroid of Cluster is valid
+        // TODO: Implement  static std::unordered_map
 
     public:
         static const char POINT_CLUSTER_ID_DELIM;   // Static Cluster delimiter value (for output)
@@ -47,30 +47,40 @@ namespace Clustering
         // Inner class Move - represents motion of a Point from one Cluster to another
         class Move
         {
+        private:
+            Point       __p;
+            ClusterPtr  __from;
+            ClusterPtr  __to;
         public:
             // Move constructor
             Move(const Point &p, ClusterPtr from, ClusterPtr to);
             ~Move(){}
 
             // Move member functions
-            void perform(const Point &p, ClusterPtr from, ClusterPtr to); // Moves a Point
+            void perform(); // Moves a Point
         };
 
         // Cluster constructors
+        Cluster() :
+                __id(__idGenerator++),
+                __size(0),
+                __numDimensions(0),
+                __centroid(__numDimensions),
+                __validCentroid(false) {}
+
         // Takes an int for the amount of dimensions in Points
         Cluster(unsigned long int numDims) :
                 __id(__idGenerator++),
                 __size(0),
-                __head(nullptr),
                 __numDimensions(numDims),
                 __centroid(__numDimensions),
-                __validCentroid(false){}
+                __validCentroid(false) {}
 
         // Copy constructor
         Cluster(const Cluster &right) :
-                __id(__idGenerator++),
+                __id(right.getID()),
                 __size(right.getSize()),
-                __head(deepCopy(right.getHead())),
+                __head(right.getHead()),
                 __numDimensions(right.getNumDimensions()),
                 __centroid(right.getCentroid()),
                 __validCentroid(right.getCentroidValidity()){}
@@ -84,7 +94,7 @@ namespace Clustering
         // Getters
         unsigned int getID() const { return __id; } // Return Cluster ID
         int getSize() const { return __size; } // Return Cluster size
-        ListNodePtr getHead() const { return __head; } // Return Cluster linked-list head address
+        fList getHead() const { return __head; } // Return Cluster forward list head address
         unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
         const Point getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
@@ -95,12 +105,10 @@ namespace Clustering
 //        unsigned int numberFailed();
 
         // Cluster member functions
-        ListNodePtr deepCopy(ListNodePtr); // Copy function
-        // TODO: Reimplement add()/remove() to work with const Point &
-//        void add(const Point &);
-//        const Point &remove(const Point &);
+//        ListNodePtr deepCopy(ListNodePtr); // Copy function
         void add(const Point &); // Add a Point to a Cluster
         const Point &remove(const Point &); // Remove a Point from a Cluster
+        void sort(); // Sort Points within Cluster
 
         // KMeans computeClusteringScore functions
         double intraClusterDistance() const; // Sum of distances between Points in Cluster
@@ -110,7 +118,7 @@ namespace Clustering
 
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
-        void pickPoints(int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
+        void pickPoints(unsigned long int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
 
         // Overloaded [] operator
         // TODO: Implement this
@@ -135,7 +143,6 @@ namespace Clustering
         friend const Cluster operator +(const Cluster &, const Cluster &);
         friend const Cluster operator -(const Cluster &, const Cluster &);
 
-        // TODO: Reimplement using const Point &
         friend const Cluster operator +(const Cluster &, const Point &);
         friend const Cluster operator -(const Cluster &, const Point &);
     };

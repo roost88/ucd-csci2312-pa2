@@ -16,7 +16,8 @@ namespace Clustering
     const double KMeans::SCORE_DIFF_THRESHOLD = 0.3; // Must be less than 1.0 and greater than 0
 
     // Constructors
-    KMeans::KMeans(unsigned long int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile)
+    KMeans::KMeans(unsigned long int numDims, unsigned long int numClusters,
+                   std::string const &inputFile, std::string const &outputFile)
     {
         /* Setup and Initialization */
 
@@ -41,6 +42,11 @@ namespace Clustering
 
             // Close the file
             inFile.close();
+
+            // Sort __point_space
+            __point_space->sort();
+
+            // Display sorted __point_space
             std::cout << "\npoint_space:\n" << *__point_space << std::endl;
         }
         else
@@ -51,6 +57,7 @@ namespace Clustering
         }
 
         // Assign k; k cannot be greater than the number of Points read in
+        // TODO: Is this necessary?
         if (numClusters <= __point_space->getSize())
         {
             __k = numClusters;
@@ -62,28 +69,31 @@ namespace Clustering
         }
 
         // Create empty array of Centroids
+        // TODO: Reimplement this as a vector?
         Clustering::PointPtr *centroidArray = new Clustering::PointPtr[__k];
 
         // Pick Centroids from Cluster
-        std::cout << "Picking Points to use as Centroids..." << std::endl;
         __point_space->pickPoints(__k, centroidArray);
 
-        // Create dynamic array of k ClusterPtrs
-        __kClusterArray = new ClusterPtr[__k];
+        // TODO: Initialize kClusterArray
+        __kClusterArray.reserve(__k);
 
-        // Set point_space as first Cluster in array
-        __kClusterArray[0] = new Cluster(*__point_space);
+        // Add __point_space to kClusterArray
+        __kClusterArray.push_back(*__point_space);
 
-        for (int i = 1; i < __k; i++)
+        // Add __k - 1 empty Clusters to kClusterArray
+        for (int i = 0; i < (__k-1); i++)
         {
-            __kClusterArray[i] = new Cluster(numDims);
+            __kClusterArray.emplace_back(numDims);
         }
 
-        // Set Centroids and dimensions of dynamic Clusters
+        // Set Centroids of Clusters
         for (int i = 0; i < __k; i++)
         {
-            __kClusterArray[i]->setCentroid((*centroidArray[i]));
-            std::cout << "Initial kCluster " << (i+1) << " Centroid: " << __kClusterArray[i]->getCentroid() << std::endl;
+            __kClusterArray[i].setCentroid(*centroidArray[i]);
+
+            std::cout << "Initial kCluster " << __kClusterArray[i].getID()
+            << " Centroid: " << __kClusterArray[i].getCentroid() << std::endl;
         }
 
         // Create variables to hold Clustering score and scoreDiff
@@ -94,59 +104,62 @@ namespace Clustering
         /****************************************/
 
         /* Perform Clustering */
+
         std::cout << "\nRunning Clustering algorithm..." << std::endl << std::endl;
+
         // Loop until scoreDiff < SCORE_DIFF_THRESHOLD
         while(SCORE_DIFF_THRESHOLD < scoreDiff)
         {
             // Loop through all Clusters
             for (int i = 0; i < __k; i++)
             {
-                // Current Cluster variable
-                ClusterPtr current = __kClusterArray[i];
-                ListNodePtr curr = __kClusterArray[i]->getHead();
+                // Copy forward list of current Cluster
+                fList list = __kClusterArray[i].getHead();
+
+                // Create iterator
+                fList::iterator pos = list.begin();
 
                 // Loop through all Points
-                while (curr != nullptr)
+                while (pos != list.end())
                 {
-                    // Point variable
-                    PointPtr pt = curr->p;
-
-                    // Other Cluster variable
-                    ClusterPtr other = nullptr;
-
                     // Find the smallest distance between current Point and a Centroid
                     double minDist = DBL_MAX;
-                    Point currCentroid(numDims);
+
+                    int centCounter = 0;
 
                     for (int j = 0; j < __k; j++)
                     {
                         // Calculate distance from current Point to each Centroid
-                        double currDist = curr->p->distanceTo(__kClusterArray[j]->getCentroid());
+                        double currDist = pos->distanceTo(__kClusterArray[j].getCentroid());
 
                         if (minDist > currDist)
                         {
                             // Save the nearest Centroid
                             minDist = currDist;
-                            currCentroid = __kClusterArray[j]->getCentroid();
+                            centCounter = j;
                         }
                     }
 
-                    if (currCentroid != current->getCentroid())
+                    if (__kClusterArray[centCounter].getCentroid() != __kClusterArray[i].getCentroid())
                     {
+                        int count = 0;
+
                         // Search for Cluster that has matching Centroid
                         for (int h = 0; h < __k; h++)
                         {
-                            if (currCentroid == __kClusterArray[h]->getCentroid())
+                            if (__kClusterArray[centCounter].getCentroid() == __kClusterArray[h].getCentroid())
                             {
-                                other = __kClusterArray[h];
+                                count = h;
                             }
                         }
 
                         // Perform move
-                        Cluster::Move *m = new Cluster::Move(*pt, current, other);
+                        Cluster::Move *m = new Cluster::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
                         delete m;
                     }
-                    curr = curr->next;
+
+                    // Increment iterator
+                    pos++;
                 }
             }
 
@@ -156,9 +169,9 @@ namespace Clustering
             std::cout << "Recalculating Centroids..." << std::endl;
             for (int i = 0; i < __k; i++)
             {
-                if (!__kClusterArray[i]->getCentroidValidity())
+                if (!__kClusterArray[i].getCentroidValidity())
                 {
-                    __kClusterArray[i]->calcCentroid();
+                    __kClusterArray[i].calcCentroid();
                 }
             }
 
@@ -178,7 +191,7 @@ namespace Clustering
         for (int i = 0; i < __k; i++)
         {
             std::cout << "\nkCluster " << i+1 << " (FINAL):\n"
-            << "Centroid: " << __kClusterArray[i]->getCentroid() << "\n" << *__kClusterArray[i];
+            << "Centroid: " << __kClusterArray[i].getCentroid() << "\n" << __kClusterArray[i];
         }
 
         /* Write results to file */
@@ -193,7 +206,7 @@ namespace Clustering
             // Loop through cluster array and output to file
             for (int i = 0; i < __k; i++)
             {
-                outFile << *__kClusterArray[i] << std::endl;
+                outFile << __kClusterArray[i] << std::endl;
             }
 
             std::cout << "Output successfully written to file!" << std::endl;
@@ -224,26 +237,29 @@ namespace Clustering
     // Destructor
     KMeans::~KMeans()
     {
-        // Destroy point_space Cluster and all Points within
-        ListNodePtr pSpace = __point_space->getHead();
-        while (pSpace != nullptr)
-        {
-            delete pSpace->p;
-            pSpace = pSpace->next;
-        }
-        delete __point_space;
+//        // Destroy point_space Cluster and all Points within
+//        fList list = __point_space->getHead();
+//
+//        ListNodePtr pSpace = __point_space->getHead();
+//
+//        while (pSpace != nullptr)
+//        {
+//            delete pSpace->p;
+//            pSpace = pSpace->next;
+//        }
+//        delete __point_space;
 
-        // Delete kClusterArray and all Points within
-        for (int i = 0; i < __k; i++)
-        {
-            delete __kClusterArray[i];
-        }
+//        // Delete kClusterArray and all Points within
+//        for (int i = 0; i < __k; i++)
+//        {
+//            delete __kClusterArray[i];
+//        }
     }
     // ******************************************
 
     /* Member functions */
     // Implement Beta-CV criterion (coefficient of variation)
-    double KMeans::computeClusteringScore(ClusterPtr *clusterArray)
+    double KMeans::computeClusteringScore(std::vector<Cluster>& clusterArray)
     {
         double W_in = 0;
         double W_out = 0;
@@ -254,7 +270,7 @@ namespace Clustering
         // Calculate W_in: sum of intraCluster distances
         for (int i = 0; i < __k; i++)
         {
-            W_in += clusterArray[i]->intraClusterDistance();
+            W_in += clusterArray[i].intraClusterDistance();
         }
 
         // Calculate W_out: sum of interCluster distances
@@ -262,14 +278,14 @@ namespace Clustering
         {
             for (int j = i+1; j < __k; j++)
             {
-                W_out += interClusterDistance(*clusterArray[i], *clusterArray[j]);
+                W_out += interClusterDistance(clusterArray[i], clusterArray[j]);
             }
         }
 
         // Calculate N_in: number of distinct intraCluster edges
         for (int i = 0; i < __k; i++)
         {
-            N_in += clusterArray[i]->getClusterEdges();
+            N_in += clusterArray[i].getClusterEdges();
         }
 
         // Calculate N_out: number of distinct interCluster edges
@@ -277,7 +293,7 @@ namespace Clustering
         {
             for (int j = i+1; j < __k; j++)
             {
-                N_out += interClusterEdges(*__kClusterArray[i], *__kClusterArray[j]);
+                N_out += interClusterEdges(clusterArray[i], clusterArray[j]);
             }
         }
 

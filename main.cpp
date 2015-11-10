@@ -15,11 +15,13 @@
 // Function prototypes
 void testKMeans();
 void testPointBool();
+void testPoint();
 
 int main()
 {
     testKMeans();
 //    testPointBool();
+//    testPoint();
 
     return 0;
 }
@@ -28,7 +30,7 @@ int main()
 void testKMeans()
 {
     unsigned long int numDims = 5;
-    int k = 4;
+    unsigned long int k = 4;
     std::string input = "input.csv";
     std::string output = "output.csv";
 
@@ -46,18 +48,43 @@ void testPointBool()
     p2.setValue(2, 90.0);
 
     Clustering::Cluster c1(2);
+
     c1.add(p1);
-    c1 += p2;
 
     std::cout << c1 << std::endl;
 
-    c1 -= p1;
+    std::vector<Clustering::Cluster> kClusterArray(3);
 
-    std::cout << c1 << std::endl;
+    kClusterArray.insert(kClusterArray.begin(), c1);
 
-    std::cout << (c1 + p1) << std::endl;
+    std::cout << kClusterArray[0] << std::endl;
 
-    std::cout << (c1 - p2) << std::endl;
+    kClusterArray[1].add(p1);
+    kClusterArray[1].add(p2);
 
+    std::cout << kClusterArray[1] << std::endl;
+
+    kClusterArray[0].add(kClusterArray[1].remove(p2));
+
+    std::cout << kClusterArray[0] << std::endl;
+    std::cout << kClusterArray[1] << std::endl;
+}
+
+void testPoint()
+{
+    Clustering::Point p1(5);
+    p1.setValue(1, 1);
+    p1.setValue(2, 2);
+    p1.setValue(3, 3);
+    p1.setValue(4, 4);
+    p1.setValue(5, 5);
+
+    std::cout << p1 << std::endl;
+
+    Clustering::Point p2(0);
+
+    p2 = p1;
+
+    std::cout << p2 << std::endl;
 }
 

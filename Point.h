@@ -36,6 +36,7 @@ namespace Clustering
         static const char POINT_VALUE_DELIM; // Static Point delimiter (for I/O)
 
         /* Constructors */
+        Point();
         Point(unsigned long int);
         Point(const Point &); // Copy constructor
         Point &operator=(const Point &); // Overloaded assignment operator
@@ -51,6 +52,7 @@ namespace Clustering
         unsigned int getID() const { return __id; }
         unsigned long int getDim() const { return __dim; } // Return dimensions of Point
         double getValue(int) const; // Return value in Point array
+        std::vector<double> getValues() const { return __values; } // Return values vector
 
         /* Overloaded operators dimension-wise (members) */
         Point &operator *=(double);

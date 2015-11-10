@@ -19,17 +19,21 @@ namespace Clustering
     // Move constructor
     Cluster::Move::Move(const Point &p, ClusterPtr from, ClusterPtr to)
     {
-        perform(p, from, to);
+        __p = p;
+        __from = from;
+        __to = to;
+
+        perform();
     }
 
     // Move member functions
-    void Cluster::Move::perform(const Point &p, ClusterPtr from, ClusterPtr to)
+    void Cluster::Move::perform()
     {
         // TODO: Throw RemoveFromEmpty exception
         // Remove Point from Cluster and add to another Cluster
         try
         {
-            to->add(from->remove(p));
+            __to->add(__from->remove(__p));
         }
         catch(RemoveFromEmptyEx e)
         {
@@ -42,9 +46,19 @@ namespace Clustering
     Cluster &Cluster::operator =(const Cluster &right)
     {
         // Copy all values from right into left and return
-        __id = __idGenerator++;;
+        __id = right.getID();
         __size = right.getSize();
-        __head = deepCopy(right.getHead());
+
+        if (__head.empty())
+        {
+            __head = right.getHead();
+        }
+        else
+        {
+            __head.clear();
+            __head = right.getHead();
+        }
+
         __numDimensions = right.getNumDimensions();
         __centroid = right.getCentroid();
         __validCentroid = right.getCentroidValidity();
@@ -54,14 +68,6 @@ namespace Clustering
     // Cluster destructor
     Cluster::~Cluster()
     {
-        // If there are Points in the Cluster
-        if (__size != 0)
-        {
-            ListNodePtr current = __head;
-            delete current;
-        }
-        __head = nullptr;
-        __size = 0;
         std::cout << "Cluster " << getID() << " destroyed!" << std::endl;
     }
     // ******************************************
@@ -70,11 +76,8 @@ namespace Clustering
     // Set the Centroid of a Cluster
     void Cluster::setCentroid(const Point &right)
     {
-        // Create a new Centroid
-        PointPtr newCentroid = new Point(right);
-
         // Set Cluster's Centroid equal to new Centroid
-        __centroid = *newCentroid;
+        __centroid = right;
 
         // Re-validate Centroid
         __validCentroid = true;
@@ -82,206 +85,134 @@ namespace Clustering
     // ******************************************
 
     /* Cluster member functions */
-    // Copy function
-    ListNodePtr Cluster::deepCopy(ListNodePtr hd)
-    {
-        // Set current equal to ListNodePtr passed in
-        ListNodePtr current = hd;
 
-        // Create two empty heads
-        ListNodePtr newHd = nullptr;
-        ListNodePtr previous = nullptr;
-
-        // Loop through linked-list
-        while (current != nullptr)
-        {
-            // 1st iteration
-            if (newHd == nullptr)
-            {
-                // Create a new Node and copy in left hand values
-                ListNodePtr newNode = new ListNode(current->p, newHd);
-
-                // Set newHd to point to new Node
-                newHd = newNode;
-
-                // Copy newHd into previous pointer
-                previous = newHd;
-            }
-            // Remaining iterations
-            else
-            {
-                // Create new Node and copy in next left hand values
-                ListNodePtr newNode = new ListNode(current->p, previous->next);
-
-                // Set next Node equal to new Node
-                previous->next = newNode;
-
-                // Increment previous pointer
-                previous = previous->next;
-            }
-
-            // Increment current pointer
-            current = current->next;
-        }
-        return newHd;
-    }
-
-    // Add Point to Cluster in lexicographic order
-    // TODO: Reimplement using const Point &
+    // Add Point to Cluster
     void Cluster::add(const Point &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
 
-        // Copy Point
-        PointPtr pt = new Point(right);
+        // Copy forward list
+        fList list = this->getHead();
 
-        // Create a new Node and copy right values
-        ListNodePtr newNode = new ListNode(pt, nullptr);
+        // Create iterator
+        fList::iterator pos = list.begin();
+        fList::iterator it;
 
-        // Case 1 - add Point to empty linked list
-        if (__head == nullptr)
+        // Case 1 - add Point to empty forward list
+        if (list.empty())
         {
-            // head now points to the new List Node
-            __head = newNode;
+            __head.push_front(right);
         }
         else
         {
-            // Copy Cluster head and create NULL pointer
-            ListNodePtr current = __head;
-            ListNodePtr previous = nullptr;
-
-            // Loop through linked-list to find insertion point
-            while (current != nullptr)
+            // Loop through all Points
+            for (pos; pos != list.end(); pos++)
             {
-                // Check Points - If current Point is greater than or equal to
-                if (*current->p > *newNode->p)
+                // Check if Point is already in Cluster
+                if (*pos == right)
                 {
-                    // Break out of while loop and go to next case
-                    break;
-                }
-                else if (*current->p == *newNode->p)
-                {
-                    std::cout << "Point " << right << " already exists in Cluster " << getID() << "!"
-                    << std::endl;
+                    // TODO: Throw PointAlreadyExistsEx?
+                    std::cout << "Point " << right << " already exists in Cluster "
+                    << getID() << "!" << std::endl;
                     return;
                 }
-                else
-                {
-                    previous = current;
-                    current = current->next;
-                }
             }
 
-            // Case 2 - insert at head (linked-list not empty)
-            if (current == __head)
-            {
-                newNode->next = __head;
-                __head = newNode;
-            }
-
-                // Case 3 - insert somewhere after the head (linked-list not empty)
-            else
-            {
-                newNode->next = current;
-                previous->next = newNode;
-            }
+            // If for loop terminates without returning, add Point to Cluster
+            __head.push_front(right);
         }
 
         // Increment size of Cluster
         __size++;
 
-        std::cout << "Point " << right << " added to Cluster " << getID() << "!" << std::endl;
+        // Display message
+        std::cout << "Point " << right << " added to Cluster " << this->getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point
-    // TODO: Reimplement using const Point &
     const Point &Cluster::remove(const Point &right)
     {
         // Invalidate Centroid
         __validCentroid = false;
 
-        // Case 1 - remove Point from empty linked list
+        // Check if Point exists in list
+        bool exists = false;
+
+        // Copy list
+        fList list = this->getHead();
+
+        // List iterator
+        fList::iterator pos = list.begin();
+        fList::iterator it = list.begin();
+
+        // Case 1 - remove Point from empty forward list
         // TODO: Throw RemoveFromEmpty exception
-        if (__head == nullptr)
+        if (list.empty())
+        {
             throw RemoveFromEmptyEx(right.getID(), this->getID());
-//        {
-//            std::cout << "Point cannot be deleted from an empty Cluster!" << std::endl;
-//            return nullptr;
-//        }
+        }
         else
         {
-            // Copy head into current
-            ListNodePtr current = __head;
-            ListNodePtr previous = nullptr;
-
-            // Loop through linked-list to find Point
-            while (current != nullptr)
+            for (pos; pos != list.end(); pos++)
             {
-                // If Points are equal, break out of loop
-                if (*current->p == right)
+                if (*pos == right)
                 {
-                    break;
+                    exists = true;
                 }
-                else
-                {
-                    // Iterate while loop
-                    previous = current;
-                    current = current->next;
-                }
-            }
-
-            // Case 2 - Point not found in Cluster linked list
-            if (current == nullptr)
-            {
-                // TODO: Throw exception
-                std::cout << "Point " << right << " was not found in Cluster " << getID() << "!" << std::endl;
-//                return nullptr;
-            }
-            else
-            {
-                // Case 3 - delete the head node
-                if (__head == current)
-                {
-                    // Isolate node to be deleted
-                    __head = __head->next;
-                }
-                    // Case 4 - delete from beyond head node
-                else
-                {
-                    previous->next = current->next;
-                }
-                // delete Point from Cluster
-                delete current;
-
-                // Decrement size
-                __size--;
-
-                std::cout << "Point " << right << " removed from Cluster " << getID() << "!" << std::endl;
             }
         }
+
+        // Case 2 - if Point exists, remove it
+        if (exists)
+        {
+            // TODO: Use erase_after?
+            __head.remove(right);
+        }
+        else
+        {
+            // TODO: Throw PointNotFoundEx?
+            std::cout << "Point not found!" << std::endl;
+        }
+
+        std::cout << "Point " << right << " removed from Cluster " << this->getID() << std::endl;
         return right;
+    }
+
+    // Sort Cluster forward_list
+    void Cluster::sort()
+    {
+        // Uses std::forward_list function sort()
+        __head.sort();
     }
     // ******************************************
 
     // Inside Cluster distance between Points
     double Cluster::intraClusterDistance() const
     {
-        double sum = 0; // Initialize sum
+        // Initialize sum
+        double sum = 0;
+
+        // Copy forward list
+        fList list = this->getHead();
+
+        // List iterators
+        fList::iterator pos = list.begin();
+        fList::iterator nxt = list.begin();
 
         // Double loop through linked-list of Cluster
-        for (ListNodePtr curr = __head; curr != nullptr; curr = curr->next)
+        for (pos; pos != list.end(); pos++)
         {
-            for (ListNodePtr nxt = __head; nxt != nullptr; nxt = nxt->next)
+            for (nxt; nxt != list.end(); nxt++)
             {
                 // Calculate distance between Points and add to sum
-                if (curr->p == nxt->p)
+                if (*pos == *nxt)
                 {
                     sum += 0;
                 }
                 else
                 {
-                    sum += curr->p->distanceTo(*nxt->p);
+                    sum += (*pos).distanceTo(*nxt);
                 }
             }
         }
@@ -293,23 +224,33 @@ namespace Clustering
     // Returns sum of distance between Points between all Clusters
     double interClusterDistance(const Cluster &c1, const Cluster &c2)
     {
+        // Initialize sum
+        double sum = 0;
+
+        // Copy forward lists
+        fList list1 = c1.getHead();
+        fList list2 = c2.getHead();
+
+        // Create iterators
+        fList::iterator pos1 = list1.begin();
+        fList::iterator pos2 = list2.begin();
+
         // Check if Clusters equal each other
         if (c1 == c2)
         {
             return 0;
         }
 
-        double sum = 0; // Initialize sum
-
         // Loop through linked-lists of both Clusters
-        for (ListNodePtr right = c1.getHead(); right != nullptr; right = right->next)
+        for (pos1; pos1 != list1.end(); pos1++)
         {
-            for (ListNodePtr left = c2.getHead(); left != nullptr; left = left->next)
+            for (pos2; pos2 != list2.end(); pos2++)
             {
                 // Calculate distance between Points and add to sum
-                sum += right->p->distanceTo(*left->p);
+                sum += (*pos1).distanceTo(*pos2);
             }
         }
+
         // Divide sum by 2 since we looped through both lists twice and return
         sum /= 2.0;
         return sum;
@@ -333,8 +274,8 @@ namespace Clustering
         {
             return 0;
         }
-        size1 = c1.__size;
-        size2 = c2.__size;
+        size1 = c1.getSize();
+        size2 = c2.getSize();
         result = size1 * size2;
         return result;
     }
@@ -343,63 +284,72 @@ namespace Clustering
     // Compute the Centroid of a Cluster
     void Cluster::calcCentroid()
     {
-        // Copy Cluster
-        ClusterPtr c1 = new Cluster(*this);
-        ListNodePtr current = c1->getHead();
-
-        // Create a new Point
-        Point newCent(__numDimensions);
-
-        // TODO: Throw RemoveFromEmpty exception
-        if (__size <= 0)
-            throw RemoveFromEmptyEx(newCent.getID(), c1->getID());
-
-        // If there's only one Point in the Cluster
-        else if (__size == 1)
+        // Check if list is empty
+        if (__head.empty())
         {
-            // The Centroid equals the Point
-            newCent = *current->p;
-            setCentroid(newCent);
+            // TODO: Throw RemoveFromEmptyEx
+            return;
+        }
+
+        // Copy forward list
+        fList list = this->getHead();
+
+        // Create iterator
+        fList::iterator pos = list.begin();
+
+        // Create new Point
+        Point newCent(this->getNumDimensions());
+
+        // TODO: Is this necessary?
+        if (this->getSize() == 1)
+        {
+            newCent = *pos;
+            this->setCentroid(newCent);
         }
         else
         {
-            // Sum of all Points in the Cluster
-            while (current != nullptr)
+            // Loop through Points in list and add to newCent
+            for (pos; pos != list.end(); pos++)
             {
-                newCent += *current->p;
-                current = current->next;
+                newCent += *pos;
             }
 
-            // Divide the sum of all Points by the size of the Cluster
-            newCent = newCent / getSize();
+            // Divide sum of all Points in Cluster by size of Cluster
+            newCent /= this->getSize();
 
             // Set the Centroid
-            setCentroid(newCent);
+            this->setCentroid(newCent);
         }
     }
 
     // Pick k Points from a Cluster to use as initial Centroids for Clustering
-    void Cluster::pickPoints(int k, PointPtr *pointArray)
+    void Cluster::pickPoints(unsigned long int k, PointPtr *pointArray)
     {
+        std::cout << "Picking Points to use as Centroids..." << std::endl;
+
         // Divide Cluster size by how many Centroids we want
         // TODO: Divide by zero exception
-        int div = getSize() / k; // This is what we'll increment count by
+        unsigned long int div = getSize() / k; // This is what we'll increment count by
         int count = 0;
+
+        // Copy forward list
+        fList list = this->getHead();
 
         // Iterate k times to get k Centroids
         for (int i = 0; i < k; i++)
         {
-            // Set current to the beginning of the list
-            ListNodePtr current = __head;
+            // Set iterator to the beginning of the list
+            fList::iterator pos = list.begin();
 
             // Use count to iterate through the list to find the Point we want
             for (int j = 0; j < count; j++)
             {
                 // Iterate through list
-                current = current->next;
+                pos++;
             }
+
             // Copy current Point
-            PointPtr pt = new Point(*current->p);
+            PointPtr pt = new Point(*pos);
 
             // Write the Point we chose into the Centroid array
             pointArray[i] = pt;
@@ -407,6 +357,8 @@ namespace Clustering
             // Increment count by the value of div
             count += div;
         }
+
+        std::cout << "Centroids picked!" << std::endl;
     }
     // ******************************************
 
@@ -423,15 +375,19 @@ namespace Clustering
     {
         // Output will look like: x, y, z : [Cluster ID]
 
-        // Loop through linked-list
-        for (ListNodePtr current = right.__head; current != nullptr; current = current->next)
-        {
-            // Set point equal to current Point
-            PointPtr point = current->p;
+        // Copy forward list
+        fList list = right.getHead();
 
+        // Create iterator
+        fList::iterator pos = list.begin();
+
+        // Loop through linked-list
+        for (pos; pos != list.end(); pos++)
+        {
             // Output results
-            out << *point << " " << Cluster::POINT_CLUSTER_ID_DELIM << " " << right.__id << std::endl;
+            out << *pos << " " << Cluster::POINT_CLUSTER_ID_DELIM << " " << right.getID() << std::endl;
         }
+
         return out;
     }
 
@@ -446,7 +402,7 @@ namespace Clustering
         // While we are able to read from input into string
         while (std::getline(input, line, '\n'))
         {
-            Clustering::PointPtr pt = new Clustering::Point(numDims);
+            PointPtr pt = new Clustering::Point(numDims);
 
             // Convert the string line into a stringstream
             std::stringstream lineStr(line);
@@ -474,32 +430,35 @@ namespace Clustering
     bool operator ==(const Cluster &left, const Cluster &right)
     {
         // Check sizes and heads of Clusters first
-        if (left.__size != right.__size || left.__head != right.__head)
+        if (left.getSize() != right.getSize() || left.getHead() != right.getHead())
         {
             return false;
         }
-        else
-        {
-            // Copy head pointers
-            ListNodePtr leftHead = left.__head;
-            ListNodePtr rightHead = right.__head;
+        else {
+            // Copy forward lists
+            fList list1 = left.getHead();
+            fList list2 = right.getHead();
 
-            // Loop through linked-lists of both Clusters
-            while (leftHead != nullptr && rightHead != nullptr)
+            // Create iterators
+            fList::iterator pos1 = list1.begin();
+            fList::iterator pos2 = list2.begin();
+
+            // Loop through lists of both Clusters
+            while (pos1 != list1.end() && pos2 != list2.end())
             {
                 // Check if Points are equal
-                if (leftHead->p == rightHead->p)
+                if (*pos1 == *pos2)
                 {
-                    // Increment both Clusters
-                    leftHead = leftHead->next;
-                    rightHead = rightHead->next;
+                    pos1++;
+                    pos2++;
                 }
                 else
                 {
                     return false;
                 }
             }
-            // If while loop terminates without returning false, return true
+
+            // If while loop terminates without returning false
             return true;
         }
     }
@@ -543,7 +502,15 @@ namespace Clustering
     // Remove a Point from referenced Cluster
     Cluster &Cluster::operator -=(const Point &right)
     {
-        this->remove(right);
+        try
+        {
+            this->remove(right);
+        }
+        catch(RemoveFromEmptyEx e)
+        {
+            std::cout << e << std::endl;
+        }
+
         return *this;
     }
     // ******************************************
@@ -552,64 +519,53 @@ namespace Clustering
     // Add two Clusters together
     const Cluster operator +(const Cluster &left, const Cluster &right)
     {
-        // Create a new Cluster that is equal to left-hand Cluster
-        Cluster *newLeft = new Cluster(left);
+        // Create new Cluster equal to left-hand-side
+        Cluster c(left);
 
-        ListNodePtr rightHead = right.__head;
+        // Copy right-hand-side forward list
+        fList list = right.getHead();
 
-        for (; rightHead != nullptr; rightHead = rightHead->next)
+        // Create iterator
+        fList::iterator pos = list.begin();
+
+        // Loop throug list and add Points to new Cluster
+        for (pos; pos != list.end(); pos++)
         {
-            *newLeft += *rightHead->p;
+            c += *pos;
         }
 
-        // Copy result
-        Cluster result(*newLeft);
-
-        delete newLeft;
-
-        // Return new Cluster
-        return result;
+        return c;
     }
 
     // Subtract one Cluster from another
     const Cluster operator -(const Cluster &left, const Cluster &right)
     {
-        // Create a new Cluster that is equal to left-hand Cluster
-        Cluster *newLeft = new Cluster(left);
-        Cluster *newRight = new Cluster(right);
+        // Create new Cluster equal to left-hand-side
+        Cluster c(left);
 
-        ListNodePtr rightHead = newRight->__head;
+        // Copy right-hand-side forward list
+        fList list = right.getHead();
 
-        for (; rightHead != nullptr; rightHead = rightHead->next)
+        // Create iterator
+        fList::iterator pos = list.begin();
+
+        // Loop through list and remove Points from new Cluster
+        for (pos; pos != list.end(); pos++)
         {
-            try
-            {
-                newLeft->remove(*rightHead->p);
-            }
-            catch(RemoveFromEmptyEx e)
-            {
-                std::cerr << e << std::endl;
-            }
+            c -= *pos;
         }
 
-        // Copy result
-        Cluster result(*newLeft);
-
-        delete newLeft;
-        delete newRight;
-
-        // Return new Cluster
-        return result;
+        return c;
     }
 
     // Add a Point to a Cluster
     const Cluster operator +(const Cluster &left, const Point &right)
     {
-        // Copy const Cluster
+        // Copy left-hand-side
         Cluster c(left);
 
         // Add Point to Cluster
-        c.add(right);
+        c += right;
 
         return c;
     }
@@ -617,11 +573,11 @@ namespace Clustering
     // Subtract a Point from a Cluster
     const Cluster operator -(const Cluster &left, const Point &right)
     {
-        // Copy const Cluster
+        // Copy left-hand-side
         Cluster c(left);
 
         // Remove Point from Cluster
-        c.remove(right);
+        c -= right;
 
         return c;
     }

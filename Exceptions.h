@@ -14,6 +14,8 @@ namespace Clustering
 {
     /* Exceptions */
 
+    // TODO: Define and implement DivideByZeroEx and PointNotFoundEx
+
     class DimensionalityMismatchEx
     {
     private:

@@ -17,6 +17,13 @@ namespace Clustering
     const char Point::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
 
     /* Constructors */
+    Point::Point()
+    {
+        __id = __idGenerator++;
+        __dim = 0;
+        __values.reserve(__dim);
+    }
+
     Point::Point(unsigned long int dimensions)
     {
         // Create new Point ID
@@ -51,33 +58,20 @@ namespace Clustering
     // Overloaded assignment operator
     Point &Point::operator =(const Point &right)
     {
-        // TODO: Throw DimensionalityMismatch exception
-        // Throw DimensionalityMismatchEx exception
-        if (__dim != right.getDim())
-            throw DimensionalityMismatchEx(__dim, right.getDim());
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (__dim != right.getDim())
+//            throw DimensionalityMismatchEx(__dim, right.getDim());
 
-        // If Points already equal each other, return left side
-        else if (*this == right)
+        __id = right.getID();
+
+        __dim = right.getDim();
+
+        __values.clear();
+
+        for (int i = 0; i < __dim; i++)
         {
-            return *this;
-        }
-        else
-        {
-            // Copy ID
-            __id = right.getID();
-
-            // Clear old __values
-            __values.clear();
-
-            // Set capacity of __values vector
-            __values.reserve(__dim);
-
-            // Loop to copy __values from right into left
-            for (int i = 0; i < __dim; i++)
-            {
-                __values[i] = right.__values[i];
-            }
-            return *this;
+            __values.push_back(right.__values[i]);
         }
     }
     // ******************************************
@@ -385,8 +379,8 @@ namespace Clustering
     {
         // TODO: Throw DimensionalityMismatch exception
         // Throw DimensionalityMismatchEx exception
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 
         // Loop through __values
         for (int i = 0; i < left.getDim(); i++)

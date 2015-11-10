@@ -16,23 +16,21 @@ namespace Clustering
     class KMeans
     {
     private:
-        // TODO: add __ before each variable
-        int             __k;
-        ClusterPtr      __point_space; // Pointer to initial Cluster that holds all Points
-        // TODO: reimplement kClusterArray as an std::vector<Cluster>
-//        std::vector<Cluster> __kClusterArray;
-        ClusterPtr *    __kClusterArray; // Pointer to array of ClusterPtrs
+        unsigned long int       __k;
+        ClusterPtr              __point_space; // Pointer to initial Cluster that holds all Points
+        std::vector<Cluster>    __kClusterArray;
 
     public:
         // Member variables
         static const double SCORE_DIFF_THRESHOLD;
 
         // Constructors
-        KMeans(unsigned long int numDims, int numClusters, std::string const &inputFile, std::string const &outputFile);
+        KMeans(unsigned long int numDims, unsigned long int numClusters,
+               std::string const &inputFile, std::string const &outputFile);
         ~KMeans();
 
         // Member functions
-        double computeClusteringScore(ClusterPtr *); // implement Beta-CV criterion (coefficient variation)
+        double computeClusteringScore(std::vector<Cluster>&); // implement Beta-CV criterion (coefficient variation)
     };
 }
 
