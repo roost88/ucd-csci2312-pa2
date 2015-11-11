@@ -49,19 +49,14 @@ namespace Clustering
         __id = right.getID();
         __size = right.getSize();
 
-        if (__head.empty())
-        {
-            __head = right.getHead();
-        }
-        else
-        {
-            __head.clear();
-            __head = right.getHead();
-        }
+        // Copy __head
+        __head.clear();
+        __head = right.getHead();
 
         __numDimensions = right.getNumDimensions();
         __centroid = right.getCentroid();
         __validCentroid = right.getCentroidValidity();
+
         return *this;
     }
 
@@ -81,6 +76,15 @@ namespace Clustering
 
         // Re-validate Centroid
         __validCentroid = true;
+    }
+
+    // Calculate distances between Points within Cluster and store in map
+    void Cluster::setDistanceMap(const Point &p1, const Point &p2)
+    {
+//        unsigned int i = p1.getID();
+//        unsigned int j = p2.getID();
+//        double distance = p1.distanceTo(p2);
+//        __distances.insert({{i, j}, distance});
     }
     // ******************************************
 
@@ -102,32 +106,29 @@ namespace Clustering
         // Case 1 - add Point to empty forward list
         if (list.empty())
         {
-            __head.push_front(right);
+            __head.emplace_front(Point(right));
         }
         else
         {
-            // Loop through all Points
-            for (pos; pos != list.end(); pos++)
+            // Check if Point is already in Cluster
+            if (this->contains(right))
             {
-                // Check if Point is already in Cluster
-                if (*pos == right)
-                {
-                    // TODO: Throw PointAlreadyExistsEx?
-                    std::cout << "Point " << right << " already exists in Cluster "
-                    << getID() << "!" << std::endl;
-                    return;
-                }
+                // Decrement __idGenerator
+                right.rewindIdGen();
+
+                return;
             }
 
             // If for loop terminates without returning, add Point to Cluster
-            __head.push_front(right);
+            __head.emplace_front(Point(right));
         }
 
         // Increment size of Cluster
         __size++;
 
         // Display message
-        std::cout << "Point " << right << " added to Cluster " << this->getID() << "!" << std::endl;
+        std::cout << "Point " << right.getID() << ": " << right
+        << " added to Cluster " << this->getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point
@@ -156,9 +157,16 @@ namespace Clustering
         {
             for (pos; pos != list.end(); pos++)
             {
-                if (*pos == right)
+                try
                 {
-                    exists = true;
+                    if (*pos == right)
+                    {
+                        exists = true;
+                    }
+                }
+                catch (DimensionalityMismatchEx e)
+                {
+                    std::cerr << e << std::endl;
                 }
             }
         }
@@ -175,7 +183,8 @@ namespace Clustering
             std::cout << "Point not found!" << std::endl;
         }
 
-        std::cout << "Point " << right << " removed from Cluster " << this->getID() << std::endl;
+        std::cout << "Point " << right.getID() << ": " << right
+        << " removed from Cluster " << this->getID() << std::endl;
         return right;
     }
 
@@ -184,6 +193,39 @@ namespace Clustering
     {
         // Uses std::forward_list function sort()
         __head.sort();
+    }
+
+    // Check if Cluster already contains Point
+    bool Cluster::contains(const Point &p)
+    {
+        // Copy forward_list
+        fList list = this->getHead();
+
+        // Create iterator
+        fList::iterator pos = list.begin();
+
+        // Loop through all Points in Cluster
+        for (pos; pos != list.end(); pos++)
+        {
+            try
+            {
+                if (*pos == p)
+                {
+                    // Display message
+                    std::cout << "Point " << p << " already exists in Cluster "
+                    << this->getID() << "!" << std::endl;
+
+                    return true;
+                }
+            }
+            catch (DimensionalityMismatchEx e)
+            {
+                std::cerr << e << std::endl;
+            }
+        }
+
+        // If loop terminates without returning true
+        return false;
     }
     // ******************************************
 
@@ -206,13 +248,20 @@ namespace Clustering
             for (nxt; nxt != list.end(); nxt++)
             {
                 // Calculate distance between Points and add to sum
-                if (*pos == *nxt)
+                try
                 {
-                    sum += 0;
+                    if (*pos == *nxt)
+                    {
+                        sum += 0;
+                    }
+                    else
+                    {
+                        sum += (*pos).distanceTo(*nxt);
+                    }
                 }
-                else
+                catch (DimensionalityMismatchEx e)
                 {
-                    sum += (*pos).distanceTo(*nxt);
+                    std::cerr << e << std::endl;
                 }
             }
         }
@@ -285,11 +334,9 @@ namespace Clustering
     void Cluster::calcCentroid()
     {
         // Check if list is empty
+        // TODO: Throw RemoveFromEmptyEx
         if (__head.empty())
-        {
-            // TODO: Throw RemoveFromEmptyEx
-            return;
-        }
+            throw RemoveFromEmptyEx(0, this->getID());
 
         // Copy forward list
         fList list = this->getHead();
@@ -298,7 +345,7 @@ namespace Clustering
         fList::iterator pos = list.begin();
 
         // Create new Point
-        Point newCent(this->getNumDimensions());
+        Point newCent(this->getNumDimensions(), true);
 
         // TODO: Is this necessary?
         if (this->getSize() == 1)
@@ -311,7 +358,14 @@ namespace Clustering
             // Loop through Points in list and add to newCent
             for (pos; pos != list.end(); pos++)
             {
-                newCent += *pos;
+                try
+                {
+                    newCent += *pos;
+                }
+                catch (DimensionalityMismatchEx e)
+                {
+                    std::cerr << e << std::endl;
+                }
             }
 
             // Divide sum of all Points in Cluster by size of Cluster
@@ -366,7 +420,7 @@ namespace Clustering
     // TODO: Implement this
     Point &Cluster::operator[](unsigned int index)
     {
-        // TODO: Throw Out-Of-Bounds exception
+        // TODO: Throw OutOfBoundsEx
     }
 
     // Overloaded iostream operators
@@ -402,7 +456,8 @@ namespace Clustering
         // While we are able to read from input into string
         while (std::getline(input, line, '\n'))
         {
-            PointPtr pt = new Clustering::Point(numDims);
+            // Create new Point
+            PointPtr pt = new Clustering::Point(numDims, false);
 
             // Convert the string line into a stringstream
             std::stringstream lineStr(line);
@@ -418,6 +473,7 @@ namespace Clustering
 
             catch (DimensionalityMismatchEx e)
             {
+                delete pt;
                 std::cerr << e << std::endl;
             }
         }
@@ -447,14 +503,21 @@ namespace Clustering
             while (pos1 != list1.end() && pos2 != list2.end())
             {
                 // Check if Points are equal
-                if (*pos1 == *pos2)
+                try
                 {
-                    pos1++;
-                    pos2++;
+                    if (*pos1 == *pos2)
+                    {
+                        pos1++;
+                        pos2++;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                else
+                catch (DimensionalityMismatchEx e)
                 {
-                    return false;
+                    std::cerr << e << std::endl;
                 }
             }
 
@@ -528,7 +591,7 @@ namespace Clustering
         // Create iterator
         fList::iterator pos = list.begin();
 
-        // Loop throug list and add Points to new Cluster
+        // Loop through list and add Points to new Cluster
         for (pos; pos != list.end(); pos++)
         {
             c += *pos;

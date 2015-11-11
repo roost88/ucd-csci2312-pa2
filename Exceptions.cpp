@@ -42,7 +42,7 @@ namespace Clustering
     std::ostream &operator <<(std::ostream &out, const OutOfBoundsEx &exc)
     {
         out << exc.getName() << " Attempt to return value from Index " << exc.getIndex()
-        << " in an array of Size " << exc. getSize() << " is undefined!";
+        << " in a dimensionality of size " << exc.getSize() << " is undefined!";
         return out;
     }
 
@@ -60,8 +60,25 @@ namespace Clustering
 
     std::ostream &operator <<(std::ostream &out, const RemoveFromEmptyEx &exc)
     {
-        out << exc.getName() << " Attempt to remove Point " << exc.getPID()
-        << " from empty Cluster " << exc.getCID() << " is undefined!";
+        out << exc.getName() << " Attempt to alter/remove Point " << exc.getPID()
+        << " in empty Cluster " << exc.getCID() << " is undefined!";
+        return out;
+    }
+
+    // ******************************************
+
+    // Cannot divide by zero
+    DivideByZeroEx::DivideByZeroEx(unsigned int p)
+    {
+        __name = "EXCEPTION! Divide by zero:";
+        __pointID = p;
+    }
+
+    DivideByZeroEx::~DivideByZeroEx() {}
+
+    std::ostream &operator <<(std::ostream &out, const DivideByZeroEx &exc)
+    {
+        out << exc.getName() << " Attempt to divide Point " << exc.getPID() << " by zero is undefined!";
         return out;
     }
 } // end namespace Clustering

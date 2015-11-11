@@ -37,13 +37,14 @@ namespace Clustering
 
         /* Constructors */
         Point();
-        Point(unsigned long int);
+        Point(unsigned long int, bool);
         Point(const Point &); // Copy constructor
         Point &operator=(const Point &); // Overloaded assignment operator
         ~Point() {} // Destructor
 
         /* Member functions */
         double distanceTo(const Point &) const; // Calculates distance between two points
+        static void rewindIdGen() { __idGenerator--; } // Decrements __idGenerator
 
         /* Setters */
         void setValue(int, double); // Set value of Point
@@ -51,7 +52,7 @@ namespace Clustering
         /* Getters */
         unsigned int getID() const { return __id; }
         unsigned long int getDim() const { return __dim; } // Return dimensions of Point
-        double getValue(int) const; // Return value in Point array
+        double getValue(unsigned int) const; // Return value in Point array
         std::vector<double> getValues() const { return __values; } // Return values vector
 
         /* Overloaded operators dimension-wise (members) */

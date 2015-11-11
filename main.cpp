@@ -39,11 +39,11 @@ void testKMeans()
 
 void testPointBool()
 {
-    Clustering::Point p1(2);
+    Clustering::Point p1(2, false);
     p1.setValue(1, 2.0);
     p1.setValue(2, 5.0);
 
-    Clustering::Point p2(2);
+    Clustering::Point p2(2, false);
     p2.setValue(1, 6.0);
     p2.setValue(2, 90.0);
 
@@ -70,9 +70,8 @@ void testPointBool()
     std::cout << kClusterArray[1] << std::endl;
 }
 
-void testPoint()
-{
-    Clustering::Point p1(5);
+void testPoint() {
+    Clustering::Point p1(5, false);
     p1.setValue(1, 1);
     p1.setValue(2, 2);
     p1.setValue(3, 3);
@@ -81,10 +80,46 @@ void testPoint()
 
     std::cout << p1 << std::endl;
 
-    Clustering::Point p2(0);
+    Clustering::Point p2(0, false);
 
     p2 = p1;
 
     std::cout << p2 << std::endl;
+
+    Clustering::Point p3(0, false);
+
+    try {
+        p2 += p3;
+    }
+    catch (Clustering::DimensionalityMismatchEx e) {
+        std::cerr << e << std::endl;
+    }
+    try {
+        p2 -= p3;
+    }
+    catch (Clustering::DimensionalityMismatchEx e) {
+        std::cerr << e << std::endl;
+    }
+    try {
+        std::cout << (p2 == p3) << std::endl;
+    }
+    catch (Clustering::DimensionalityMismatchEx e) {
+        std::cerr << e << std::endl;
+    }
+    try {
+        std::cout << p2.getValue(9) << std::endl;
+    }
+    catch (Clustering::OutOfBoundsEx e)
+    {
+        std::cerr << e << std::endl;
+    }
+
+    try {
+        p2 / 0;
+    }
+    catch (Clustering::DivideByZeroEx e)
+    {
+        std::cerr << e << std::endl;
+    }
 }
 

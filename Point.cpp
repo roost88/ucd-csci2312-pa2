@@ -24,10 +24,18 @@ namespace Clustering
         __values.reserve(__dim);
     }
 
-    Point::Point(unsigned long int dimensions)
+    Point::Point(unsigned long int dimensions, bool isCentroid)
     {
-        // Create new Point ID
-        __id = __idGenerator++;
+        // Check if Point is a Centroid
+        if (isCentroid)
+        {
+            __id = 0;
+        }
+        else
+        {
+            // Create new Point ID
+            __id = __idGenerator++;
+        }
 
         // Set dimensions of Point
         __dim = dimensions;
@@ -58,21 +66,22 @@ namespace Clustering
     // Overloaded assignment operator
     Point &Point::operator =(const Point &right)
     {
-//        // TODO: Throw DimensionalityMismatch exception
-//        // Throw DimensionalityMismatchEx exception
-//        if (__dim != right.getDim())
-//            throw DimensionalityMismatchEx(__dim, right.getDim());
-
+        // Copy ID
         __id = right.getID();
 
+        // Copy dimensions
         __dim = right.getDim();
 
+        // Clear the __values vector
         __values.clear();
 
+        // Copy __values
         for (int i = 0; i < __dim; i++)
         {
             __values.push_back(right.__values[i]);
         }
+
+        return *this;
     }
     // ******************************************
 
@@ -108,14 +117,15 @@ namespace Clustering
         }
         else
         {
+            // TODO: Throw DoesNotExistEx
             // Display error message
-            std::cout << "That element does not exist in the array!" << std::endl;
+            std::cout << "That element does not exist in __values vector!" << std::endl;
         }
     }
     // ******************************************
 
     /* Getters */
-    double Point::getValue(int element) const
+    double Point::getValue(unsigned int element) const
     {
         if (element >= 1 && element <= __dim)
         {
@@ -123,9 +133,8 @@ namespace Clustering
         }
         else
         {
-            // Display error message
-            std::cout << "That element does not exist in the array!" << std::endl;
-            return 0;
+            // TODO: Throw OutOfBoundsEx
+            throw OutOfBoundsEx(__dim, element);
         }
     }
     // ******************************************
@@ -144,6 +153,7 @@ namespace Clustering
 
     Point &Point::operator /=(double d)
     {
+        // TODO: Throw DivideByZeroEx
         // Check if d == 0
         if (d != 0)
         {
@@ -155,8 +165,7 @@ namespace Clustering
         }
         else
         {
-            // Display error message
-            std::cout << "Cannot divide by 0!" << std::endl;
+            throw DivideByZeroEx(this->getID());
         }
         return *this;
     }
@@ -166,7 +175,7 @@ namespace Clustering
     const Point Point::operator *(double d) const
     {
         // Copy left hand Point
-        Point result = *this;
+        Point result(*this);
 
         // Multiply by d and return result
         result *= d;
@@ -176,7 +185,7 @@ namespace Clustering
     const Point Point::operator /(double d) const
     {
         // Copy point
-        Point result = *this;
+        Point result(*this);
 
         // Divide by d and return result
         result /= d;
@@ -188,14 +197,15 @@ namespace Clustering
     double &Point::operator [](unsigned int index)
     {
         // TODO: Throw OutOfBoundsEx
-        if (index < 1 || index > __values.size())
-            throw OutOfBoundsEx(__values.size(), index);
+        if (index < 0 || index >= this->getDim())
+            throw OutOfBoundsEx(this->getDim(), index);
 
-        return __values[index - 1];
+        return __values[index];
     }
     // ******************************************
 
     /* Overloaded iostream operators */
+
     // Overloaded insertion operator
     std::ostream &operator <<(std::ostream &output, const Point &right)
     {
@@ -219,7 +229,7 @@ namespace Clustering
     std::istream &operator >>(std::istream &input, Point &right)
     {
         // TODO: check for proper input formatting (x,y,z,,)
-        // TODO: Throw DimensionalityMismatch exception
+
         /* These are here in case we read directly from a file */
         // Create empty string
         std::string line;
@@ -236,7 +246,13 @@ namespace Clustering
 
         // Throw DimensionalityMismatch exception
         if (num_com != right.getDim())
+        {
+            // Decrement __idGenerator
+            right.rewindIdGen();
+
+            // TODO: Throw DimensionalityMismatchEx
             throw DimensionalityMismatchEx(right.getDim(), num_com);
+        }
 
         // Turn string into a stream
         std::stringstream lineStr(line);
@@ -301,36 +317,29 @@ namespace Clustering
     const Point operator +(const Point &left, const Point &right)
     {
         // TODO: Throw DimensionalityMismatch exception
+        if (left.getDim() != right.getDim())
+           throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+
         // Copy left hand Point
-        Point result = left;
+        Point result(left);
 
-        // Throw DimensionalityMismatchEx exception
-        try
+        // Loop through __values and add right to new left
+        for (int i = 0; i < result.getDim(); i++)
         {
-            if (left.getDim() != right.getDim())
-                throw DimensionalityMismatchEx(left.getDim(), right.getDim());
-
-            // Loop through __values and add right to new left
-            for (int i = 0; i < result.getDim(); i++)
-            {
-                result.__values[i] += right.__values[i];
-            }
-        }
-        catch(DimensionalityMismatchEx e)
-        {
-            std::cerr << e << std::endl;
+            result.__values[i] += right.__values[i];
         }
 
         return result;
     }
 
-    const Point operator -(const Point &left, const Point &right) {
+    const Point operator -(const Point &left, const Point &right)
+    {
         // TODO: Throw DimensionalityMismatch exception
         if (left.getDim() != right.getDim())
             throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 
         // Copy left hand Point
-        Point result = left;
+        Point result(left);
 
         // Loop through __values and add right to new left
         for (int i = 0; i < result.getDim(); i++)
@@ -346,7 +355,6 @@ namespace Clustering
     bool operator ==(const Point &left, const Point &right)
     {
         // TODO: Throw DimensionalityMismatch exception
-        // TODO: Compare by __id and __values
         // Throw DimensionalityMismatchEx exception
         if (left.getDim() != right.getDim())
             throw DimensionalityMismatchEx(left.getDim(), right.getDim());
@@ -379,8 +387,8 @@ namespace Clustering
     {
         // TODO: Throw DimensionalityMismatch exception
         // Throw DimensionalityMismatchEx exception
-//        if (left.getDim() != right.getDim())
-//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+        if (left.getDim() != right.getDim())
+            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 
         // Loop through __values
         for (int i = 0; i < left.getDim(); i++)

@@ -56,6 +56,19 @@ namespace Clustering
             exit(EXIT_FAILURE);
         }
 
+        // TODO: Initialize __distances unordered_map
+//        fList list = __point_space->getHead();
+//        fList::iterator pos = list.begin();
+//        fList::iterator it = list.begin();
+//
+//        for (pos; pos != list.end(); pos++)
+//        {
+//            for (it; it != list.end(); it++)
+//            {
+//                __point_space->setDistanceMap(*pos, *it);
+//            }
+//        }
+
         // Assign k; k cannot be greater than the number of Points read in
         // TODO: Is this necessary?
         if (numClusters <= __point_space->getSize())
@@ -171,7 +184,14 @@ namespace Clustering
             {
                 if (!__kClusterArray[i].getCentroidValidity())
                 {
-                    __kClusterArray[i].calcCentroid();
+                    try
+                    {
+                        __kClusterArray[i].calcCentroid();
+                    }
+                    catch (RemoveFromEmptyEx e)
+                    {
+                        std::cerr << e << std::endl;
+                    }
                 }
             }
 

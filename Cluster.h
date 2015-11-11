@@ -10,24 +10,23 @@
 #define CLUSTERING_CLUSTER_H
 
 #include <forward_list>
+#include <unordered_map>
 
 #include "Point.h"
 
 namespace Clustering
 {
-    typedef Point *PointPtr; // Point * alias
-    typedef struct ListNode *ListNodePtr; // ListNode * alias
+    typedef class Point *PointPtr; // Point * alias
     typedef class Cluster *ClusterPtr; // Cluster * alias
     typedef std::forward_list<Point> fList; // Forward List alias
 
-    // Node structure supporting singly-linked list
-    // TODO: Do we still need this?
-    struct ListNode
+    struct Key
     {
-        PointPtr p; // Points to specific Point stored in the struct
-        ListNodePtr next; // Points to next node in the list
-        ListNode(PointPtr pt, ListNodePtr n) : p(pt), next(n) {} // node constructor
+        unsigned int        __first; // First Point ID
+        unsigned int        __second; // Second Point ID
     };
+
+    typedef std::unordered_map<Key, double> hashMap; // Hashmap alias
 
     class Cluster
     {
@@ -35,11 +34,11 @@ namespace Clustering
         unsigned int        __id;               // Unique Cluster ID number
         static unsigned int __idGenerator;      // Used to increment ID number
         int                 __size;             // Keeps track of the amount of Points in the Cluster
-        fList               __head;
+        fList               __head;             // Holds Points in Cluster
         unsigned long int   __numDimensions;    // Number of dimensions of Points in Cluster
         Point               __centroid;         // Mean center Point of Cluster
         bool                __validCentroid;    // Checks if Centroid of Cluster is valid
-        // TODO: Implement  static std::unordered_map
+        static hashMap      __distances;        // Holds distances between Points
 
     public:
         static const char POINT_CLUSTER_ID_DELIM;   // Static Cluster delimiter value (for output)
@@ -65,7 +64,7 @@ namespace Clustering
                 __id(__idGenerator++),
                 __size(0),
                 __numDimensions(0),
-                __centroid(__numDimensions),
+                __centroid(__numDimensions, true),
                 __validCentroid(false) {}
 
         // Takes an int for the amount of dimensions in Points
@@ -73,7 +72,7 @@ namespace Clustering
                 __id(__idGenerator++),
                 __size(0),
                 __numDimensions(numDims),
-                __centroid(__numDimensions),
+                __centroid(__numDimensions, true),
                 __validCentroid(false) {}
 
         // Copy constructor
@@ -90,6 +89,7 @@ namespace Clustering
 
         // Setters
         void setCentroid(const Point &); // Set Centroid of Cluster
+        void setDistanceMap(const Point &, const Point &); // Set __distances map
 
         // Getters
         unsigned int getID() const { return __id; } // Return Cluster ID
@@ -98,17 +98,16 @@ namespace Clustering
         unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
         const Point getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
-        // TODO: implement bool contains(const Point &) method
-//        bool contains(const Point &);
-        // TODO: implement numberImported() and numberFailed() methods
-//        unsigned int numberImported();
-//        unsigned int numberFailed();
 
         // Cluster member functions
-//        ListNodePtr deepCopy(ListNodePtr); // Copy function
         void add(const Point &); // Add a Point to a Cluster
         const Point &remove(const Point &); // Remove a Point from a Cluster
         void sort(); // Sort Points within Cluster
+        // TODO: implement bool contains(const Point &) method
+        bool contains(const Point &);
+        // TODO: implement numberImported() and numberFailed() methods
+//        unsigned int numberImported();
+//        unsigned int numberFailed();
 
         // KMeans computeClusteringScore functions
         double intraClusterDistance() const; // Sum of distances between Points in Cluster

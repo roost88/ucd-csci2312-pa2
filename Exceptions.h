@@ -77,6 +77,33 @@ namespace Clustering
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const RemoveFromEmptyEx &);
     };
+    // ******************************************
+
+    class DivideByZeroEx
+    {
+    private:
+        std::string     __name;
+        unsigned int    __pointID;
+
+    public:
+        DivideByZeroEx(unsigned int);
+        ~DivideByZeroEx();
+
+        /* Getters */
+        std::string getName() const { return __name; }
+        unsigned int getPID() const { return __pointID; }
+
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const DivideByZeroEx &);
+    };
+    // ******************************************
+
+    class PointAlreadyExistsEx
+    {
+    private:
+
+    public:
+    };
 
 } // end namespace Clustering
 
