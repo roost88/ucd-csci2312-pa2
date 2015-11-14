@@ -39,6 +39,10 @@ namespace Clustering
         {
             std::cerr << e << std::endl;
         }
+        catch (PointAlreadyExistsEx e)
+        {
+            std::cerr << e << std::endl;
+        }
     }
     // ******************************************
 
@@ -79,12 +83,43 @@ namespace Clustering
     }
 
     // Calculate distances between Points within Cluster and store in map
-    void Cluster::setDistanceMap(const Point &p1, const Point &p2)
+    void Cluster::setDistanceMap()
     {
-//        unsigned int i = p1.getID();
-//        unsigned int j = p2.getID();
-//        double distance = p1.distanceTo(p2);
-//        __distances.insert({{i, j}, distance});
+        // Display message
+        std::cout << "Calculating __distances map!" << std::endl;
+
+        // Copy __head of Cluster
+        fList list = this->getHead();
+
+        // Loop through Points in Cluster forward_list
+        for (auto it_1 = list.begin(); it_1 != list.end(); ++it_1)
+        {
+            auto it_2 = it_1;
+            ++it_2; // Offset second iterator to avoid repeating Points
+
+            for (it_2; it_2 != list.end(); ++it_2)
+            {
+                // Create a key
+                Key key(*it_1, *it_2);
+
+                // Attempt to find key
+                auto search = __distances.find(key);
+
+                // If search reaches end of __distances map, add value to map
+                if (search == __distances.end())
+                    __distances[key] = it_1->distanceTo(*it_2);
+            }
+        }
+
+        // Uncomment to display map
+//        std::cout << "__distances map:" << std::endl;
+//
+//        for (auto pos = __distances.begin(); pos != __distances.end(); ++pos)
+//        {
+//            std::cout << "{{" << pos->first.__first << ", " << pos->first.__second
+//            << "}," << pos->second << "}" << std::endl;
+//        }
+//        std::cout << std::endl;
     }
     // ******************************************
 
@@ -116,7 +151,7 @@ namespace Clustering
                 // Decrement __idGenerator
                 right.rewindIdGen();
 
-                return;
+                throw PointAlreadyExistsEx(right);
             }
 
             // If for loop terminates without returning, add Point to Cluster
@@ -211,10 +246,6 @@ namespace Clustering
             {
                 if (*pos == p)
                 {
-                    // Display message
-                    std::cout << "Point " << p << " already exists in Cluster "
-                    << this->getID() << "!" << std::endl;
-
                     return true;
                 }
             }
@@ -230,7 +261,7 @@ namespace Clustering
     // ******************************************
 
     // Inside Cluster distance between Points
-    double Cluster::intraClusterDistance() const
+    double Cluster::intraClusterDistance(const hashMap& distances) const
     {
         // Initialize sum
         double sum = 0;
@@ -250,14 +281,22 @@ namespace Clustering
                 // Calculate distance between Points and add to sum
                 try
                 {
-                    if (*pos == *nxt)
-                    {
+                    // TODO: Reimplement using __distances map
+                    // Create key using Points to find distance in map
+                    Key key(*pos, *nxt);
+
+                    // See if key exists in map
+                    auto search = distances.find(key);
+
+                    // If it does, add distance to sum
+                    if (search != distances.end())
+                        sum += distances.at(key);
+
+                    else if (*pos == *nxt)
                         sum += 0;
-                    }
+
                     else
-                    {
-                        sum += (*pos).distanceTo(*nxt);
-                    }
+                        sum += pos->distanceTo(*nxt);
                 }
                 catch (DimensionalityMismatchEx e)
                 {
@@ -271,7 +310,7 @@ namespace Clustering
     }
 
     // Returns sum of distance between Points between all Clusters
-    double interClusterDistance(const Cluster &c1, const Cluster &c2)
+    double interClusterDistance(const Cluster &c1, const Cluster &c2, const hashMap& distances)
     {
         // Initialize sum
         double sum = 0;
@@ -296,7 +335,19 @@ namespace Clustering
             for (pos2; pos2 != list2.end(); pos2++)
             {
                 // Calculate distance between Points and add to sum
-                sum += (*pos1).distanceTo(*pos2);
+                // TODO: Reimplement this using __distances map
+                // Create key using Points to find distance in map
+                Key key(*pos1, *pos2);
+
+                // Search for key
+                auto search = distances.find(key);
+
+                // If found, add distance to sum
+                if (search != distances.end())
+                    sum += distances.at(key);
+
+                else
+                    sum += (*pos1).distanceTo(*pos2);
             }
         }
 
@@ -457,7 +508,7 @@ namespace Clustering
         while (std::getline(input, line, '\n'))
         {
             // Create new Point
-            PointPtr pt = new Clustering::Point(numDims, false);
+            Point pt(numDims, false);
 
             // Convert the string line into a stringstream
             std::stringstream lineStr(line);
@@ -465,15 +516,28 @@ namespace Clustering
             try
             {
                 // Read values into new Point (uses Point extraction operator)
-                lineStr >> *pt;
+                lineStr >> pt;
 
                 // Add new Point to the Cluster
-                right.add(*pt);
-            }
+                right.add(pt);
 
+                // Increment __ptsSuccess
+                right.__ptsSuccess++;
+            }
             catch (DimensionalityMismatchEx e)
             {
-                delete pt;
+                // Increment __ptsFailed
+                right.__ptsFailed++;
+
+                // Display the error
+                std::cerr << e << std::endl;
+            }
+            catch (PointAlreadyExistsEx e)
+            {
+                // Increment __ptsFailed
+                right.__ptsFailed++;
+
+                // Display the error
                 std::cerr << e << std::endl;
             }
         }
@@ -558,7 +622,14 @@ namespace Clustering
     // Add a Point to referenced Cluster
     Cluster &Cluster::operator +=(const Point &right)
     {
-        this->add(right);
+        try
+        {
+            this->add(right);
+        }
+        catch (PointAlreadyExistsEx e)
+        {
+            std::cerr << e << std::endl;
+        }
         return *this;
     }
 

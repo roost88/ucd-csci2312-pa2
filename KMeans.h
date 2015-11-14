@@ -30,7 +30,8 @@ namespace Clustering
         ~KMeans();
 
         // Member functions
-        double computeClusteringScore(std::vector<Cluster>&); // implement Beta-CV criterion (coefficient variation)
+        // implement Beta-CV criterion (coefficient variation)
+        double computeClusteringScore(std::vector<Cluster>&, const hashMap&);
     };
 }
 

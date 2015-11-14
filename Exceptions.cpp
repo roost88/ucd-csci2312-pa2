@@ -81,4 +81,21 @@ namespace Clustering
         out << exc.getName() << " Attempt to divide Point " << exc.getPID() << " by zero is undefined!";
         return out;
     }
+
+    // ******************************************
+
+    // Point already exists in Cluster
+    PointAlreadyExistsEx::PointAlreadyExistsEx(const Point &p)
+    {
+        __name = "EXCEPTION! Point already exists:";
+        __point = p;
+    }
+
+    PointAlreadyExistsEx::~PointAlreadyExistsEx() {}
+
+    std::ostream &operator <<(std::ostream &out, const PointAlreadyExistsEx &exc)
+    {
+        out << exc.getName() << " Point " << exc.getPoint() << " already exists in Cluster!";
+        return out;
+    }
 } // end namespace Clustering

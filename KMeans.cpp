@@ -35,13 +35,14 @@ namespace Clustering
 
             // Read Points from file into point_space Cluster
             inFile >> *__point_space;
+            inFile.close();
 
             // TODO: report how many Points were read in OK and how many failed due to Dimensionality Mismatch
+            std::cout << std::endl << "Number of Points successfully read in from file: "
+            << __point_space->numberImported() << std::endl;
 
-            std::cout << "\n" << __point_space->getSize() << " Points read in from file!" << std::endl;
-
-            // Close the file
-            inFile.close();
+            std::cout << "Number of Points that failed to read in from file: "
+            << __point_space->numberFailed() << std::endl;
 
             // Sort __point_space
             __point_space->sort();
@@ -56,18 +57,8 @@ namespace Clustering
             exit(EXIT_FAILURE);
         }
 
-        // TODO: Initialize __distances unordered_map
-//        fList list = __point_space->getHead();
-//        fList::iterator pos = list.begin();
-//        fList::iterator it = list.begin();
-//
-//        for (pos; pos != list.end(); pos++)
-//        {
-//            for (it; it != list.end(); it++)
-//            {
-//                __point_space->setDistanceMap(*pos, *it);
-//            }
-//        }
+        // Calculate distances between all Points in __point_space and store in __distances
+        __point_space->setDistanceMap();
 
         // Assign k; k cannot be greater than the number of Points read in
         // TODO: Is this necessary?
@@ -196,7 +187,7 @@ namespace Clustering
             }
 
             // Compute new clusteringScore
-            score = computeClusteringScore(__kClusterArray);
+            score = computeClusteringScore(__kClusterArray, __point_space->getMap());
 
             // Compute absolute difference and set scoreDiff
             scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
@@ -257,29 +248,13 @@ namespace Clustering
     // Destructor
     KMeans::~KMeans()
     {
-//        // Destroy point_space Cluster and all Points within
-//        fList list = __point_space->getHead();
-//
-//        ListNodePtr pSpace = __point_space->getHead();
-//
-//        while (pSpace != nullptr)
-//        {
-//            delete pSpace->p;
-//            pSpace = pSpace->next;
-//        }
-//        delete __point_space;
-
-//        // Delete kClusterArray and all Points within
-//        for (int i = 0; i < __k; i++)
-//        {
-//            delete __kClusterArray[i];
-//        }
+        delete __point_space;
     }
     // ******************************************
 
     /* Member functions */
     // Implement Beta-CV criterion (coefficient of variation)
-    double KMeans::computeClusteringScore(std::vector<Cluster>& clusterArray)
+    double KMeans::computeClusteringScore(std::vector<Cluster>& clusterArray, const hashMap& distances)
     {
         double W_in = 0;
         double W_out = 0;
@@ -290,7 +265,7 @@ namespace Clustering
         // Calculate W_in: sum of intraCluster distances
         for (int i = 0; i < __k; i++)
         {
-            W_in += clusterArray[i].intraClusterDistance();
+            W_in += clusterArray[i].intraClusterDistance(distances);
         }
 
         // Calculate W_out: sum of interCluster distances
@@ -298,7 +273,7 @@ namespace Clustering
         {
             for (int j = i+1; j < __k; j++)
             {
-                W_out += interClusterDistance(clusterArray[i], clusterArray[j]);
+                W_out += interClusterDistance(clusterArray[i], clusterArray[j], distances);
             }
         }
 

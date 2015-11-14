@@ -101,8 +101,19 @@ namespace Clustering
     class PointAlreadyExistsEx
     {
     private:
+        std::string     __name;
+        Point           __point;
 
     public:
+        PointAlreadyExistsEx(const Point &);
+        ~PointAlreadyExistsEx();
+
+        /* Getters */
+        std::string getName() const { return __name; }
+        Point getPoint() const { return __point; }
+
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const PointAlreadyExistsEx &);
     };
 
 } // end namespace Clustering
