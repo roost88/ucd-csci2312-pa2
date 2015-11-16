@@ -29,7 +29,7 @@ namespace Clustering
     // Move member functions
     void Cluster::Move::perform()
     {
-        // TODO: Throw RemoveFromEmpty exception
+        // TODO: Catch RemoveFromEmpty exception
         // Remove Point from Cluster and add to another Cluster
         try
         {
@@ -37,11 +37,11 @@ namespace Clustering
         }
         catch(RemoveFromEmptyEx e)
         {
-            std::cerr << e << std::endl;
+            std::cerr << "In Move.perform method - " << e << std::endl;
         }
         catch (PointAlreadyExistsEx e)
         {
-            std::cerr << e << std::endl;
+            std::cerr << "in Move.perform method - " << e << std::endl;
         }
     }
     // ******************************************
@@ -67,7 +67,7 @@ namespace Clustering
     // Cluster destructor
     Cluster::~Cluster()
     {
-        std::cout << "Cluster " << getID() << " destroyed!" << std::endl;
+        std::cout << "Cluster " << this << " destroyed!" << std::endl;
     }
     // ******************************************
 
@@ -112,14 +112,14 @@ namespace Clustering
         }
 
         // Uncomment to display map
-//        std::cout << "__distances map:" << std::endl;
-//
-//        for (auto pos = __distances.begin(); pos != __distances.end(); ++pos)
-//        {
-//            std::cout << "{{" << pos->first.__first << ", " << pos->first.__second
-//            << "}," << pos->second << "}" << std::endl;
-//        }
-//        std::cout << std::endl;
+        std::cout << "__distances map:" << std::endl;
+
+        for (auto pos = __distances.begin(); pos != __distances.end(); ++pos)
+        {
+            std::cout << "{{" << pos->first.__first << ", " << pos->first.__second
+            << "}," << pos->second << "}" << std::endl;
+        }
+        std::cout << std::endl;
     }
     // ******************************************
 
@@ -131,39 +131,34 @@ namespace Clustering
         // Invalidate Centroid
         __validCentroid = false;
 
-        // Copy forward list
-        fList list = this->getHead();
-
-        // Create iterator
-        fList::iterator pos = list.begin();
-        fList::iterator it;
-
-        // Case 1 - add Point to empty forward list
-        if (list.empty())
+        // Add Point to empty forward list
+        if (__head.empty())
         {
             __head.emplace_front(Point(right));
         }
+        else if (this->contains(right))
+        {
+            // If Point is already in Cluster
+            // Decrement __idGenerator
+            right.rewindIdGen();
+
+            throw PointAlreadyExistsEx(right);
+        }
         else
         {
-            // Check if Point is already in Cluster
-            if (this->contains(right))
-            {
-                // Decrement __idGenerator
-                right.rewindIdGen();
-
-                throw PointAlreadyExistsEx(right);
-            }
-
-            // If for loop terminates without returning, add Point to Cluster
+            // Place Point in list
             __head.emplace_front(Point(right));
         }
 
         // Increment size of Cluster
         __size++;
 
-        // Display message
-        std::cout << "Point " << right.getID() << ": " << right
-        << " added to Cluster " << this->getID() << "!" << std::endl;
+        // Sort forward_list
+        this->sort();
+
+        // Uncomment to display added Points
+//        std::cout << "Point " << right.getID() << ": " << right
+//        << " added to Cluster " << this->getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point
@@ -172,45 +167,18 @@ namespace Clustering
         // Invalidate Centroid
         __validCentroid = false;
 
-        // Check if Point exists in list
-        bool exists = false;
-
-        // Copy list
-        fList list = this->getHead();
-
-        // List iterator
-        fList::iterator pos = list.begin();
-        fList::iterator it = list.begin();
-
         // Case 1 - remove Point from empty forward list
         // TODO: Throw RemoveFromEmpty exception
-        if (list.empty())
+        if (__head.empty())
         {
             throw RemoveFromEmptyEx(right.getID(), this->getID());
         }
-        else
-        {
-            for (pos; pos != list.end(); pos++)
-            {
-                try
-                {
-                    if (*pos == right)
-                    {
-                        exists = true;
-                    }
-                }
-                catch (DimensionalityMismatchEx e)
-                {
-                    std::cerr << e << std::endl;
-                }
-            }
-        }
 
         // Case 2 - if Point exists, remove it
-        if (exists)
+        else if (this->contains(right))
         {
-            // TODO: Use erase_after?
             __head.remove(right);
+            __size--;
         }
         else
         {
@@ -218,8 +186,9 @@ namespace Clustering
             std::cout << "Point not found!" << std::endl;
         }
 
-        std::cout << "Point " << right.getID() << ": " << right
-        << " removed from Cluster " << this->getID() << std::endl;
+        // Uncomment to display remove message
+//        std::cout << "Point " << right.getID() << ": " << right
+//        << " removed from Cluster " << this->getID() << std::endl;
         return right;
     }
 
@@ -251,7 +220,7 @@ namespace Clustering
             }
             catch (DimensionalityMismatchEx e)
             {
-                std::cerr << e << std::endl;
+                std::cerr << "In contains method - " << e << std::endl;
             }
         }
 
@@ -260,7 +229,8 @@ namespace Clustering
     }
     // ******************************************
 
-    // Inside Cluster distance between Points
+    /* Used with KMeans computeClusteringScore */
+    // Distance between Points within a single Cluster
     double Cluster::intraClusterDistance(const hashMap& distances) const
     {
         // Initialize sum
@@ -278,40 +248,50 @@ namespace Clustering
         {
             for (nxt; nxt != list.end(); nxt++)
             {
-                // Calculate distance between Points and add to sum
-                try
-                {
-                    // TODO: Reimplement using __distances map
-                    // Create key using Points to find distance in map
-                    Key key(*pos, *nxt);
+                // If Points are equal, add 0 to sum
+                if (*pos == *nxt)
+                    sum += 0;
 
-                    // See if key exists in map
-                    auto search = distances.find(key);
+                else
+                {
+                    // Create keys using Points to find distance in map
+                    Key *key1 = new Key(*pos, *nxt);
+                    Key *key2 = new Key(*nxt, *pos);
+
+                    // See if keys exist in map
+                    auto search1 = distances.find(*key1);
+                    auto search2 = distances.find(*key2);
 
                     // If it does, add distance to sum
-                    if (search != distances.end())
-                        sum += distances.at(key);
+                    if (search1 != distances.end())
+                        sum += distances.at(*key1);
 
-                    else if (*pos == *nxt)
-                        sum += 0;
+                    else if (search2 != distances.end())
+                        sum += distances.at(*key2);
 
                     else
                         sum += pos->distanceTo(*nxt);
-                }
-                catch (DimensionalityMismatchEx e)
-                {
-                    std::cerr << e << std::endl;
+
+                    delete key1;
+                    delete key2;
                 }
             }
         }
-        // Divide sum by two since we looped through twice and return
+        // Divide sum by two since we looped through twice
         sum /= 2.0;
+
+        // Uncomment to display sum
+//        std::cout << "Cluster " << this->getID() << " intraClusterDistance: " << sum << std::endl;
         return sum;
     }
 
     // Returns sum of distance between Points between all Clusters
     double interClusterDistance(const Cluster &c1, const Cluster &c2, const hashMap& distances)
     {
+        // Check if Clusters equal each other
+        if (c1 == c2)
+            return 0;
+
         // Initialize sum
         double sum = 0;
 
@@ -323,36 +303,46 @@ namespace Clustering
         fList::iterator pos1 = list1.begin();
         fList::iterator pos2 = list2.begin();
 
-        // Check if Clusters equal each other
-        if (c1 == c2)
-        {
-            return 0;
-        }
-
         // Loop through linked-lists of both Clusters
         for (pos1; pos1 != list1.end(); pos1++)
         {
             for (pos2; pos2 != list2.end(); pos2++)
             {
-                // Calculate distance between Points and add to sum
-                // TODO: Reimplement this using __distances map
-                // Create key using Points to find distance in map
-                Key key(*pos1, *pos2);
-
-                // Search for key
-                auto search = distances.find(key);
-
-                // If found, add distance to sum
-                if (search != distances.end())
-                    sum += distances.at(key);
+                // If Points are equal, add 0 to sum
+                if (*pos1 == *pos2)
+                    sum += 0;
 
                 else
-                    sum += (*pos1).distanceTo(*pos2);
+                {
+                    // Create keys using Points to find distance in map
+                    Key *key1 = new Key(*pos1, *pos2);
+                    Key *key2 = new Key(*pos2, *pos1);
+
+                    // Search for key
+                    auto search1 = distances.find(*key1);
+                    auto search2 = distances.find(*key2);
+
+                    // If found, add distance to sum
+                    if (search1 != distances.end())
+                        sum += distances.at(*key1);
+
+                    else if (search2 != distances.end())
+                        sum += distances.at(*key2);
+
+                    else
+                        sum += pos1->distanceTo(*pos2);
+
+                    delete key1;
+                    delete key2;
+                }
             }
         }
 
-        // Divide sum by 2 since we looped through both lists twice and return
+        // Divide sum by 2 since we looped through both lists twice
         sum /= 2.0;
+
+        // Uncomment to display sum
+//        std::cout << "Clusters " << c1.getID() << " and " << c2.getID() << " interClusterDistance: " << sum << std::endl;
         return sum;
     }
 
@@ -362,21 +352,25 @@ namespace Clustering
         // Every two distinct Points has an imaginary edge between them
         int clusterSize = getSize();
         int result = clusterSize * (clusterSize - 1) / 2;
+
+        // Uncomment to display result
+//        std::cout << "Cluster " << this->getID() << " intraClusterEdges: " << result << std::endl;
         return result;
     }
 
     // Returns the number of distinct edges between Clusters
     int interClusterEdges(const Cluster &c1, const Cluster &c2)
     {
-        int size1, size2, result;
-
+        // If Clusters are equal, return 0
         if (c1 == c2)
-        {
             return 0;
-        }
-        size1 = c1.getSize();
-        size2 = c2.getSize();
-        result = size1 * size2;
+
+        int size1 = c1.getSize();
+        int size2 = c2.getSize();
+        int result = size1 * size2;
+
+        // Uncomment to display result
+//        std::cout << "Clusters " << c1.getID() << " and " << c2.getID() << " intraClusterEdges: " << result << std::endl;
         return result;
     }
     // ******************************************
@@ -384,39 +378,33 @@ namespace Clustering
     // Compute the Centroid of a Cluster
     void Cluster::calcCentroid()
     {
-        // Check if list is empty
-        // TODO: Throw RemoveFromEmptyEx
-        if (__head.empty())
-            throw RemoveFromEmptyEx(0, this->getID());
-
         // Copy forward list
         fList list = this->getHead();
 
         // Create iterator
+        fList::iterator first = list.begin();
         fList::iterator pos = list.begin();
 
         // Create new Point
         Point newCent(this->getNumDimensions(), true);
 
-        // TODO: Is this necessary?
-        if (this->getSize() == 1)
+        // Check if list is empty
+        // TODO: Throw RemoveFromEmptyEx
+        if (__head.empty() && this->getSize() <= 0)
         {
-            newCent = *pos;
             this->setCentroid(newCent);
+            throw RemoveFromEmptyEx(0, this->getID());
+        }
+        else if (this->getSize() == 1)
+        {
+            this->setCentroid(*first);
         }
         else
         {
             // Loop through Points in list and add to newCent
             for (pos; pos != list.end(); pos++)
             {
-                try
-                {
-                    newCent += *pos;
-                }
-                catch (DimensionalityMismatchEx e)
-                {
-                    std::cerr << e << std::endl;
-                }
+                newCent += *pos;
             }
 
             // Divide sum of all Points in Cluster by size of Cluster
@@ -428,39 +416,57 @@ namespace Clustering
     }
 
     // Pick k Points from a Cluster to use as initial Centroids for Clustering
-    void Cluster::pickPoints(unsigned long int k, PointPtr *pointArray)
+    void Cluster::pickPoints(unsigned long int k, unsigned long int dims, PointPtr *pointArray)
     {
+        // Display message
         std::cout << "Picking Points to use as Centroids..." << std::endl;
 
+        // Copy k
+        unsigned long int kCopy = k;
+
+        // Check if kCopy is greater than the amount of Points in the Cluster
+        if (kCopy > this->getSize())
+            kCopy = (unsigned long int) this->getSize();
+
         // Divide Cluster size by how many Centroids we want
-        // TODO: Divide by zero exception
-        unsigned long int div = getSize() / k; // This is what we'll increment count by
-        int count = 0;
+        unsigned long int div = this->getSize() / kCopy; // This is what we'll increment count by
+        int count = 0; // Used to increment list position
 
         // Copy forward list
         fList list = this->getHead();
 
-        // Iterate k times to get k Centroids
+        // Iterate kCopy times to get kCopy Centroids
         for (int i = 0; i < k; i++)
         {
-            // Set iterator to the beginning of the list
-            fList::iterator pos = list.begin();
-
-            // Use count to iterate through the list to find the Point we want
-            for (int j = 0; j < count; j++)
+            if (i < this->getSize())
             {
-                // Iterate through list
-                pos++;
+                // Set iterator to the beginning of the list
+                fList::iterator pos = list.begin();
+
+                // Use count to iterate through the list to find the Point we want
+                for (int j = 0; j < count; j++)
+                {
+                    // Iterate through list
+                    pos++;
+                }
+
+                // Copy current Point
+                PointPtr p1 = new Point(*pos);
+
+                // Put the chosen Point into the Centroid array
+                pointArray[i] = p1;
+
+                // Increment count by the value of div
+                count += div;
             }
+            else
+            {
+                // Create new Point
+                PointPtr p2 = new Point(dims, true);
 
-            // Copy current Point
-            PointPtr pt = new Point(*pos);
-
-            // Write the Point we chose into the Centroid array
-            pointArray[i] = pt;
-
-            // Increment count by the value of div
-            count += div;
+                // Put empty Point into Centroid array
+                pointArray[i] = p2;
+            }
         }
 
         std::cout << "Centroids picked!" << std::endl;
@@ -530,7 +536,7 @@ namespace Clustering
                 right.__ptsFailed++;
 
                 // Display the error
-                std::cerr << e << std::endl;
+                std::cerr << "In Cluster insertion operator - " << e << std::endl;
             }
             catch (PointAlreadyExistsEx e)
             {
@@ -538,7 +544,7 @@ namespace Clustering
                 right.__ptsFailed++;
 
                 // Display the error
-                std::cerr << e << std::endl;
+                std::cerr << "In Cluster insertion operator - " << e << std::endl;
             }
         }
 
@@ -581,7 +587,7 @@ namespace Clustering
                 }
                 catch (DimensionalityMismatchEx e)
                 {
-                    std::cerr << e << std::endl;
+                    std::cerr << "In Cluster == operator - " << e << std::endl;
                 }
             }
 
@@ -628,7 +634,7 @@ namespace Clustering
         }
         catch (PointAlreadyExistsEx e)
         {
-            std::cerr << e << std::endl;
+            std::cerr << "In Cluster += operator - " << e << std::endl;
         }
         return *this;
     }

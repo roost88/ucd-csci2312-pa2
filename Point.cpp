@@ -100,7 +100,7 @@ namespace Clustering
             double diff = __values[i] - p.__values[i];
 
             // Add square to difference to sum (will be a positive number)
-            sum += diff * diff;
+            sum += (diff * diff);
         }
         // Compute distance and return it
         distance = sqrt(sum);
@@ -117,7 +117,7 @@ namespace Clustering
         }
         else
         {
-            // TODO: Throw DoesNotExistEx
+            // TODO: Throw DoesNotExistEx?
             // Display error message
             std::cout << "That element does not exist in __values vector!" << std::endl;
         }
@@ -165,7 +165,7 @@ namespace Clustering
         }
         else
         {
-            throw DivideByZeroEx(this->getID());
+            throw DivideByZeroEx();
         }
         return *this;
     }

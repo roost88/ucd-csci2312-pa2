@@ -83,15 +83,13 @@ namespace Clustering
     {
     private:
         std::string     __name;
-        unsigned int    __pointID;
 
     public:
-        DivideByZeroEx(unsigned int);
+        DivideByZeroEx();
         ~DivideByZeroEx();
 
         /* Getters */
         std::string getName() const { return __name; }
-        unsigned int getPID() const { return __pointID; }
 
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const DivideByZeroEx &);

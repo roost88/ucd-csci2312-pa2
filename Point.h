@@ -53,7 +53,7 @@ namespace Clustering
         unsigned int getID() const { return __id; }
         unsigned long int getDim() const { return __dim; } // Return dimensions of Point
         double getValue(unsigned int) const; // Return value in Point array
-        std::vector<double> getValues() const { return __values; } // Return values vector
+        std::vector<double> getValuesVector() const { return __values; } // Return values vector
 
         /* Overloaded operators dimension-wise (members) */
         Point &operator *=(double);

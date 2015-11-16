@@ -130,7 +130,7 @@ namespace Clustering
         int getSize() const { return __size; } // Return Cluster size
         fList getHead() const { return __head; } // Return Cluster forward list head address
         unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
-        const Point getCentroid() const { return __centroid; } // Return Cluster Centroid
+        const Point &getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
         const hashMap getMap() const { return __distances; } // Return __distances map
 
@@ -152,7 +152,7 @@ namespace Clustering
 
         // Centroid specific functions
         void calcCentroid(); // Computes Centroid of Cluster
-        void pickPoints(unsigned long int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
+        void pickPoints(unsigned long int, unsigned long int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
 
         // Overloaded [] operator
         // TODO: Implement this

@@ -68,17 +68,16 @@ namespace Clustering
     // ******************************************
 
     // Cannot divide by zero
-    DivideByZeroEx::DivideByZeroEx(unsigned int p)
+    DivideByZeroEx::DivideByZeroEx()
     {
         __name = "EXCEPTION! Divide by zero:";
-        __pointID = p;
     }
 
     DivideByZeroEx::~DivideByZeroEx() {}
 
     std::ostream &operator <<(std::ostream &out, const DivideByZeroEx &exc)
     {
-        out << exc.getName() << " Attempt to divide Point " << exc.getPID() << " by zero is undefined!";
+        out << exc.getName() << " Attempt to divide by zero is undefined!";
         return out;
     }
 
