@@ -14,13 +14,11 @@
 
 // Function prototypes
 void testKMeans();
-void testPointBool();
 void testPoint();
 
 int main()
 {
     testKMeans();
-//    testPointBool();
 //    testPoint();
 
     return 0;
@@ -37,89 +35,19 @@ void testKMeans()
     Clustering::KMeans(numDims, k, input, output);
 }
 
-void testPointBool()
+void testPoint()
 {
-    Clustering::Point p1(2, false);
-    p1.setValue(1, 2.0);
-    p1.setValue(2, 5.0);
+    Clustering::Point p1(1);
 
-    Clustering::Point p2(2, false);
-    p2.setValue(1, 6.0);
-    p2.setValue(2, 90.0);
+    p1.setValue(1, 4.3);
 
-    Clustering::Cluster c1(2);
+    Clustering::Point p2(1);
+    p2.setValue(1, 6.9);
 
-    c1.add(p1);
+    double dist = p1.distanceTo(p2);
 
-    std::cout << c1 << std::endl;
+    std::cout << dist;
 
-    std::vector<Clustering::Cluster> kClusterArray(3);
 
-    kClusterArray.insert(kClusterArray.begin(), c1);
-
-    std::cout << kClusterArray[0] << std::endl;
-
-    kClusterArray[1].add(p1);
-    kClusterArray[1].add(p2);
-
-    std::cout << kClusterArray[1] << std::endl;
-
-    kClusterArray[0].add(kClusterArray[1].remove(p2));
-
-    std::cout << kClusterArray[0] << std::endl;
-    std::cout << kClusterArray[1] << std::endl;
-}
-
-void testPoint() {
-    Clustering::Point p1(5, false);
-    p1.setValue(1, 1);
-    p1.setValue(2, 2);
-    p1.setValue(3, 3);
-    p1.setValue(4, 4);
-    p1.setValue(5, 5);
-
-    std::cout << p1 << std::endl;
-
-    Clustering::Point p2(0, false);
-
-    p2 = p1;
-
-    std::cout << p2 << std::endl;
-
-    Clustering::Point p3(0, false);
-
-    try {
-        p2 += p3;
-    }
-    catch (Clustering::DimensionalityMismatchEx e) {
-        std::cerr << e << std::endl;
-    }
-    try {
-        p2 -= p3;
-    }
-    catch (Clustering::DimensionalityMismatchEx e) {
-        std::cerr << e << std::endl;
-    }
-    try {
-        std::cout << (p2 == p3) << std::endl;
-    }
-    catch (Clustering::DimensionalityMismatchEx e) {
-        std::cerr << e << std::endl;
-    }
-    try {
-        std::cout << p2.getValue(9) << std::endl;
-    }
-    catch (Clustering::OutOfBoundsEx e)
-    {
-        std::cerr << e << std::endl;
-    }
-
-    try {
-        p2 / 0;
-    }
-    catch (Clustering::DivideByZeroEx e)
-    {
-        std::cerr << e << std::endl;
-    }
 }
 

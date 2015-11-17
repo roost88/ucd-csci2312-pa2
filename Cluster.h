@@ -16,11 +16,7 @@
 
 namespace Clustering
 {
-    typedef class Point *PointPtr; // Point * alias
-    typedef class Cluster *ClusterPtr; // Cluster * alias
-    typedef std::forward_list<Point> fList; // Forward List alias
-
-    // Key struct for unordered_map
+    /* Key for distances unordered_map */
     struct Key
     {
         unsigned int        __first; // First Point ID
@@ -29,7 +25,7 @@ namespace Clustering
         Key(const Point &p1, const Point &p2) : __first(p1.getID()), __second(p2.getID()) {}
     };
 
-    // Key hash struct
+    // Key hash function
     struct KeyHash
     {
         std::size_t operator()(const Key& k) const
@@ -53,9 +49,16 @@ namespace Clustering
                    || (left.__first == right.__second && left.__second == right.__first);
         }
     };
+    /************************************************************/
 
+    /* Aliases */
+    typedef class Point *PointPtr; // Point * alias
+    typedef class Cluster *ClusterPtr; // Cluster * alias
+    typedef std::forward_list<Point> fList; // Forward List alias
     typedef std::unordered_map<Key, double, KeyHash, KeyEqual> hashMap; // Hashmap alias
+    /************************************************************/
 
+    /* Cluster Class */
     class Cluster
     {
     private:
@@ -73,7 +76,8 @@ namespace Clustering
     public:
         static const char POINT_CLUSTER_ID_DELIM;   // Static Cluster delimiter value (for output)
 
-        // Inner class Move - represents motion of a Point from one Cluster to another
+        /* Inner class Move */
+        // represents motion of a Point from one Cluster to another
         class Move
         {
         private:
@@ -88,26 +92,30 @@ namespace Clustering
             // Move member functions
             void perform(); // Moves a Point
         };
+        /************************************************************/
 
-        // Cluster constructors
+        /* Cluster constructors */
+        // Default
         Cluster() :
                 __id(__idGenerator++),
                 __size(0),
                 __numDimensions(0),
-                __centroid(__numDimensions, true),
+                __centroid(__numDimensions),
                 __validCentroid(false),
                 __ptsSuccess(0),
-                __ptsFailed(0) {}
+                __ptsFailed(0)
+        {}
 
-        // Takes an int for the amount of dimensions in Points
+        // Takes dimensions for use in Point constructors
         Cluster(unsigned long int numDims) :
                 __id(__idGenerator++),
                 __size(0),
                 __numDimensions(numDims),
-                __centroid(__numDimensions, true),
+                __centroid(__numDimensions),
                 __validCentroid(false),
                 __ptsSuccess(0),
-                __ptsFailed(0) {}
+                __ptsFailed(0)
+        {}
 
         // Copy constructor
         Cluster(const Cluster &right) :
@@ -116,16 +124,19 @@ namespace Clustering
                 __head(right.getHead()),
                 __numDimensions(right.getNumDimensions()),
                 __centroid(right.getCentroid()),
-                __validCentroid(right.getCentroidValidity()) {}
+                __validCentroid(right.getCentroidValidity())
+        {}
 
         Cluster &operator =(const Cluster &); // Overloaded assignment operator
-        ~Cluster(); // Destructor
+        ~Cluster() { std::cout << "Cluster " << this << " destroyed!" << std::endl; } // Destructor
+        /************************************************************/
 
-        // Setters
+        /* Setters */
         void setCentroid(const Point &); // Set Centroid of Cluster
         void setDistanceMap(); // Set __distances map
+        /************************************************************/
 
-        // Getters
+        /* Getters */
         unsigned int getID() const { return __id; } // Return Cluster ID
         int getSize() const { return __size; } // Return Cluster size
         fList getHead() const { return __head; } // Return Cluster forward list head address
@@ -133,8 +144,9 @@ namespace Clustering
         const Point &getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
         const hashMap getMap() const { return __distances; } // Return __distances map
+        /************************************************************/
 
-        // Cluster member functions
+        /* Cluster member functions */
         void add(const Point &); // Add a Point to a Cluster
         const Point &remove(const Point &); // Remove a Point from a Cluster
         void sort(); // Sort Points within Cluster
@@ -143,42 +155,50 @@ namespace Clustering
         // TODO: implement numberImported() and numberFailed() methods
         unsigned int numberImported() { return __ptsSuccess; }
         unsigned int numberFailed() { return __ptsFailed; }
+        /************************************************************/
 
-        // KMeans computeClusteringScore functions
+        /* KMeans computeClusteringScore functions */
         double intraClusterDistance(const hashMap&) const; // Sum of distances between Points in Cluster
         friend double interClusterDistance(const Cluster &, const Cluster &, const hashMap&);
         int getClusterEdges(); // Number of unique "edges" between Points in a Cluster
         friend int interClusterEdges(const Cluster &, const Cluster &); // Num of edges between Points between Clusters
+        /************************************************************/
 
-        // Centroid specific functions
+        /* Centroid specific functions */
         void calcCentroid(); // Computes Centroid of Cluster
-        void pickPoints(unsigned long int, unsigned long int, PointPtr *); // Pick k Points from Cluster to use as initial Centroids
+        void pickPoints(unsigned long int, unsigned long int, PointPtr *); // Pick k Points from Cluster
+        /************************************************************/
 
-        // Overloaded [] operator
+        /* Overloaded [] operator */
         // TODO: Implement this
         Point &operator [](unsigned int);
+        /************************************************************/
 
-        // Overloaded iostream operators (friends)
+        /* Overloaded iostream operators (friends) */
         friend std::ostream &operator <<(std::ostream &, const Cluster &);
         friend std::istream &operator >>(std::istream &, Cluster &);
+        /************************************************************/
 
-        // Overloaded comparison operators (friends)
+        /* Overloaded comparison operators (friends) */
         friend bool operator ==(const Cluster &, const Cluster &);
         friend bool operator !=(const Cluster &, const Cluster &);
+        /************************************************************/
 
-        // Overloaded compound assignment operators (members)
+        /* Overloaded compound assignment operators (members) */
         Cluster &operator +=(const Cluster &);
         Cluster &operator -=(const Cluster &);
 
         Cluster &operator +=(const Point &);
         Cluster &operator -=(const Point &);
+        /************************************************************/
 
-        // Overloaded binary arithmetic operators (friends)
+        /* Overloaded binary arithmetic operators (friends) */
         friend const Cluster operator +(const Cluster &, const Cluster &);
         friend const Cluster operator -(const Cluster &, const Cluster &);
 
         friend const Cluster operator +(const Cluster &, const Point &);
         friend const Cluster operator -(const Cluster &, const Point &);
+        /************************************************************/
     };
 } // end Clustering namespace
 #endif //CLUSTERING_CLUSTER_H

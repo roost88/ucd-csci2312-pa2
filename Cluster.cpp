@@ -11,11 +11,12 @@
 // namespace wrap
 namespace Clustering
 {
-    // Member variables
+    /* Member variables */
     unsigned int Cluster::__idGenerator = 1; // Initialize Cluster ID value to 1
     const char Cluster::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
-    // ******************************************
+    /************************************************************/
 
+    /* Inner Move Class */
     // Move constructor
     Cluster::Move::Move(const Point &p, ClusterPtr from, ClusterPtr to)
     {
@@ -44,9 +45,9 @@ namespace Clustering
             std::cerr << "in Move.perform method - " << e << std::endl;
         }
     }
-    // ******************************************
+    /************************************************************/
 
-    // Overloaded assignment operator (Cluster)
+    /* Overloaded assignment operator (Cluster) */
     Cluster &Cluster::operator =(const Cluster &right)
     {
         // Copy all values from right into left and return
@@ -63,15 +64,9 @@ namespace Clustering
 
         return *this;
     }
+    /************************************************************/
 
-    // Cluster destructor
-    Cluster::~Cluster()
-    {
-        std::cout << "Cluster " << this << " destroyed!" << std::endl;
-    }
-    // ******************************************
-
-    // Setters
+    /* Setters */
     // Set the Centroid of a Cluster
     void Cluster::setCentroid(const Point &right)
     {
@@ -121,10 +116,9 @@ namespace Clustering
         }
         std::cout << std::endl;
     }
-    // ******************************************
+    /************************************************************/
 
     /* Cluster member functions */
-
     // Add Point to Cluster
     void Cluster::add(const Point &right)
     {
@@ -227,9 +221,9 @@ namespace Clustering
         // If loop terminates without returning true
         return false;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Used with KMeans computeClusteringScore */
+    /* KMeans computeClusteringScore functions */
     // Distance between Points within a single Cluster
     double Cluster::intraClusterDistance(const hashMap& distances) const
     {
@@ -373,8 +367,9 @@ namespace Clustering
 //        std::cout << "Clusters " << c1.getID() << " and " << c2.getID() << " intraClusterEdges: " << result << std::endl;
         return result;
     }
-    // ******************************************
+    /************************************************************/
 
+    /* Centroid specific functions */
     // Compute the Centroid of a Cluster
     void Cluster::calcCentroid()
     {
@@ -386,7 +381,7 @@ namespace Clustering
         fList::iterator pos = list.begin();
 
         // Create new Point
-        Point newCent(this->getNumDimensions(), true);
+        Point newCent(this->getNumDimensions());
 
         // Check if list is empty
         // TODO: Throw RemoveFromEmptyEx
@@ -462,7 +457,7 @@ namespace Clustering
             else
             {
                 // Create new Point
-                PointPtr p2 = new Point(dims, true);
+                PointPtr p2 = new Point(dims);
 
                 // Put empty Point into Centroid array
                 pointArray[i] = p2;
@@ -471,16 +466,17 @@ namespace Clustering
 
         std::cout << "Centroids picked!" << std::endl;
     }
-    // ******************************************
+    /************************************************************/
 
-    // Overloaded [] operator
-    // TODO: Implement this
+    /* Overloaded [] operator */
     Point &Cluster::operator[](unsigned int index)
     {
+        // TODO: Implement this
         // TODO: Throw OutOfBoundsEx
     }
+    /************************************************************/
 
-    // Overloaded iostream operators
+    /* Overloaded iostream operators (friends) */
     // Allow us to output an entire Cluster
     std::ostream &operator <<(std::ostream &out, const Cluster &right)
     {
@@ -514,7 +510,7 @@ namespace Clustering
         while (std::getline(input, line, '\n'))
         {
             // Create new Point
-            Point pt(numDims, false);
+            Point pt(numDims);
 
             // Convert the string line into a stringstream
             std::stringstream lineStr(line);
@@ -550,9 +546,10 @@ namespace Clustering
 
         return input;
     }
-    // ******************************************
+    /************************************************************/
 
-    // Overloaded assignment operator (friend)
+    /* Overloaded comparison operators (friends) */
+    // Overloaded equality operator (friend)
     bool operator ==(const Cluster &left, const Cluster &right)
     {
         // Check sizes and heads of Clusters first
@@ -596,13 +593,14 @@ namespace Clustering
         }
     }
 
+    // Overloaded inequality operator
     bool operator!=(const Cluster &left, const Cluster &right)
     {
         return !(left == right);
     }
-    // ******************************************
+    /************************************************************/
 
-    // Overloaded compound assignment operators (members)
+    /* Overloaded compound assignment operators (members) */
     // Combines two Clusters into one (union)
     Cluster &Cluster::operator +=(const Cluster &right)
     {
@@ -653,9 +651,9 @@ namespace Clustering
 
         return *this;
     }
-    // ******************************************
+    /************************************************************/
 
-    // Overloaded binary arithmetic operators (friends)
+    /* Overloaded binary arithmetic operators (friends) */
     // Add two Clusters together
     const Cluster operator +(const Cluster &left, const Cluster &right)
     {
@@ -721,4 +719,5 @@ namespace Clustering
 
         return c;
     }
+    /************************************************************/
 } // end namespace Clustering

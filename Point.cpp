@@ -12,57 +12,12 @@
 /* namespace wrap */
 namespace Clustering
 {
-    /* Public member variables */
+    /* Member variables */
     unsigned int Point::__idGenerator = 1; // Initialize Point ID value to 1
     const char Point::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
+    /************************************************************/
 
     /* Constructors */
-    Point::Point()
-    {
-        __id = __idGenerator++;
-        __dim = 0;
-        __values.reserve(__dim);
-    }
-
-    Point::Point(unsigned long int dimensions, bool isCentroid)
-    {
-        // Check if Point is a Centroid
-        if (isCentroid)
-        {
-            __id = 0;
-        }
-        else
-        {
-            // Create new Point ID
-            __id = __idGenerator++;
-        }
-
-        // Set dimensions of Point
-        __dim = dimensions;
-
-        // Set capacity of __values vector
-        __values.reserve(__dim);
-    }
-
-    // Copy constructor
-    Point::Point(const Point &right)
-    {
-        // Copy Point ID
-        __id = right.getID();
-
-        // Set dimensions
-        __dim = right.getDim();
-
-        // Set capacity of __values vector
-        __values.reserve(__dim);
-
-        // Loop to copy __values from right into left
-        for (int i = 0; i < __dim; i++)
-        {
-            __values[i] = right.__values[i];
-        }
-    }
-
     // Overloaded assignment operator
     Point &Point::operator =(const Point &right)
     {
@@ -83,7 +38,7 @@ namespace Clustering
 
         return *this;
     }
-    // ******************************************
+    /************************************************************/
 
     /* Member functions */
     // Calculates distance between two points
@@ -106,7 +61,7 @@ namespace Clustering
         distance = sqrt(sum);
         return distance;
     }
-    // ******************************************
+    /************************************************************/
 
     /* Setters */
     void Point::setValue(int element, double value)
@@ -122,7 +77,7 @@ namespace Clustering
             std::cout << "That element does not exist in __values vector!" << std::endl;
         }
     }
-    // ******************************************
+    /************************************************************/
 
     /* Getters */
     double Point::getValue(unsigned int element) const
@@ -137,9 +92,9 @@ namespace Clustering
             throw OutOfBoundsEx(__dim, element);
         }
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded compound assignment operators */
+    /* Overloaded operators dimension-wise (members) */
     Point &Point::operator *=(double d)
     {
         // Loop through __values of Point
@@ -169,9 +124,9 @@ namespace Clustering
         }
         return *this;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded arithmetic operators */
+    /* Overloaded arithmetic operators (members) */
     const Point Point::operator *(double d) const
     {
         // Copy left hand Point
@@ -191,9 +146,9 @@ namespace Clustering
         result /= d;
         return result;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded [] operator */
+    /* Overloaded [] operator (member) */
     double &Point::operator [](unsigned int index)
     {
         // TODO: Throw OutOfBoundsEx
@@ -202,10 +157,9 @@ namespace Clustering
 
         return __values[index];
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded iostream operators */
-
+    /* Overloaded insertion/extraction operators (friends) */
     // Overloaded insertion operator
     std::ostream &operator <<(std::ostream &output, const Point &right)
     {
@@ -275,9 +229,9 @@ namespace Clustering
 
         return input;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded compound assignment operators */
+    /* Overloaded compound assignment operators (friends) */
     Point &operator +=(Point &left, const Point &right)
     {
         // TODO: Throw DimensionalityMismatch exception
@@ -311,9 +265,9 @@ namespace Clustering
         // Return new left side
         return left;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded binary arithmetic operators */
+    /* Overloaded binary operators (friends) */
     const Point operator +(const Point &left, const Point &right)
     {
         // TODO: Throw DimensionalityMismatch exception
@@ -349,9 +303,9 @@ namespace Clustering
 
         return result;
     }
-    // ******************************************
+    /************************************************************/
 
-    /* Overloaded relational operators (bools) */
+    /* Overloaded comparison operators (friends) */
     bool operator ==(const Point &left, const Point &right)
     {
         // TODO: Throw DimensionalityMismatch exception
@@ -431,6 +385,383 @@ namespace Clustering
         // Use overloaded < and == to compare
         return (left < right || left == right);
     }
+    /************************************************************/
+    /************************************************************/
+    /************************************************************/
+    /************************************************************/
+    /************************************************************/
+
+
+
+
+
+//    /* Templatized Member functions */
+//    // Calculates distance between two points
+//    template<typename T, int dim>
+//    T Point::distanceTo(const Point<T, dim> &p) const
+//    {
+//        // Create variables to increment
+//        T sum = 0;
+//        T distance = 0;
+//
+//        // Loop through __values
+//        for (int i = 0; i < __dim; i++)
+//        {
+//            // Compute difference between __values
+//            T diff = __values[i] - p.__values[i];
+//
+//            // Add square to difference to sum (will be a positive number)
+//            sum += (diff * diff);
+//        }
+//        // Compute distance and return it
+//        distance = sqrt(sum);
+//        return distance;
+//    }
+//    /************************************************************/
+//
+//    /* Setters */
+//    template <typename T>
+//    void Point::setValue(int element, T value)
+//    {
+//        if (element >= 1 && element <= __dim)
+//        {
+//            __values[element - 1] = value;
+//        }
+//        else
+//        {
+//            // TODO: Throw DoesNotExistEx?
+//            // Display error message
+//            std::cout << "That element does not exist in __values vector!" << std::endl;
+//        }
+//    }
+//    /************************************************************/
+//
+//    /* Getters */
+//    template <typename T>
+//    T Point::getValue(unsigned int element) const
+//    {
+//        if (element >= 1 && element <= __dim)
+//        {
+//            return __values[element - 1];
+//        }
+//        else
+//        {
+//            // TODO: Throw OutOfBoundsEx
+//            throw OutOfBoundsEx(__dim, element);
+//        }
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded operators dimension-wise (members) */
+//    template <typename T, int dim>
+//    Point<T, dim> &Point::operator *=(T d)
+//    {
+//        // Loop through __values of Point
+//        for (int i = 0; i < __dim; i++)
+//        {
+//            // Multiply __values by d
+//            __values[i] *= d;
+//        }
+//        return *this;
+//    }
+//
+//    template <typename T, int dim>
+//    Point<T, dim> &Point::operator /=(T d)
+//    {
+//        // TODO: Throw DivideByZeroEx
+//        // Check if d == 0
+//        if (d != 0)
+//        {
+//            // Loop through __values and divide by d
+//            for (int i = 0; i < __dim; i++)
+//            {
+//                __values[i] /= d;
+//            }
+//        }
+//        else
+//        {
+//            throw DivideByZeroEx();
+//        }
+//        return *this;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded arithmetic operators (members) */
+//    template <typename T, int dim>
+//    const Point<T, dim> Point::operator *(T d) const
+//    {
+//        // Copy left hand Point
+//        Point result(*this);
+//
+//        // Multiply by d and return result
+//        result *= d;
+//        return result;
+//    }
+//
+//    template <typename T, int dim>
+//    const Point<T, dim> Point::operator /(T d) const
+//    {
+//        // Copy point
+//        Point result(*this);
+//
+//        // Divide by d and return result
+//        result /= d;
+//        return result;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded [] operator (member) */
+//    template <typename T>
+//    T &Point::operator [](unsigned int index)
+//    {
+//        // TODO: Throw OutOfBoundsEx
+//        if (index < 0 || index >= __dim)
+//            throw OutOfBoundsEx(__dim, index);
+//
+//        return __values[index];
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded insertion/extraction operators (friends) */
+//    // Overloaded insertion operator
+//    template <typename T, int dim>
+//    std::ostream &operator <<(std::ostream &output, const Point<T, dim> &right)
+//    {
+//        // Output will look like: x, y, z
+//        // Loop through __values
+//        for (int i = 0; i < right.getDim(); i++)
+//        {
+//            // Output Point __values to one decimal place
+//            output << std::fixed << std::setprecision(1) << right.__values[i];
+//
+//            // Add in ',' and space if not the end of array
+//            if (i < (right.getDim()) - 1)
+//            {
+//                output << Point::POINT_VALUE_DELIM << " ";
+//            }
+//        }
+//        return output;
+//    }
+//
+//    // Overloaded extraction operator
+//    template <typename T, int dim>
+//    std::istream &operator >>(std::istream &input, Point<T, dim> &right)
+//    {
+//        // TODO: check for proper input formatting (x,y,z,,)
+//
+//        /* These are here in case we read directly from a file */
+//        // Create empty string
+//        std::string line;
+//        unsigned long int num_com;
+//
+//        // Get next line of input and place in string
+//        std::getline(input, line, '\n');
+//
+//        // Count number of commas in the line
+//        num_com = (unsigned) (std::count(line.begin(), line.end(), Point::POINT_VALUE_DELIM));
+//
+//        // Add one to number of commas to use as Point dimensions
+//        num_com += 1;
+//
+//        // Throw DimensionalityMismatch exception
+//        if (num_com != right.getDim())
+//        {
+//            // Decrement __idGenerator
+//            right.rewindIdGen();
+//
+//            // TODO: Throw DimensionalityMismatchEx
+//            throw DimensionalityMismatchEx(right.getDim(), num_com);
+//        }
+//
+//        // Turn string into a stream
+//        std::stringstream lineStr(line);
+//
+//        // Loop through comma-separated __values
+//        for (int i = 1; i <= right.getDim(); i++)
+//        {
+//            // Create string to hold value
+//            std::string value;
+//
+//            // Get the value from the stringstream
+//            std::getline(lineStr, value, Point::POINT_VALUE_DELIM);
+//
+//            // Transform value into a double
+//            // TODO: What do we do with this?
+//            double val = atof(value.c_str());
+//
+//            // Set Point's dimension __values
+//            right.setValue(i, val);
+//        }
+//
+//        return input;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded compound assignment operators (friends) */
+//    template <typename T, int dim>
+//    Point &operator +=(Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values and add right to left
+//        for (int i = 0; i < right.getDim(); i++)
+//        {
+//            left.__values[i] += right.__values[i];
+//        }
+//
+//        // Return new left side
+//        return left;
+//    }
+//
+//    template <typename T, int dim>
+//    Point &operator -=(Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values and subtract right from left
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            left.__values[i] -= right.__values[i];
+//        }
+//
+//        // Return new left side
+//        return left;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded binary operators (friends) */
+//    template <typename T, int dim>
+//    const Point operator +(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Copy left hand Point
+//        Point result(left);
+//
+//        // Loop through __values and add right to new left
+//        for (int i = 0; i < result.getDim(); i++)
+//        {
+//            result.__values[i] += right.__values[i];
+//        }
+//
+//        return result;
+//    }
+//
+//    template <typename T, int dim>
+//    const Point operator -(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Copy left hand Point
+//        Point result(left);
+//
+//        // Loop through __values and add right to new left
+//        for (int i = 0; i < result.getDim(); i++)
+//        {
+//            result.__values[i] -= right.__values[i];
+//        }
+//
+//        return result;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded comparison operators (friends) */
+//    template <typename T, int dim>
+//    bool operator ==(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        else if (left.getID() == right.getID())
+//            return true;
+//
+//        // Loop through __values
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            // Compare for equality
+//            if (left.__values[i] != right.__values[i])
+//            {
+//                // If __values are not equal, return false
+//                return false;
+//            }
+//        }
+//
+//        // If loop terminates without returning, return true
+//        return true;
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator !=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded == operator to see if they are equal
+//        return !(left == right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator >(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            // Compare __values
+//            if (left.__values[i] > right.__values[i])
+//            {
+//                // If left > right, return true
+//                return true;
+//            }
+//            else if (left.__values[i] == right.__values[i])
+//            {
+//                // If __values are equal, move to next value
+//                continue;
+//            }
+//            else
+//            {
+//                // If left value is not >= right value, return false
+//                break;
+//            }
+//        }
+//
+//        return false;
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator <(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded > operator to compare
+//        return !(left > right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator >=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded > and == to compare
+//        return (left > right || left == right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator <=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded < and == to compare
+//        return (left < right || left == right);
+//    }
+//    /************************************************************/
 } // end namespace Clustering
 
 
