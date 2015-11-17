@@ -8,7 +8,7 @@
 #include "Cluster.h"
 #include "Exceptions.h"
 
-// namespace wrap
+/* namespace wrap */
 namespace Clustering
 {
     /* Member variables */
@@ -18,7 +18,7 @@ namespace Clustering
 
     /* Inner Move Class */
     // Move constructor
-    Cluster::Move::Move(const Point &p, ClusterPtr from, ClusterPtr to)
+    Cluster::Move::Move(const Point &p, Cluster *from, Cluster *to)
     {
         __p = p;
         __from = from;
@@ -84,7 +84,7 @@ namespace Clustering
         std::cout << "Calculating __distances map!" << std::endl;
 
         // Copy __head of Cluster
-        fList list = this->getHead();
+        std::forward_list<Point> list = this->getHead();
 
         // Loop through Points in Cluster forward_list
         for (auto it_1 = list.begin(); it_1 != list.end(); ++it_1)
@@ -95,7 +95,8 @@ namespace Clustering
             for (it_2; it_2 != list.end(); ++it_2)
             {
                 // Create a key
-                Key key(*it_1, *it_2);
+//                Key key(*it_1, *it_2); // TODO: Remove this
+                Key key(it_1->getID(), it_2->getID());
 
                 // Attempt to find key
                 auto search = __distances.find(key);
@@ -197,10 +198,10 @@ namespace Clustering
     bool Cluster::contains(const Point &p)
     {
         // Copy forward_list
-        fList list = this->getHead();
+        std::forward_list<Point> list = this->getHead();
 
         // Create iterator
-        fList::iterator pos = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
 
         // Loop through all Points in Cluster
         for (pos; pos != list.end(); pos++)
@@ -225,17 +226,17 @@ namespace Clustering
 
     /* KMeans computeClusteringScore functions */
     // Distance between Points within a single Cluster
-    double Cluster::intraClusterDistance(const hashMap& distances) const
+    double Cluster::intraClusterDistance(const std::unordered_map<Key, double, KeyHash, KeyEqual>& distances) const
     {
         // Initialize sum
         double sum = 0;
 
         // Copy forward list
-        fList list = this->getHead();
+        std::forward_list<Point> list = this->getHead();
 
         // List iterators
-        fList::iterator pos = list.begin();
-        fList::iterator nxt = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
+        std::forward_list<Point>::iterator nxt = list.begin();
 
         // Double loop through linked-list of Cluster
         for (pos; pos != list.end(); pos++)
@@ -249,8 +250,8 @@ namespace Clustering
                 else
                 {
                     // Create keys using Points to find distance in map
-                    Key *key1 = new Key(*pos, *nxt);
-                    Key *key2 = new Key(*nxt, *pos);
+                    Key *key1 = new Key(pos->getID(), nxt->getID());
+                    Key *key2 = new Key(nxt->getID(), pos->getID());
 
                     // See if keys exist in map
                     auto search1 = distances.find(*key1);
@@ -280,7 +281,7 @@ namespace Clustering
     }
 
     // Returns sum of distance between Points between all Clusters
-    double interClusterDistance(const Cluster &c1, const Cluster &c2, const hashMap& distances)
+    double interClusterDistance(const Cluster &c1, const Cluster &c2, const std::unordered_map<Key, double, KeyHash, KeyEqual>& distances)
     {
         // Check if Clusters equal each other
         if (c1 == c2)
@@ -290,12 +291,12 @@ namespace Clustering
         double sum = 0;
 
         // Copy forward lists
-        fList list1 = c1.getHead();
-        fList list2 = c2.getHead();
+        std::forward_list<Point> list1 = c1.getHead();
+        std::forward_list<Point> list2 = c2.getHead();
 
         // Create iterators
-        fList::iterator pos1 = list1.begin();
-        fList::iterator pos2 = list2.begin();
+        std::forward_list<Point>::iterator pos1 = list1.begin();
+        std::forward_list<Point>::iterator pos2 = list2.begin();
 
         // Loop through linked-lists of both Clusters
         for (pos1; pos1 != list1.end(); pos1++)
@@ -309,8 +310,8 @@ namespace Clustering
                 else
                 {
                     // Create keys using Points to find distance in map
-                    Key *key1 = new Key(*pos1, *pos2);
-                    Key *key2 = new Key(*pos2, *pos1);
+                    Key *key1 = new Key(pos1->getID(), pos2->getID());
+                    Key *key2 = new Key(pos2->getID(), pos1->getID());
 
                     // Search for key
                     auto search1 = distances.find(*key1);
@@ -374,11 +375,11 @@ namespace Clustering
     void Cluster::calcCentroid()
     {
         // Copy forward list
-        fList list = this->getHead();
+        std::forward_list<Point> list = this->getHead();
 
         // Create iterator
-        fList::iterator first = list.begin();
-        fList::iterator pos = list.begin();
+        std::forward_list<Point>::iterator first = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
 
         // Create new Point
         Point newCent(this->getNumDimensions());
@@ -411,7 +412,7 @@ namespace Clustering
     }
 
     // Pick k Points from a Cluster to use as initial Centroids for Clustering
-    void Cluster::pickPoints(unsigned long int k, unsigned long int dims, PointPtr *pointArray)
+    void Cluster::pickPoints(unsigned long int k, unsigned long int dims, Point **pointArray)
     {
         // Display message
         std::cout << "Picking Points to use as Centroids..." << std::endl;
@@ -428,7 +429,7 @@ namespace Clustering
         int count = 0; // Used to increment list position
 
         // Copy forward list
-        fList list = this->getHead();
+        std::forward_list<Point> list = this->getHead();
 
         // Iterate kCopy times to get kCopy Centroids
         for (int i = 0; i < k; i++)
@@ -436,7 +437,7 @@ namespace Clustering
             if (i < this->getSize())
             {
                 // Set iterator to the beginning of the list
-                fList::iterator pos = list.begin();
+                std::forward_list<Point>::iterator pos = list.begin();
 
                 // Use count to iterate through the list to find the Point we want
                 for (int j = 0; j < count; j++)
@@ -446,7 +447,7 @@ namespace Clustering
                 }
 
                 // Copy current Point
-                PointPtr p1 = new Point(*pos);
+                Point *p1 = new Point(*pos);
 
                 // Put the chosen Point into the Centroid array
                 pointArray[i] = p1;
@@ -457,7 +458,7 @@ namespace Clustering
             else
             {
                 // Create new Point
-                PointPtr p2 = new Point(dims);
+                Point *p2 = new Point(dims);
 
                 // Put empty Point into Centroid array
                 pointArray[i] = p2;
@@ -483,10 +484,10 @@ namespace Clustering
         // Output will look like: x, y, z : [Cluster ID]
 
         // Copy forward list
-        fList list = right.getHead();
+        std::forward_list<Point> list = right.getHead();
 
         // Create iterator
-        fList::iterator pos = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
 
         // Loop through linked-list
         for (pos; pos != list.end(); pos++)
@@ -559,12 +560,12 @@ namespace Clustering
         }
         else {
             // Copy forward lists
-            fList list1 = left.getHead();
-            fList list2 = right.getHead();
+            std::forward_list<Point> list1 = left.getHead();
+            std::forward_list<Point> list2 = right.getHead();
 
             // Create iterators
-            fList::iterator pos1 = list1.begin();
-            fList::iterator pos2 = list2.begin();
+            std::forward_list<Point>::iterator pos1 = list1.begin();
+            std::forward_list<Point>::iterator pos2 = list2.begin();
 
             // Loop through lists of both Clusters
             while (pos1 != list1.end() && pos2 != list2.end())
@@ -661,10 +662,10 @@ namespace Clustering
         Cluster c(left);
 
         // Copy right-hand-side forward list
-        fList list = right.getHead();
+        std::forward_list<Point> list = right.getHead();
 
         // Create iterator
-        fList::iterator pos = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
 
         // Loop through list and add Points to new Cluster
         for (pos; pos != list.end(); pos++)
@@ -682,10 +683,10 @@ namespace Clustering
         Cluster c(left);
 
         // Copy right-hand-side forward list
-        fList list = right.getHead();
+        std::forward_list<Point> list = right.getHead();
 
         // Create iterator
-        fList::iterator pos = list.begin();
+        std::forward_list<Point>::iterator pos = list.begin();
 
         // Loop through list and remove Points from new Cluster
         for (pos; pos != list.end(); pos++)

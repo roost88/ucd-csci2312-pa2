@@ -17,7 +17,7 @@ namespace Clustering
     {
     private:
         unsigned long int       __k;
-        ClusterPtr              __point_space; // Pointer to initial Cluster that holds all Points
+        Cluster*                __point_space; // Pointer to initial Cluster that holds all Points
         std::vector<Cluster>    __kClusterArray;
 
     public:
@@ -25,13 +25,12 @@ namespace Clustering
         static const double SCORE_DIFF_THRESHOLD;
 
         // Constructors
-        KMeans(unsigned long int numDims, unsigned long int numClusters,
-               std::string const &inputFile, std::string const &outputFile);
+        KMeans(unsigned long int numClusters, unsigned long int numDims);
         ~KMeans();
 
         // Member functions
         // implement Beta-CV criterion (coefficient variation)
-        double computeClusteringScore(std::vector<Cluster>&, const hashMap&);
+        double computeClusteringScore(std::vector<Cluster>&, const std::unordered_map<Key, double, KeyHash, KeyEqual>&);
     };
 }
 

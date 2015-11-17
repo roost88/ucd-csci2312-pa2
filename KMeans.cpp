@@ -16,8 +16,7 @@ namespace Clustering
     const double KMeans::SCORE_DIFF_THRESHOLD = 0.8; // Must be less than 1.0 and greater than 0
 
     // Constructors
-    KMeans::KMeans(unsigned long int numDims, unsigned long int numClusters,
-                   std::string const &inputFile, std::string const &outputFile)
+    KMeans::KMeans(unsigned long int numClusters,unsigned long int numDims)
     {
         /* Setup and Initialization */
 
@@ -33,6 +32,10 @@ namespace Clustering
 
         // Create a new Cluster to hold all Points
         __point_space = new Cluster(numDims);
+
+        // Initialize file strings
+        std::string inputFile = "input.csv";
+        std::string outputFile = "output.csv";
 
         // Open data file and read Points into __point_space
         std::ifstream inFile(inputFile); // Create a new input file stream
@@ -73,7 +76,7 @@ namespace Clustering
         __point_space->setDistanceMap();
 
         // Create empty array of __k Centroids
-        Clustering::PointPtr *centroidArray = new Clustering::PointPtr[__k];
+        Clustering::Point **centroidArray = new Clustering::Point*[__k];
 
         // Pick Centroids from Cluster
         __point_space->pickPoints(__k, numDims, centroidArray);
@@ -118,7 +121,7 @@ namespace Clustering
             for (int i = 0; i < __k; i++)
             {
                 // Copy forward list of current Cluster[i]
-                fList list = __kClusterArray[i].getHead();
+                std::forward_list<Point> list = __kClusterArray[i].getHead();
 
                 // Create iterator for above list
                 auto pos = list.begin();
@@ -269,7 +272,7 @@ namespace Clustering
 
     /* Member functions */
     // Implement Beta-CV criterion (coefficient of variation)
-    double KMeans::computeClusteringScore(std::vector<Cluster>& clusterArray, const hashMap& distances)
+    double KMeans::computeClusteringScore(std::vector<Cluster>& clusterArray, const std::unordered_map<Key, double, KeyHash, KeyEqual>& distances)
     {
         double W_in = 0;
         double W_out = 0;

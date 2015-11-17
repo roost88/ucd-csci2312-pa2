@@ -20,21 +20,16 @@
 #include <vector>
 #include <exception>
 
+/* NON-TEMPLATE POINT CLASS */
 /* namespace wrap */
-namespace Clustering
-{
-    /* Template declaration */
-//    template <typename T, unsigned long int dim>
-    /************************************************************/
+namespace Clustering {
 
     /* Point Class */
-    class Point
-    {
+    class Point {
     private:
         unsigned int            __id;           // Unique Point ID
         static unsigned int     __idGenerator;  // Used to increment ID number
         unsigned long int       __dim;          // Point dimensions variable
-//        std::vector<T>          __values;       // Holds Point dimension values
         std::vector<double>     __values;       // Holds Point dimension values
 
     public:
@@ -45,35 +40,25 @@ namespace Clustering
         Point() :
                 __id(__idGenerator++),
                 __dim(0),
-                __values(__dim)
-        {}
-
-//        // Template Point
-//        Point() :
-//                __id(__idGenerator++),
-//                __dim(dim),
-//                __values(__dim)
-//        {}
+                __values(__dim) { }
 
         // Takes dimensions
         Point(unsigned long int dimensions) :
                 __id(__idGenerator++),
                 __dim(dimensions),
-                __values(__dim)
-        {}
+                __values(__dim) { }
 
         // Copy constructor
         Point(const Point &right) :
                 __id(right.getID()),
                 __dim(right.getDim()),
-                __values(right.getValuesVector())
-        {}
+                __values(right.getValuesVector()) { }
 
         Point &operator=(const Point &); // Overloaded assignment operator
-        ~Point() {} // Destructor
+        ~Point() { } // Destructor
         /************************************************************/
 
-        /* Member functions */
+        /* Member functions (non-templates) */
         double distanceTo(const Point &) const; // Calculates distance between two points
         static void rewindIdGen() { __idGenerator--; } // Decrements __idGenerator
         /************************************************************/
@@ -90,43 +75,94 @@ namespace Clustering
         /************************************************************/
 
         /* Overloaded operators dimension-wise (members) */
-        Point &operator *=(double);
-        Point &operator /=(double);
+        Point &operator*=(double);
+        Point &operator/=(double);
         /************************************************************/
 
         /* Overloaded arithmetic operators (members) */
-        const Point operator *(double) const;
-        const Point operator /(double) const;
+        const Point operator*(double) const;
+        const Point operator/(double) const;
         /************************************************************/
 
         /* Overloaded array operator (member) */
-        double &operator [](unsigned int);
+        double &operator[](unsigned int);
         /************************************************************/
 
         /* Overloaded insertion/extraction operators (friends) */
-        friend std::ostream &operator <<(std::ostream &, const Point &);
-        friend std::istream &operator >>(std::istream &, Point &);
+        friend std::ostream &operator<<(std::ostream &, const Point &);
+        friend std::istream &operator>>(std::istream &, Point &);
         /************************************************************/
 
         /* Overloaded compound assignment operators (friends) */
-        friend Point &operator +=(Point &, const Point &);
-        friend Point &operator -=(Point &, const Point &);
+        friend Point &operator+=(Point &, const Point &);
+        friend Point &operator-=(Point &, const Point &);
         /************************************************************/
 
         /* Overloaded binary operators (friends) */
-        friend const Point operator +(const Point &, const Point &);
-        friend const Point operator -(const Point &, const Point &);
+        friend const Point operator+(const Point &, const Point &);
+        friend const Point operator-(const Point &, const Point &);
         /************************************************************/
 
         /* Overloaded comparison operators (friends) */
-        friend bool operator ==(const Point &, const Point &);
-        friend bool operator !=(const Point &, const Point &);
-        friend bool operator >(const Point &, const Point &);
-        friend bool operator <(const Point &, const Point &);
-        friend bool operator >=(const Point &, const Point &);
-        friend bool operator <=(const Point &, const Point &);
+        friend bool operator==(const Point &, const Point &);
+        friend bool operator!=(const Point &, const Point &);
+        friend bool operator>(const Point &, const Point &);
+        friend bool operator<(const Point &, const Point &);
+        friend bool operator>=(const Point &, const Point &);
+        friend bool operator<=(const Point &, const Point &);
         /************************************************************/
+    };
+} // end namespace Clustering
+#endif //CLUSTERING_POINT_H
 
+
+
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+
+
+//#include "Exceptions.h"
+//
+///* TEMPLATE POINT CLASS */
+///* namespace wrap */
+//namespace Clustering {
+//    /* Template declaration */
+//    template <typename T, unsigned long int dim>
+//    /************************************************************/
+//
+//    /* Point Class */
+//    class Point {
+//    private:
+//        unsigned int          __id;           // Unique Point ID
+//        static unsigned int   __idGenerator;  // Used to increment ID number
+//        unsigned long int     __dim;          // Point dimensions variable
+//        std::vector<T>        __values;       // Holds Point dimension values
+//
+//    public:
+//        static const char POINT_VALUE_DELIM;    // Static Point delimiter (for I/O)
+//
+//        /* Template Point Constructors */
+//        // Template Point
+//        Point() :
+//                __id(__idGenerator++),
+//                __dim(dim),
+//                __values(__dim)
+//        {}
+//
+//        // Copy constructor
+//        Point(const Point<T, dim> &right) :
+//                __id(right.getID()),
+//                __dim(right.getDim()),
+//                __values(right.getValuesVector())
+//        {}
+//
+//        Point<T, dim> &operator=(const Point<T, dim> &); // Overloaded assignment operator
+//        ~Point<T, dim>() {} // Destructor
+//        /************************************************************/
+//
 //        /* Templatized Member functions */
 //        T distanceTo(const Point<T, dim> &) const; // Calculates distance between two points
 //        static void rewindIdGen() { __idGenerator--; } // Decrements __idGenerator
@@ -158,28 +194,429 @@ namespace Clustering
 //        /************************************************************/
 //
 //        /* Overloaded insertion/extraction operators (friends) */
-//        friend std::ostream &operator <<(std::ostream &, const Point<T, dim> &);
-//        friend std::istream &operator >>(std::istream &, Point<T, dim> &);
+//        template <typename S, int dim> friend std::ostream &operator <<(std::ostream &, const Point<S, dim> &);
+//        template <typename S, int dim> friend std::istream &operator >>(std::istream &, Point<S, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded compound assignment operators (friends) */
-//        friend Point<T, dim> &operator +=(Point<T, dim> &, const Point<T, dim> &);
-//        friend Point<T, dim> &operator -=(Point<T, dim> &, const Point<T, dim> &);
+//        template <typename S, int dim> friend Point<S, dim> &operator +=(Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend Point<S, dim> &operator -=(Point<S, dim> &, const Point<S, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded binary operators (friends) */
-//        friend const Point<T, dim> operator +(const Point<T, dim> &, const Point<T, dim> &);
-//        friend const Point<T, dim> operator -(const Point<T, dim> &, const Point<T, dim> &);
+//        template <typename S, int dim> friend const Point<S, dim> operator +(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend const Point<S, dim> operator -(const Point<S, dim> &, const Point<S, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded comparison operators (friends) */
-//        friend bool operator ==(const Point<T, dim> &, const Point<T, dim> &);
-//        friend bool operator !=(const Point<T, dim> &, const Point<T, dim> &);
-//        friend bool operator >(const Point<T, dim> &, const Point<T, dim> &);
-//        friend bool operator <(const Point<T, dim> &, const Point<T, dim> &);
-//        friend bool operator >=(const Point<T, dim> &, const Point<T, dim> &);
-//        friend bool operator <=(const Point<T, dim> &, const Point<T, dim> &);
+//        template <typename S, int dim> friend bool operator ==(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend bool operator !=(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend bool operator >(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend bool operator <(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend bool operator >=(const Point<S, dim> &, const Point<S, dim> &);
+//        template <typename S, int dim> friend bool operator <=(const Point<S, dim> &, const Point<S, dim> &);
 //        /************************************************************/
-    };
-} // end Clustering namespace
-#endif //CLUSTERING_POINT_H
+//    };
+//
+//    /* Member variables */
+//    template <typename T, int dim>
+//    unsigned int Point<T, dim>::__idGenerator = 1; // Initialize Point ID value to 1
+//
+//    template <typename T, int dim>
+//    const char Point<T, dim>::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
+//    /************************************************************/
+//
+//    /* Constructors */
+//    // Overloaded assignment operator
+//    template <typename T, int dim>
+//    Point<T, dim> &Point<T, dim>::operator =(const Point<T, dim> &right)
+//    {
+//        // Copy ID
+//        __id = right.getID();
+//
+//        // Copy dimensions
+//        __dim = right.getDim();
+//
+//        // Clear the __values vector
+//        __values.clear();
+//
+//        // Copy __values
+//        for (int i = 0; i < __dim; i++)
+//        {
+//            __values.push_back(right.__values[i]);
+//        }
+//
+//        return *this;
+//    }
+//
+//    /* Templatized Member functions */
+//    // Calculates distance between two points
+//    template<typename T, int dim>
+//    T Point<T, dim>::distanceTo(const Point<T, dim> &p) const
+//    {
+//        // Create variables to increment
+//        T sum = 0;
+//        T distance = 0;
+//
+//        // Loop through __values
+//        for (int i = 0; i < __dim; i++)
+//        {
+//            // Compute difference between __values
+//            T diff = __values[i] - p.__values[i];
+//
+//            // Add square to difference to sum (will be a positive number)
+//            sum += (diff * diff);
+//        }
+//        // Compute distance and return it
+//        distance = sqrt(sum);
+//        return distance;
+//    }
+//    /************************************************************/
+//
+//    /* Setters */
+//    template<typename T, int dim>
+//    void Point<T, dim>::setValue(int element, T value)
+//    {
+//        if (element >= 1 && element <= __dim)
+//        {
+//            __values[element - 1] = value;
+//        }
+//        else
+//        {
+//            // TODO: Throw DoesNotExistEx?
+//            // Display error message
+//            std::cout << "That element does not exist in __values vector!" << std::endl;
+//        }
+//    }
+//    /************************************************************/
+//
+//    /* Getters */
+//    template<typename T, int dim>
+//    T Point<T, dim>::getValue(unsigned int element) const
+//    {
+//        if (element >= 1 && element <= __dim)
+//        {
+//            return __values[element - 1];
+//        }
+//        else
+//        {
+//            // TODO: Throw OutOfBoundsEx
+//            throw OutOfBoundsEx(__dim, element);
+//        }
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded operators dimension-wise (members) */
+//    template <typename T, int dim>
+//    Point<T, dim> &Point<T, dim>::operator *=(T d)
+//    {
+//        // Loop through __values of Point
+//        for (int i = 0; i < __dim; i++)
+//        {
+//            // Multiply __values by d
+//            __values[i] *= d;
+//        }
+//        return *this;
+//    }
+//
+//    template <typename T, int dim>
+//    Point<T, dim> &Point<T, dim>::operator /=(T d)
+//    {
+//        // TODO: Throw DivideByZeroEx
+//        // Check if d == 0
+//        if (d != 0)
+//        {
+//            // Loop through __values and divide by d
+//            for (int i = 0; i < __dim; i++)
+//            {
+//                __values[i] /= d;
+//            }
+//        }
+//        else
+//        {
+//            throw DivideByZeroEx();
+//        }
+//        return *this;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded arithmetic operators (members) */
+//    template <typename T, int dim>
+//    const Point<T, dim> Point<T, dim>::operator *(T d) const
+//    {
+//        // Copy left hand Point
+//        Point result(*this);
+//
+//        // Multiply by d and return result
+//        result *= d;
+//        return result;
+//    }
+//
+//    template <typename T, int dim>
+//    const Point<T, dim> Point<T, dim>::operator /(T d) const
+//    {
+//        // Copy point
+//        Point result(*this);
+//
+//        // Divide by d and return result
+//        result /= d;
+//        return result;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded [] operator (member) */
+//    template<typename T, int dim>
+//    T &Point<T, dim>::operator [](unsigned int index)
+//    {
+//        // TODO: Throw OutOfBoundsEx
+//        if (index < 0 || index >= __dim)
+//            throw OutOfBoundsEx(__dim, index);
+//
+//        return __values[index];
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded insertion/extraction operators (friends) */
+//    // Overloaded insertion operator
+//    template <typename T, int dim>
+//    std::ostream &operator <<(std::ostream &output, const Point<T, dim> &right)
+//    {
+//        // Output will look like: x, y, z
+//        // Loop through __values
+//        for (int i = 0; i < right.getDim(); i++)
+//        {
+//            // Output Point __values to one decimal place
+//            output << std::fixed << std::setprecision(1) << right.__values[i];
+//
+//            // Add in ',' and space if not the end of array
+//            if (i < (right.getDim()) - 1)
+//            {
+//                output << Point::POINT_VALUE_DELIM << " ";
+//            }
+//        }
+//        return output;
+//    }
+//
+//    // Overloaded extraction operator
+//    template <typename T, int dim>
+//    std::istream &operator >>(std::istream &input, Point<T, dim> &right)
+//    {
+//        // TODO: check for proper input formatting (x,y,z,,)
+//
+//        /* These are here in case we read directly from a file */
+//        // Create empty string
+//        std::string line;
+//        unsigned long int num_com;
+//
+//        // Get next line of input and place in string
+//        std::getline(input, line, '\n');
+//
+//        // Count number of commas in the line
+//        num_com = (unsigned) (std::count(line.begin(), line.end(), Point<T, dim>::POINT_VALUE_DELIM));
+//
+//        // Add one to number of commas to use as Point dimensions
+//        num_com += 1;
+//
+//        // Throw DimensionalityMismatch exception
+//        if (num_com != right.getDim())
+//        {
+//            // Decrement __idGenerator
+//            right.rewindIdGen();
+//
+//            // TODO: Throw DimensionalityMismatchEx
+//            throw DimensionalityMismatchEx(right.getDim(), num_com);
+//        }
+//
+//        // Turn string into a stream
+//        std::stringstream lineStr(line);
+//
+//        // Loop through comma-separated __values
+//        for (int i = 1; i <= right.getDim(); i++)
+//        {
+//            // Create string to hold value
+//            std::string value;
+//
+//            // Get the value from the stringstream
+//            std::getline(lineStr, value, Point::POINT_VALUE_DELIM);
+//
+//            // Transform value into a double
+//            // TODO: What do we do with this?
+//            double val = atof(value.c_str());
+//
+//            // Set Point's dimension __values
+//            right.setValue(i, val);
+//        }
+//
+//        return input;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded compound assignment operators (friends) */
+//    template <typename T, int dim>
+//    Point<T, dim> &operator +=(Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values and add right to left
+//        for (int i = 0; i < right.getDim(); i++)
+//        {
+//            left.__values[i] += right.__values[i];
+//        }
+//
+//        // Return new left side
+//        return left;
+//    }
+//
+//    template <typename T, int dim>
+//    Point<T, dim> &operator -=(Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values and subtract right from left
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            left.__values[i] -= right.__values[i];
+//        }
+//
+//        // Return new left side
+//        return left;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded binary operators (friends) */
+//    template <typename T, int dim>
+//    const Point<T, dim> operator +(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Copy left hand Point
+//        Point result(left);
+//
+//        // Loop through __values and add right to new left
+//        for (int i = 0; i < result.getDim(); i++)
+//        {
+//            result.__values[i] += right.__values[i];
+//        }
+//
+//        return result;
+//    }
+//
+//    template <typename T, int dim>
+//    const Point<T, dim> operator -(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Copy left hand Point
+//        Point result(left);
+//
+//        // Loop through __values and add right to new left
+//        for (int i = 0; i < result.getDim(); i++)
+//        {
+//            result.__values[i] -= right.__values[i];
+//        }
+//
+//        return result;
+//    }
+//    /************************************************************/
+//
+//    /* Overloaded comparison operators (friends) */
+//    template <typename T, int dim>
+//    bool operator ==(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        else if (left.getID() == right.getID())
+//            return true;
+//
+//        // Loop through __values
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            // Compare for equality
+//            if (left.__values[i] != right.__values[i])
+//            {
+//                // If __values are not equal, return false
+//                return false;
+//            }
+//        }
+//
+//        // If loop terminates without returning, return true
+//        return true;
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator !=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded == operator to see if they are equal
+//        return !(left == right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator >(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // TODO: Throw DimensionalityMismatch exception
+//        // Throw DimensionalityMismatchEx exception
+//        if (left.getDim() != right.getDim())
+//            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
+//
+//        // Loop through __values
+//        for (int i = 0; i < left.getDim(); i++)
+//        {
+//            // Compare __values
+//            if (left.__values[i] > right.__values[i])
+//            {
+//                // If left > right, return true
+//                return true;
+//            }
+//            else if (left.__values[i] == right.__values[i])
+//            {
+//                // If __values are equal, move to next value
+//                continue;
+//            }
+//            else
+//            {
+//                // If left value is not >= right value, return false
+//                break;
+//            }
+//        }
+//
+//        return false;
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator <(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded > operator to compare
+//        return !(left > right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator >=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded > and == to compare
+//        return (left > right || left == right);
+//    }
+//
+//    template <typename T, int dim>
+//    bool operator <=(const Point<T, dim> &left, const Point<T, dim> &right)
+//    {
+//        // Use overloaded < and == to compare
+//        return (left < right || left == right);
+//    }
+//    /************************************************************/
+//
+//
+//} // end Clustering namespace
+//#endif //CLUSTERING_POINT_H
