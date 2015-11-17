@@ -81,8 +81,12 @@ namespace Clustering
             Cluster*    __to;
         public:
             // Move constructor
-            Move(const Point &p, Cluster *from, Cluster *to);
-            ~Move(){}
+            Move(const Point &p, Cluster *from, Cluster *to) :
+                    __p(p),
+                    __from(from),
+                    __to(to) { perform(); }
+
+            ~Move() { }
 
             // Move member functions
             void perform(); // Moves a Point
@@ -98,8 +102,7 @@ namespace Clustering
                 __centroid(__numDimensions),
                 __validCentroid(false),
                 __ptsSuccess(0),
-                __ptsFailed(0)
-        {}
+                __ptsFailed(0) { }
 
         // Takes dimensions for use in Point constructors
         Cluster(unsigned long int numDims) :
@@ -109,8 +112,7 @@ namespace Clustering
                 __centroid(__numDimensions),
                 __validCentroid(false),
                 __ptsSuccess(0),
-                __ptsFailed(0)
-        {}
+                __ptsFailed(0) { }
 
         // Copy constructor
         Cluster(const Cluster &right) :
@@ -119,8 +121,7 @@ namespace Clustering
                 __head(right.getHead()),
                 __numDimensions(right.getNumDimensions()),
                 __centroid(right.getCentroid()),
-                __validCentroid(right.getCentroidValidity())
-        {}
+                __validCentroid(right.getCentroidValidity()) { }
 
         Cluster &operator =(const Cluster &); // Overloaded assignment operator
         ~Cluster() { std::cout << "Cluster " << this << " destroyed!" << std::endl; } // Destructor
@@ -198,12 +199,17 @@ namespace Clustering
 } // end Clustering namespace
 #endif //CLUSTERING_CLUSTER_H
 
+
+
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 
 
+
+//#include "Exceptions.h"
+//
 ///* TEMPLATE CLUSTER CLASS */
 ///* namespace wrap */
 //namespace Clustering
@@ -243,20 +249,23 @@ namespace Clustering
 //    };
 //    /************************************************************/
 //
+///* Template declaration */
+//template <typename T, int dim>
+///************************************************************/
 //    /* Cluster Class */
 //    class Cluster
 //    {
 //    private:
-//        unsigned int                                        __id;               // Unique Cluster ID number
-//        static unsigned int                                 __idGenerator;      // Used to increment ID number
-//        int                                                 __size;             // Keeps track of the amount of Points in the Cluster
-//        std::forward_list<Point>                            __head;             // Holds Points in Cluster
-//        unsigned long int                                   __numDimensions;    // Number of dimensions of Points in Cluster
-//        Point                                               __centroid;         // Mean center Point of Cluster
-//        bool                                                __validCentroid;    // Checks if Centroid of Cluster is valid
-//        std::unordered_map<Key, double, KeyHash, KeyEqual>  __distances;        // Holds distances between Points
-//        unsigned int                                        __ptsSuccess;       // Number of Points read into Cluster successfully
-//        unsigned int                                        __ptsFailed;        // Number of Points failed to read into Cluster
+//        unsigned int                                      __id;               // Unique Cluster ID number
+//        static unsigned int                               __idGenerator;      // Used to increment ID number
+//        int                                               __size;             // Keeps track of the amount of Points in the Cluster
+//        std::forward_list<Point<T, dim>>                  __head;             // Holds Points in Cluster
+//        unsigned long int                                 __numDimensions;    // Number of dimensions of Points in Cluster
+//        Point<T, dim>                                     __centroid;         // Mean center Point of Cluster
+//        bool                                              __validCentroid;    // Checks if Centroid of Cluster is valid
+//        std::unordered_map<Key, T, KeyHash, KeyEqual>     __distances;        // Holds distances between Points
+//        unsigned int                                      __ptsSuccess;       // Number of Points read into Cluster successfully
+//        unsigned int                                      __ptsFailed;        // Number of Points failed to read into Cluster
 //
 //    public:
 //        static const char POINT_CLUSTER_ID_DELIM;   // Static Cluster delimiter value (for output)
@@ -266,13 +275,17 @@ namespace Clustering
 //        class Move
 //        {
 //        private:
-//            Point       __p;
-//            Cluster*    __from;
-//            Cluster*    __to;
+//            Point<T, dim>     __p;
+//            Cluster<T, dim>*  __from;
+//            Cluster<T, dim>*  __to;
 //        public:
 //            // Move constructor
-//            Move(const Point &p, Cluster *from, Cluster *to);
-//            ~Move(){}
+//            Move(const Point<T, dim> &p, Cluster<T, dim> *from, Cluster<T, dim> *to) :
+//                    __p(p),
+//                    __from(from),
+//                    __to(to) { perform(); }
+//
+//            ~Move() { }
 //
 //            // Move member functions
 //            void perform(); // Moves a Point
@@ -284,18 +297,7 @@ namespace Clustering
 //        Cluster() :
 //                __id(__idGenerator++),
 //                __size(0),
-//                __numDimensions(0),
-//                __centroid(__numDimensions),
-//                __validCentroid(false),
-//                __ptsSuccess(0),
-//                __ptsFailed(0)
-//        {}
-//
-//        // Takes dimensions for use in Point constructors
-//        Cluster(unsigned long int numDims) :
-//                __id(__idGenerator++),
-//                __size(0),
-//                __numDimensions(numDims),
+//                __numDimensions(dim),
 //                __centroid(__numDimensions),
 //                __validCentroid(false),
 //                __ptsSuccess(0),
@@ -303,7 +305,7 @@ namespace Clustering
 //        {}
 //
 //        // Copy constructor
-//        Cluster(const Cluster &right) :
+//        Cluster(const Cluster<T, dim> &right) :
 //                __id(right.getID()),
 //                __size(right.getSize()),
 //                __head(right.getHead()),
@@ -312,98 +314,109 @@ namespace Clustering
 //                __validCentroid(right.getCentroidValidity())
 //        {}
 //
-//        Cluster &operator =(const Cluster &); // Overloaded assignment operator
-//        ~Cluster() { std::cout << "Cluster " << this << " destroyed!" << std::endl; } // Destructor
+//        Cluster<T, dim> &operator =(const Cluster<T, dim> &); // Overloaded assignment operator
+//        ~Cluster<T, dim>() { std::cout << "Cluster " << this << " destroyed!" << std::endl; } // Destructor
 //        /************************************************************/
 //
 //        /* Setters */
-//        void setCentroid(const Point &); // Set Centroid of Cluster
+//        void setCentroid(const Point<T, dim> &); // Set Centroid of Cluster
 //        void setDistanceMap(); // Set __distances map
 //        /************************************************************/
 //
 //        /* Getters */
 //        unsigned int getID() const { return __id; } // Return Cluster ID
 //        int getSize() const { return __size; } // Return Cluster size
-//        std::forward_list<Point> getHead() const { return __head; } // Return Cluster forward list head address
+//        std::forward_list<Point<T, dim>> getHead() const { return __head; } // Return Cluster forward list head address
 //        unsigned long int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
-//        const Point &getCentroid() const { return __centroid; } // Return Cluster Centroid
+//        const Point<T, dim> &getCentroid() const { return __centroid; } // Return Cluster Centroid
 //        bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
-//        const std::unordered_map<Key, double, KeyHash, KeyEqual> getMap() const { return __distances; } // Return __distances map
+//        const std::unordered_map<Key, T, KeyHash, KeyEqual> getMap() const { return __distances; } // Return __distances map
 //        /************************************************************/
 //
 //        /* Cluster member functions */
-//        void add(const Point &); // Add a Point to a Cluster
-//        const Point &remove(const Point &); // Remove a Point from a Cluster
+//        void add(const Point<T, dim> &); // Add a Point to a Cluster
+//        const Point<T, dim> &remove(const Point<T, dim> &); // Remove a Point from a Cluster
 //        void sort(); // Sort Points within Cluster
 //        // TODO: implement bool contains(const Point &) method
-//        bool contains(const Point &);
+//        bool contains(const Point<T, dim> &);
 //        // TODO: implement numberImported() and numberFailed() methods
 //        unsigned int numberImported() { return __ptsSuccess; }
 //        unsigned int numberFailed() { return __ptsFailed; }
 //        /************************************************************/
 //
 //        /* KMeans computeClusteringScore functions */
-//        double intraClusterDistance(const std::unordered_map<Key, double, KeyHash, KeyEqual>&) const; // Sum of distances between Points in Cluster
-//        friend double interClusterDistance(const Cluster &, const Cluster &, const std::unordered_map<Key, double, KeyHash, KeyEqual>&);
+//        T intraClusterDistance(const std::unordered_map<Key, T, KeyHash, KeyEqual>&) const; // Sum of distances between Points in Cluster
+//
+//        template <typename S, int dim>
+//        friend double interClusterDistance(const Cluster<S, dim> &, const Cluster<S, dim> &, const std::unordered_map<Key, S, KeyHash, KeyEqual>&);
+//
 //        int getClusterEdges(); // Number of unique "edges" between Points in a Cluster
-//        friend int interClusterEdges(const Cluster &, const Cluster &); // Num of edges between Points between Clusters
+//
+//        template <typename S, int dim>
+//        friend int interClusterEdges(const Cluster<S, dim> &, const Cluster<S, dim> &); // Num of edges between Points between Clusters
 //        /************************************************************/
 //
 //        /* Centroid specific functions */
 //        void calcCentroid(); // Computes Centroid of Cluster
-//        void pickPoints(unsigned long int, unsigned long int, Point **); // Pick k Points from Cluster
+//        void pickPoints(unsigned long int, unsigned long int, Point<T, dim> **); // Pick k Points from Cluster
 //        /************************************************************/
 //
 //        /* Overloaded [] operator */
 //        // TODO: Implement this
-//        Point &operator [](unsigned int);
+//        Point<T, dim> &operator [](unsigned int);
 //        /************************************************************/
 //
 //        /* Overloaded iostream operators (friends) */
-//        friend std::ostream &operator <<(std::ostream &, const Cluster &);
-//        friend std::istream &operator >>(std::istream &, Cluster &);
+//        template <typename S, int dim>
+//        friend std::ostream &operator <<(std::ostream &, const Cluster<S, dim> &);
+//
+//        template <typename S, int dim>
+//        friend std::istream &operator >>(std::istream &, Cluster<S, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded comparison operators (friends) */
-//        friend bool operator ==(const Cluster &, const Cluster &);
-//        friend bool operator !=(const Cluster &, const Cluster &);
+//        template <typename S, int dim>
+//        friend bool operator ==(const Cluster<S, dim> &, const Cluster<S, dim> &);
+//
+//        template <typename S, int dim>
+//        friend bool operator !=(const Cluster<S, dim> &, const Cluster<S, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded compound assignment operators (members) */
-//        Cluster &operator +=(const Cluster &);
-//        Cluster &operator -=(const Cluster &);
+//        Cluster<T, dim> &operator +=(const Cluster<T, dim> &);
+//        Cluster<T, dim> &operator -=(const Cluster<T, dim> &);
 //
-//        Cluster &operator +=(const Point &);
-//        Cluster &operator -=(const Point &);
+//        Cluster<T, dim> &operator +=(const Point<T, dim> &);
+//        Cluster<T, dim> &operator -=(const Point<T, dim> &);
 //        /************************************************************/
 //
 //        /* Overloaded binary arithmetic operators (friends) */
-//        friend const Cluster operator +(const Cluster &, const Cluster &);
-//        friend const Cluster operator -(const Cluster &, const Cluster &);
+//        template <typename S, int dim>
+//        friend const Cluster operator +(const Cluster<S, dim> &, const Cluster<S, dim> &);
 //
-//        friend const Cluster operator +(const Cluster &, const Point &);
-//        friend const Cluster operator -(const Cluster &, const Point &);
+//        template <typename S, int dim>
+//        friend const Cluster operator -(const Cluster<S, dim> &, const Cluster<S, dim> &);
+//
+//        template <typename S, int dim>
+//        friend const Cluster operator +(const Cluster<S, dim> &, const Point<S, dim> &);
+//
+//        template <typename S, int dim>
+//        friend const Cluster operator -(const Cluster<S, dim> &, const Point<S, dim> &);
 //        /************************************************************/
 //    };
 //
 ///* Member variables */
-//unsigned int Cluster::__idGenerator = 1; // Initialize Cluster ID value to 1
-//const char Cluster::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
+//template <typename T, int dim>
+//unsigned int Cluster<T, dim>::__idGenerator = 1; // Initialize Cluster ID value to 1
+//
+//template <typename T, int dim>
+//const char Cluster<T, dim>::POINT_CLUSTER_ID_DELIM = ':'; // Set Cluster delimiter for output
 ///************************************************************/
 //
 ///* Inner Move Class */
-//// Move constructor
-//Cluster::Move::Move(const Point &p, Cluster *from, Cluster *to)
-//{
-//    __p = p;
-//    __from = from;
-//    __to = to;
-//
-//    perform();
-//}
-//
 //// Move member functions
-//void Cluster::Move::perform()
+//template <typename T, int dim>
+//void Cluster<T, dim>::Move::perform()
 //{
 //    // TODO: Catch RemoveFromEmpty exception
 //    // Remove Point from Cluster and add to another Cluster
@@ -423,7 +436,8 @@ namespace Clustering
 ///************************************************************/
 //
 ///* Overloaded assignment operator (Cluster) */
-//Cluster &Cluster::operator =(const Cluster &right)
+//template <typename T, int dim>
+//Cluster<T, dim> &Cluster<T, dim>::operator =(const Cluster<T, dim> &right)
 //{
 //    // Copy all values from right into left and return
 //    __id = right.getID();
@@ -443,7 +457,8 @@ namespace Clustering
 //
 ///* Setters */
 //// Set the Centroid of a Cluster
-//void Cluster::setCentroid(const Point &right)
+//template <typename T, int dim>
+//void Cluster<T, dim>::setCentroid(const Point<T, dim> &right)
 //{
 //    // Set Cluster's Centroid equal to new Centroid
 //    __centroid = right;
@@ -453,13 +468,14 @@ namespace Clustering
 //}
 //
 //// Calculate distances between Points within Cluster and store in map
-//void Cluster::setDistanceMap()
+//template <typename T, int dim>
+//void Cluster<T, dim>::setDistanceMap()
 //{
 //    // Display message
 //    std::cout << "Calculating __distances map!" << std::endl;
 //
 //    // Copy __head of Cluster
-//    std::forward_list<Point> list = this->getHead();
+//    std::forward_list<Point<T, dim>> list = this->getHead();
 //
 //    // Loop through Points in Cluster forward_list
 //    for (auto it_1 = list.begin(); it_1 != list.end(); ++it_1)
@@ -496,7 +512,8 @@ namespace Clustering
 //
 ///* Cluster member functions */
 //// Add Point to Cluster
-//void Cluster::add(const Point &right)
+//template <typename T, int dim>
+//void Cluster<T, dim>::add(const Point<T, dim> &right)
 //{
 //    // Invalidate Centroid
 //    __validCentroid = false;
@@ -504,7 +521,7 @@ namespace Clustering
 //    // Add Point to empty forward list
 //    if (__head.empty())
 //    {
-//        __head.emplace_front(Point(right));
+//        __head.emplace_front(Point<T, dim>(right));
 //    }
 //    else if (this->contains(right))
 //    {
@@ -517,7 +534,7 @@ namespace Clustering
 //    else
 //    {
 //        // Place Point in list
-//        __head.emplace_front(Point(right));
+//        __head.emplace_front(Point<T, dim>(right));
 //    }
 //
 //    // Increment size of Cluster
@@ -532,7 +549,8 @@ namespace Clustering
 //}
 //
 //// Remove Point from Cluster; returns removed Point
-//const Point &Cluster::remove(const Point &right)
+//template <typename T, int dim>
+//const Point<T, dim> &Cluster<T, dim>::remove(const Point<T, dim> &right)
 //{
 //    // Invalidate Centroid
 //    __validCentroid = false;
@@ -563,20 +581,22 @@ namespace Clustering
 //}
 //
 //// Sort Cluster forward_list
-//void Cluster::sort()
+//template <typename T, int dim>
+//void Cluster<T, dim>::sort()
 //{
 //    // Uses std::forward_list function sort()
 //    __head.sort();
 //}
 //
 //// Check if Cluster already contains Point
-//bool Cluster::contains(const Point &p)
+//template <typename T, int dim>
+//bool Cluster<T, dim>::contains(const Point<T, dim> &p)
 //{
 //    // Copy forward_list
-//    std::forward_list<Point> list = this->getHead();
+//    std::forward_list<Point<T, dim>> list = this->getHead();
 //
 //    // Create iterator
-//    std::forward_list<Point>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //    // Loop through all Points in Cluster
 //    for (pos; pos != list.end(); pos++)
@@ -601,17 +621,18 @@ namespace Clustering
 //
 ///* KMeans computeClusteringScore functions */
 //// Distance between Points within a single Cluster
-//double Cluster::intraClusterDistance(const std::unordered_map<Key, double, KeyHash, KeyEqual>& distances) const
+//template <typename T, int dim>
+//T Cluster<T, dim>::intraClusterDistance(const std::unordered_map<Key, T, KeyHash, KeyEqual>& distances) const
 //{
 //    // Initialize sum
-//    double sum = 0;
+//    T sum = 0;
 //
 //    // Copy forward list
-//    std::forward_list<Point> list = this->getHead();
+//    std::forward_list<Point<T, dim>> list = this->getHead();
 //
 //    // List iterators
-//    std::forward_list<Point>::iterator pos = list.begin();
-//    std::forward_list<Point>::iterator nxt = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator nxt = list.begin();
 //
 //    // Double loop through linked-list of Cluster
 //    for (pos; pos != list.end(); pos++)
@@ -656,22 +677,23 @@ namespace Clustering
 //}
 //
 //// Returns sum of distance between Points between all Clusters
-//double interClusterDistance(const Cluster &c1, const Cluster &c2, const std::unordered_map<Key, double, KeyHash, KeyEqual>& distances)
+//template <typename T, int dim>
+//T interClusterDistance(const Cluster<T, dim> &c1, const Cluster<T, dim> &c2, const std::unordered_map<Key, T, KeyHash, KeyEqual>& distances)
 //{
 //    // Check if Clusters equal each other
 //    if (c1 == c2)
 //        return 0;
 //
 //    // Initialize sum
-//    double sum = 0;
+//    T sum = 0;
 //
 //    // Copy forward lists
-//    std::forward_list<Point> list1 = c1.getHead();
-//    std::forward_list<Point> list2 = c2.getHead();
+//    std::forward_list<Point<T, dim>> list1 = c1.getHead();
+//    std::forward_list<Point<T, dim>> list2 = c2.getHead();
 //
 //    // Create iterators
-//    std::forward_list<Point>::iterator pos1 = list1.begin();
-//    std::forward_list<Point>::iterator pos2 = list2.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos1 = list1.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos2 = list2.begin();
 //
 //    // Loop through linked-lists of both Clusters
 //    for (pos1; pos1 != list1.end(); pos1++)
@@ -717,7 +739,8 @@ namespace Clustering
 //}
 //
 //// Returns the number of distinct edges in a Cluster
-//int Cluster::getClusterEdges()
+//template <typename T, int dim>
+//int Cluster<T, dim>::getClusterEdges()
 //{
 //    // Every two distinct Points has an imaginary edge between them
 //    int clusterSize = getSize();
@@ -729,7 +752,8 @@ namespace Clustering
 //}
 //
 //// Returns the number of distinct edges between Clusters
-//int interClusterEdges(const Cluster &c1, const Cluster &c2)
+//template <typename T, int dim>
+//int interClusterEdges(const Cluster<T, dim> &c1, const Cluster<T, dim> &c2)
 //{
 //    // If Clusters are equal, return 0
 //    if (c1 == c2)
@@ -747,17 +771,18 @@ namespace Clustering
 //
 ///* Centroid specific functions */
 //// Compute the Centroid of a Cluster
-//void Cluster::calcCentroid()
+//template <typename T, int dim>
+//void Cluster<T, dim>::calcCentroid()
 //{
 //    // Copy forward list
-//    std::forward_list<Point> list = this->getHead();
+//    std::forward_list<Point<T, dim>> list = this->getHead();
 //
 //    // Create iterator
-//    std::forward_list<Point>::iterator first = list.begin();
-//    std::forward_list<Point>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator first = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //    // Create new Point
-//    Point newCent(this->getNumDimensions());
+//    Point<T, dim> newCent(this->getNumDimensions()); // TODO: Check this!
 //
 //    // Check if list is empty
 //    // TODO: Throw RemoveFromEmptyEx
@@ -787,7 +812,8 @@ namespace Clustering
 //}
 //
 //// Pick k Points from a Cluster to use as initial Centroids for Clustering
-//void Cluster::pickPoints(unsigned long int k, unsigned long int dims, Point **pointArray)
+//template <typename T, int dim>
+//void Cluster<T, dim>::pickPoints(unsigned long int k, unsigned long int dims, Point **pointArray)
 //{
 //    // Display message
 //    std::cout << "Picking Points to use as Centroids..." << std::endl;
@@ -804,7 +830,7 @@ namespace Clustering
 //    int count = 0; // Used to increment list position
 //
 //    // Copy forward list
-//    std::forward_list<Point> list = this->getHead();
+//    std::forward_list<Point<T, dim>> list = this->getHead();
 //
 //    // Iterate kCopy times to get kCopy Centroids
 //    for (int i = 0; i < k; i++)
@@ -812,7 +838,7 @@ namespace Clustering
 //        if (i < this->getSize())
 //        {
 //            // Set iterator to the beginning of the list
-//            std::forward_list<Point>::iterator pos = list.begin();
+//            std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //            // Use count to iterate through the list to find the Point we want
 //            for (int j = 0; j < count; j++)
@@ -822,7 +848,7 @@ namespace Clustering
 //            }
 //
 //            // Copy current Point
-//            Point *p1 = new Point(*pos);
+//            Point<T, dim> *p1 = new Point<T, dim>(*pos);
 //
 //            // Put the chosen Point into the Centroid array
 //            pointArray[i] = p1;
@@ -833,7 +859,7 @@ namespace Clustering
 //        else
 //        {
 //            // Create new Point
-//            Point *p2 = new Point(dims);
+//            Point<T, dim> *p2 = new Point<T, dim>(dims);
 //
 //            // Put empty Point into Centroid array
 //            pointArray[i] = p2;
@@ -845,7 +871,8 @@ namespace Clustering
 ///************************************************************/
 //
 ///* Overloaded [] operator */
-//Point &Cluster::operator[](unsigned int index)
+//template <typename T, int dim>
+//Point<T, dim> &Cluster<T, dim>::operator[](unsigned int index)
 //{
 //    // TODO: Implement this
 //    // TODO: Throw OutOfBoundsEx
@@ -854,15 +881,16 @@ namespace Clustering
 //
 ///* Overloaded iostream operators (friends) */
 //// Allow us to output an entire Cluster
-//std::ostream &operator <<(std::ostream &out, const Cluster &right)
+//template <typename T, int dim>
+//std::ostream &operator <<(std::ostream &out, const Cluster<T, dim> &right)
 //{
 //    // Output will look like: x, y, z : [Cluster ID]
 //
 //    // Copy forward list
-//    std::forward_list<Point> list = right.getHead();
+//    std::forward_list<Point<T, dim>> list = right.getHead();
 //
 //    // Create iterator
-//    std::forward_list<Point>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //    // Loop through linked-list
 //    for (pos; pos != list.end(); pos++)
@@ -875,7 +903,8 @@ namespace Clustering
 //}
 //
 //// Allow us to input an entire Cluster
-//std::istream &operator >>(std::istream &input, Cluster &right)
+//template <typename T, int dim>
+//std::istream &operator >>(std::istream &input, Cluster<T, dim> &right)
 //{
 //    // TODO: check for proper input formatting (x,y,z,,)
 //    // Create a new string to read into
@@ -886,7 +915,7 @@ namespace Clustering
 //    while (std::getline(input, line, '\n'))
 //    {
 //        // Create new Point
-//        Point pt(numDims);
+//        Point<T, dim> pt(numDims);
 //
 //        // Convert the string line into a stringstream
 //        std::stringstream lineStr(line);
@@ -926,7 +955,8 @@ namespace Clustering
 //
 ///* Overloaded comparison operators (friends) */
 //// Overloaded equality operator (friend)
-//bool operator ==(const Cluster &left, const Cluster &right)
+//template <typename T, int dim>
+//bool operator ==(const Cluster<T, dim> &left, const Cluster<T, dim> &right)
 //{
 //    // Check sizes and heads of Clusters first
 //    if (left.getSize() != right.getSize() || left.getHead() != right.getHead())
@@ -935,12 +965,12 @@ namespace Clustering
 //    }
 //    else {
 //        // Copy forward lists
-//        std::forward_list<Point> list1 = left.getHead();
-//        std::forward_list<Point> list2 = right.getHead();
+//        std::forward_list<Point<T, dim>> list1 = left.getHead();
+//        std::forward_list<Point<T, dim>> list2 = right.getHead();
 //
 //        // Create iterators
-//        std::forward_list<Point>::iterator pos1 = list1.begin();
-//        std::forward_list<Point>::iterator pos2 = list2.begin();
+//        std::forward_list<Point<T, dim>>::iterator pos1 = list1.begin();
+//        std::forward_list<Point<T, dim>>::iterator pos2 = list2.begin();
 //
 //        // Loop through lists of both Clusters
 //        while (pos1 != list1.end() && pos2 != list2.end())
@@ -970,7 +1000,8 @@ namespace Clustering
 //}
 //
 //// Overloaded inequality operator
-//bool operator!=(const Cluster &left, const Cluster &right)
+//template <typename T, int dim>
+//bool operator!=(const Cluster<T, dim> &left, const Cluster<T, dim> &right)
 //{
 //    return !(left == right);
 //}
@@ -978,7 +1009,8 @@ namespace Clustering
 //
 ///* Overloaded compound assignment operators (members) */
 //// Combines two Clusters into one (union)
-//Cluster &Cluster::operator +=(const Cluster &right)
+//template <typename T, int dim>
+//Cluster<T, dim> &Cluster<T, dim>::operator +=(const Cluster<T, dim> &right)
 //{
 //    // Invalidate Centroid
 //    __validCentroid = false;
@@ -989,7 +1021,8 @@ namespace Clustering
 //}
 //
 //// Subtracts one Cluster from referenced Cluster
-//Cluster &Cluster::operator -=(const Cluster &right)
+//template <typename T, int dim>
+//Cluster<T, dim> &Cluster<T, dim>::operator -=(const Cluster<T, dim> &right)
 //{
 //    // Invalidate Centroid
 //    __validCentroid = false;
@@ -1000,7 +1033,8 @@ namespace Clustering
 //}
 //
 //// Add a Point to referenced Cluster
-//Cluster &Cluster::operator +=(const Point &right)
+//template <typename T, int dim>
+//Cluster<T, dim> &Cluster::operator +=(const Point<T, dim> &right)
 //{
 //    try
 //    {
@@ -1014,7 +1048,8 @@ namespace Clustering
 //}
 //
 //// Remove a Point from referenced Cluster
-//Cluster &Cluster::operator -=(const Point &right)
+//template <typename T, int dim>
+//Cluster<T, dim> &Cluster<T, dim>::operator -=(const Point<T, dim> &right)
 //{
 //    try
 //    {
@@ -1031,16 +1066,17 @@ namespace Clustering
 //
 ///* Overloaded binary arithmetic operators (friends) */
 //// Add two Clusters together
-//const Cluster operator +(const Cluster &left, const Cluster &right)
+//template <typename T, int dim>
+//const Cluster<T, dim> operator +(const Cluster<T, dim> &left, const Cluster<T, dim> &right)
 //{
 //    // Create new Cluster equal to left-hand-side
-//    Cluster c(left);
+//    Cluster<T, dim> c(left);
 //
 //    // Copy right-hand-side forward list
-//    std::forward_list<Point> list = right.getHead();
+//    std::forward_list<Point<T, dim>> list = right.getHead();
 //
 //    // Create iterator
-//    std::forward_list<Point>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //    // Loop through list and add Points to new Cluster
 //    for (pos; pos != list.end(); pos++)
@@ -1052,16 +1088,17 @@ namespace Clustering
 //}
 //
 //// Subtract one Cluster from another
-//const Cluster operator -(const Cluster &left, const Cluster &right)
+//template <typename T, int dim>
+//const Cluster<T, dim> operator -(const Cluster<T, dim> &left, const Cluster<T, dim> &right)
 //{
 //    // Create new Cluster equal to left-hand-side
-//    Cluster c(left);
+//    Cluster<T, dim> c(left);
 //
 //    // Copy right-hand-side forward list
-//    std::forward_list<Point> list = right.getHead();
+//    std::forward_list<Point<T, dim>> list = right.getHead();
 //
 //    // Create iterator
-//    std::forward_list<Point>::iterator pos = list.begin();
+//    std::forward_list<Point<T, dim>>::iterator pos = list.begin();
 //
 //    // Loop through list and remove Points from new Cluster
 //    for (pos; pos != list.end(); pos++)
@@ -1073,10 +1110,11 @@ namespace Clustering
 //}
 //
 //// Add a Point to a Cluster
-//const Cluster operator +(const Cluster &left, const Point &right)
+//template <typename T, int dim>
+//const Cluster<T, dim> operator +(const Cluster<T, dim> &left, const Point<T, dim> &right)
 //{
 //    // Copy left-hand-side
-//    Cluster c(left);
+//    Cluster<T, dim> c(left);
 //
 //    // Add Point to Cluster
 //    c += right;
@@ -1085,10 +1123,11 @@ namespace Clustering
 //}
 //
 //// Subtract a Point from a Cluster
-//const Cluster operator -(const Cluster &left, const Point &right)
+//template <typename T, int dim>
+//const Cluster<T, dim> operator -(const Cluster<T, dim> &left, const Point<T, dim> &right)
 //{
 //    // Copy left-hand-side
-//    Cluster c(left);
+//    Cluster<T, dim> c(left);
 //
 //    // Remove Point from Cluster
 //    c -= right;

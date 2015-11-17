@@ -9,8 +9,12 @@
 #ifndef CLUSTERING_KMEANS_H
 #define CLUSTERING_KMEANS_H
 
+#include <cfloat> // For DBL_MAX
+
 #include "Cluster.h"
 
+/* NON-TEMPLATE KMEANS CLASS */
+/* namespace wrap */
 namespace Clustering
 {
     class KMeans
@@ -21,17 +25,34 @@ namespace Clustering
         std::vector<Cluster>    __kClusterArray;
 
     public:
-        // Member variables
+        /* Member variables */
         static const double SCORE_DIFF_THRESHOLD;
 
-        // Constructors
-        KMeans(unsigned long int numClusters, unsigned long int numDims);
-        ~KMeans();
+        /* Constructors */
+        KMeans(unsigned long int numClusters, unsigned long int numDims); // Default
+        ~KMeans(); // Destructor
 
-        // Member functions
+        /* Member functions */
+        // TODO: readFromFile function
+        // TODO: writeToFile function
+        // TODO: performClustering function
         // implement Beta-CV criterion (coefficient variation)
         double computeClusteringScore(std::vector<Cluster>&, const std::unordered_map<Key, double, KeyHash, KeyEqual>&);
     };
-}
+} // end Clustering namespace
 
 #endif //CLUSTERING_KMEANS_H
+
+
+
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+
+
+
+//#include "Exceptions.h"
+
+/* TEMPLATE KMEANS CLASS */
+/* namespace wrap */

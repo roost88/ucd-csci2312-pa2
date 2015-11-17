@@ -17,16 +17,6 @@ namespace Clustering
     /************************************************************/
 
     /* Inner Move Class */
-    // Move constructor
-    Cluster::Move::Move(const Point &p, Cluster *from, Cluster *to)
-    {
-        __p = p;
-        __from = from;
-        __to = to;
-
-        perform();
-    }
-
     // Move member functions
     void Cluster::Move::perform()
     {
