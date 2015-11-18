@@ -8,55 +8,57 @@
 #ifndef CLUSTERING_EXCEPTIONS_H
 #define CLUSTERING_EXCEPTIONS_H
 
-#include "KMeans.h"
+// TODO: Remove these?
+#include <string>
+#include <iostream>
+
+//#include "KMeans.h"
 
 namespace Clustering
 {
     /* Exceptions */
 
-    // TODO: Define and implement DivideByZeroEx and PointNotFoundEx
-
     class DimensionalityMismatchEx
     {
     private:
         std::string         __name;
-        unsigned long int   __currDim;
-        unsigned long int   __inputDim;
+        int                 __currDim;
+        int                 __inputDim;
 
     public:
-        DimensionalityMismatchEx(unsigned long int, unsigned long int);
+        DimensionalityMismatchEx(int, int);
         ~DimensionalityMismatchEx();
 
         /* Getters */
         std::string getName() const { return __name; }
-        unsigned long int getCurr() const { return __currDim; }
-        unsigned long int getInput() const { return __inputDim; }
+        int getCurr() const { return __currDim; }
+        int getInput() const { return __inputDim; }
 
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const DimensionalityMismatchEx &);
     };
-    // ******************************************
+    /************************************************************/
 
     class OutOfBoundsEx
     {
     private:
         std::string         __name;
-        unsigned long int   __currSize;
+        int                 __currSize;
         unsigned int        __inputIndex;
 
     public:
-        OutOfBoundsEx(unsigned long int, unsigned int);
+        OutOfBoundsEx(int, unsigned int);
         ~OutOfBoundsEx();
 
         /* Getters */
         std::string getName() const { return __name; }
-        unsigned long int getSize() const { return __currSize; }
+        int getSize() const { return __currSize; }
         unsigned int getIndex() const { return __inputIndex; }
         
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const OutOfBoundsEx &);
     };
-    // ******************************************
+    /************************************************************/
 
     class RemoveFromEmptyEx
     {
@@ -77,7 +79,7 @@ namespace Clustering
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const RemoveFromEmptyEx &);
     };
-    // ******************************************
+    /************************************************************/
 
     class DivideByZeroEx
     {
@@ -94,24 +96,32 @@ namespace Clustering
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const DivideByZeroEx &);
     };
-    // ******************************************
+    /************************************************************/
 
     class PointAlreadyExistsEx
     {
     private:
         std::string     __name;
-        Point           __point;
+        int             __PID;
 
     public:
-        PointAlreadyExistsEx(const Point &);
+        PointAlreadyExistsEx(const int &);
         ~PointAlreadyExistsEx();
 
         /* Getters */
         std::string getName() const { return __name; }
-        Point getPoint() const { return __point; }
+        int getPoint() const { return __PID; }
 
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const PointAlreadyExistsEx &);
+    };
+    /************************************************************/
+
+    class DoesNotExistEx
+    {
+    private:
+        std::string     __name;
+        int             __index;
     };
 
 } // end namespace Clustering

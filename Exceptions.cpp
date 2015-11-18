@@ -12,7 +12,7 @@ namespace Clustering
     /* Exceptions */
 
     // Dimensionality of Points do not match
-    DimensionalityMismatchEx::DimensionalityMismatchEx(unsigned long int d, unsigned long int r)
+    DimensionalityMismatchEx::DimensionalityMismatchEx(int d, int r)
     {
         __name = "EXCEPTION! Dimensionality Mismatch:";
         __currDim = d;
@@ -30,7 +30,7 @@ namespace Clustering
     // ******************************************
 
     // Input index does not exist in the array
-    OutOfBoundsEx::OutOfBoundsEx(unsigned long int c, unsigned int i)
+    OutOfBoundsEx::OutOfBoundsEx(int c, unsigned int i)
     {
         __name = "EXCEPTION! Out-Of-Bounds:";
         __currSize = c;
@@ -84,10 +84,10 @@ namespace Clustering
     // ******************************************
 
     // Point already exists in Cluster
-    PointAlreadyExistsEx::PointAlreadyExistsEx(const Point &p)
+    PointAlreadyExistsEx::PointAlreadyExistsEx(const int &p)
     {
         __name = "EXCEPTION! Point already exists:";
-        __point = p;
+        __PID = p;
     }
 
     PointAlreadyExistsEx::~PointAlreadyExistsEx() {}
