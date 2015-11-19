@@ -133,7 +133,7 @@ namespace Clustering
                 __validCentroid(right.getCentroidValidity()) { }
 
         Cluster<T, dim> &operator=(const Cluster<T, dim> &); // Overloaded assignment operator
-        ~Cluster<T, dim>() { std::cout << "Cluster " << this << " destroyed!" << std::endl; } // Destructor
+        ~Cluster() { std::cout << "Cluster " << this->getID() << " @ " << this << " destroyed!" << std::endl; }
         /************************************************************/
 
         /* Setters */
@@ -228,9 +228,9 @@ namespace Clustering
 
         catch (PointAlreadyExistsEx e) { std::cout << "in Move.perform method - " << e << std::endl; }
     }
-/************************************************************/
+    /************************************************************/
 
-/* Overloaded assignment operator (Cluster) */
+    /* Overloaded assignment operator (Cluster) */
     template<typename T, int dim>
     Cluster<T, dim> &Cluster<T, dim>::operator =(const Cluster<T, dim> &right)
     {
@@ -282,14 +282,14 @@ namespace Clustering
         }
 
         // Uncomment to display map
-        std::cout << "__distances map:" << std::endl;
-
-        for (auto pos = __distances.begin(); pos != __distances.end(); ++pos)
-        {
-            std::cout << "{{" << pos->first.__first << ", " << pos->first.__second
-            << "}," << pos->second << "}" << std::endl;
-        }
-        std::cout << std::endl;
+//        std::cout << "__distances map:" << std::endl;
+//
+//        for (auto pos = __distances.begin(); pos != __distances.end(); ++pos)
+//        {
+//            std::cout << "{{" << pos->first.__first << ", " << pos->first.__second
+//            << "}," << pos->second << "}" << std::endl;
+//        }
+//        std::cout << std::endl;
     }
     /************************************************************/
 
@@ -299,27 +299,24 @@ namespace Clustering
     void Cluster<T, dim>::add(const T &right)
     {
         // TODO: Must add in lexicographic order
-        __validCentroid = false; // Invalidate Centroid
-
-        // Add Point to empty forward list
-        if (__head.empty())
-            __head.emplace_front(T(right));
-
-        else if (this->contains(right))
+        // Check if Point is already in Cluster
+        if (this->contains(right))
         {
             // If Point is already in Cluster
             right.rewindIdGen(); // Decrement __idGenerator
             throw PointAlreadyExistsEx(right.getID()); // Throw exception
         }
         else
-            __head.emplace_front(T(right)); // Original
+        {
+            __head.emplace_front(right); // Original
+        }
 
         __size++; // Increment size of Cluster
-        this->sort(); // Sort forward_list TODO: Shouldn't use this
+        __validCentroid = false; // Invalidate Centroid
 
         // Uncomment to display added Points
-        std::cout << "Point " << right.getID() << ": " << right
-        << " added to Cluster " << this->getID() << "!" << std::endl;
+//        std::cout << "Point " << right.getID() << ": " << right
+//        << " added to Cluster " << this->getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point

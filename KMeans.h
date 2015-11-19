@@ -77,6 +77,9 @@ namespace Clustering
         // Read Points from inputFile into __point_space
         this->readFromFile(inputFile);
 
+        // Sort __point_space
+        __point_space->sort();
+
         // Calculate distances between all Points in __point_space and store in __distances
         __point_space->setDistanceMap();
 
@@ -86,6 +89,7 @@ namespace Clustering
         // Create Centroid array and pick Points from __point_space
         Point<double, dim> **centroidArray = new Point<double, dim>*[__k];
         __point_space->pickPoints(__k, dim, centroidArray);
+
 
         /* Initialize __kClusterArray */
         unsigned long int res = (unsigned long int) __k;
@@ -137,11 +141,11 @@ namespace Clustering
         delete [] centroidArray;
 
         std::cout << "Centroid array destroyed!" << std::endl;
-    }
-    /************************************************************/
+    } // End KMeans constructor
+    /******************************************************************************************************************/
 
     /* Member functions */
-    // Read Points from a file into __point_space
+    // METHOD - Read Points from a file into __point_space
     template <int k, int dim>
     void KMeans<k, dim>::readFromFile(std::string input)
     {
@@ -166,9 +170,6 @@ namespace Clustering
             // Display number of Points failed to import
             std::cout << "Number of Points that failed to read in from file: "
             << __point_space->numberFailed() << std::endl;
-
-            // Display sorted __point_space
-            std::cout << "\npoint_space:\n" << *__point_space << std::endl;
         }
         else
         {
@@ -176,9 +177,10 @@ namespace Clustering
             std::cout << "Input file did not open!" << std::endl;
             exit(EXIT_FAILURE);
         }
-    }
+    } // End readFromFile
 
-    // Write output to file
+
+    // METHOD - Write output to file
     template <int k, int dim>
     void KMeans<k, dim>::writeToFile(std::string output)
     {
@@ -201,9 +203,10 @@ namespace Clustering
             std::cout << "Output file did not open!" << std::endl;
             exit(EXIT_FAILURE);
         }
-    }
+    } // End writeToFile
 
-    // Run clustering algorithm
+
+    // METHOD - Run clustering algorithm
     template <int k, int dim>
     void KMeans<k, dim>::performClustering()
     {
@@ -263,6 +266,9 @@ namespace Clustering
 
                         // STEP 6 - Move current Point from current Cluster [i] to Cluster with closest Centroid
                         // TODO: This will not allow any variables or integers other than 5
+//                        Cluster<Point<double, dim>, dim>::Move *m = new Cluster<Point<double, dim>, dim>
+//                        ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
+
                         Cluster<Point<double, 5>, 5>::Move *m = new Cluster<Point<double, 5>, 5>
                         ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
 
@@ -282,6 +288,7 @@ namespace Clustering
                 {
                     try
                     {
+                        __kClusterArray[i].sort(); // Sort Cluster first
                         __kClusterArray[i].calcCentroid();
                     }
                     catch (RemoveFromEmptyEx e)
@@ -299,7 +306,8 @@ namespace Clustering
                 // Compute absolute difference and set scoreDiff
                 scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
 
-                std::cout << "scoreDiff: " << scoreDiff << std::endl;
+                // Uncomment to display scoreDiff
+//                std::cout << "scoreDiff: " << scoreDiff << std::endl;
             }
             catch (DivideByZeroEx e)
             {
@@ -314,9 +322,10 @@ namespace Clustering
 
         // Output iterations
         std::cout << "\nClustering took " << iterations << " iterations to complete!" << std::endl;
-    }
+    } // End performClustering
 
-    // Implement Beta-CV criterion (coefficient of variation)
+
+    // METHOD - Implement Beta-CV criterion (coefficient of variation)
     template <int k, int dim>
     double KMeans<k, dim>::computeClusteringScore()
     {
@@ -364,11 +373,11 @@ namespace Clustering
         else
             throw DivideByZeroEx();
 
-        std::cout << "Clustering Score: " << result << std::endl;
+        // Uncomment to display clustering score
+//        std::cout << "Clustering Score: " << result << std::endl;
 
         return result;
-    }
-    /************************************************************/
+    } // End computeClusteringScore
 
 } // end Clustering namespace
 #endif //CLUSTERING_KMEANS_H

@@ -71,7 +71,8 @@ namespace Clustering {
         {}
 
         Point<T, dim> &operator=(const Point<T, dim> &); // Overloaded assignment operator
-        ~Point<T, dim>() {  } // Destructor
+        ~Point() {}
+//        ~Point() { std::cout << "Point " << this->getID() << " @ " << this << " destroyed!" << std::endl; }
         /************************************************************/
 
         /* Templatized Member functions */
