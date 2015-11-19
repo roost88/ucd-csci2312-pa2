@@ -21,6 +21,8 @@
 #include <fstream>
 #include <vector>
 #include <exception>
+/************************************************************/
+
 
 ///* NON-TEMPLATE POINT CLASS */
 ///* namespace wrap */
@@ -235,7 +237,7 @@ namespace Clustering {
 
     /* Member variables */
     template <typename T, int dim>
-    unsigned int Point<T, dim>::__idGenerator = 1; // Initialize Point ID value to 1
+    unsigned int Point<T, dim>::__idGenerator = 0; // Initialize Point ID value to 0
 
     template <typename T, int dim>
     const char Point<T, dim>::POINT_VALUE_DELIM = ','; // Defines Point I/O delimiter
@@ -542,7 +544,7 @@ namespace Clustering {
         if (left.getDim() != right.getDim())
             throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 
-        else if (left.getID() == right.getID()) // Compare Point IDs
+        else if (left.getID() != right.getID()) // Compare Point IDs
         {
             // Loop through __values
             for (int i = 0; i < left.getDim(); i++)
@@ -551,11 +553,9 @@ namespace Clustering {
                 if (left.__values[i] != right.__values[i])
                     return false;
             }
-
-            // If loop terminates without returning, return true
-            return true;
         }
-        return false;
+
+        return true;
     }
 
     template <typename T, int dim>

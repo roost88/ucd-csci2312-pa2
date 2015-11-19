@@ -1,3 +1,5 @@
+/* NOTE: This file is not used in PA4 due to templates */
+
 //// Programming Assignment 4 - KMeans Clustering
 //
 //// Author:      Dylan Lang
@@ -20,7 +22,6 @@
 //    // Move member functions
 //    void Cluster::Move::perform()
 //    {
-//        // TODO: Catch RemoveFromEmpty exception
 //        // Remove Point from Cluster and add to another Cluster
 //        try
 //        {
@@ -85,7 +86,6 @@
 //            for (it_2; it_2 != list.end(); ++it_2)
 //            {
 //                // Create a key
-////                Key key(*it_1, *it_2); // TODO: Remove this
 //                Key key(it_1->getID(), it_2->getID());
 //
 //                // Attempt to find key
@@ -113,7 +113,6 @@
 //    // Add Point to Cluster
 //    void Cluster::add(const Point &right)
 //    {
-//        // TODO: Must be in lexicographic order
 //        // Invalidate Centroid
 //        __validCentroid = false;
 //
@@ -154,7 +153,6 @@
 //        __validCentroid = false;
 //
 //        // Case 1 - remove Point from empty forward list
-//        // TODO: Throw RemoveFromEmpty exception
 //        if (__head.empty())
 //        {
 //            throw RemoveFromEmptyEx(right.getID(), this->getID());
@@ -168,7 +166,6 @@
 //        }
 //        else
 //        {
-//            // TODO: Throw PointNotFoundEx?
 //            std::cout << "Point not found!" << std::endl;
 //        }
 //
@@ -376,7 +373,6 @@
 //        Point newCent(this->getNumDimensions());
 //
 //        // Check if list is empty
-//        // TODO: Throw RemoveFromEmptyEx
 //        if (__head.empty() && this->getSize() <= 0)
 //        {
 //            this->setCentroid(newCent);
@@ -463,8 +459,8 @@
 //    /* Overloaded [] operator */
 //    Point &Cluster::operator[](unsigned int index)
 //    {
-//        // TODO: Implement this
-//        // TODO: Throw OutOfBoundsEx
+//        // implement this
+//        // Throw OutOfBoundsEx
 //    }
 //    /************************************************************/
 //
@@ -493,7 +489,6 @@
 //    // Allow us to input an entire Cluster
 //    std::istream &operator >>(std::istream &input, Cluster &right)
 //    {
-//        // TODO: check for proper input formatting (x,y,z,,)
 //        // Create a new string to read into
 //        std::string line;
 //        unsigned long int numDims = right.getNumDimensions();

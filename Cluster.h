@@ -9,11 +9,12 @@
 #ifndef CLUSTERING_CLUSTER_H
 #define CLUSTERING_CLUSTER_H
 
+#include "Point.h"
+
 #include <forward_list>
 #include <unordered_map>
-
-#include "Point.h"
 /************************************************************/
+
 
 ///* NON-TEMPLATE CLUSTER CLASS */
 ///* namespace wrap */
@@ -285,15 +286,16 @@ namespace Clustering
 
         /* Inner class Move */
         // represents motion of a Point from one Cluster to another
+        template <typename U>
         class Move
         {
         private:
-            T __p;
-            Cluster<T, dim> *__from;
-            Cluster<T, dim> *__to;
+            U                   __p;
+            Cluster<U, dim> *   __from;
+            Cluster<U, dim> *   __to;
         public:
             // Move constructor
-            Move(const T &p, Cluster<T, dim> *from, Cluster<T, dim> *to) :
+            Move(const U &p, Cluster<U, dim> *from, Cluster<U, dim> *to) :
                     __p(p),
                     __from(from),
                     __to(to) { perform(); }
@@ -342,7 +344,7 @@ namespace Clustering
         int getNumDimensions() const { return __numDimensions; } // Return number of dimensions of Points
         const T &getCentroid() const { return __centroid; } // Return Cluster Centroid
         bool getCentroidValidity() const { return __validCentroid; } // Return if Centroid is valid or not
-        const std::unordered_map<Key, T, KeyHash, KeyEqual> getMap() const { return __distances; } // Return map
+        const std::unordered_map<Key, double, KeyHash, KeyEqual> getMap() const { return __distances; } // Return map
         /************************************************************/
 
         /* Cluster member functions */
@@ -359,7 +361,7 @@ namespace Clustering
 
         // Sum of distances between Points between Clusters
         friend double interClusterDistance <T>(const Cluster<T, dim> &, const Cluster<T, dim> &,
-                                              const std::unordered_map<Key, T, KeyHash, KeyEqual> &);
+                                              const std::unordered_map<Key, double, KeyHash, KeyEqual> &);
 
         int getClusterEdges(); // Number of unique "edges" between Points in a Cluster
 
@@ -413,7 +415,8 @@ namespace Clustering
     /* Inner Move Class */
     // Move member functions
     template<typename T, int dim>
-    void Cluster<T, dim>::Move::perform()
+    template<typename U>
+    void Cluster<T, dim>::Move<U>::perform()
     {
         // Remove Point from Cluster and add to another Cluster
         try { __to->add(__from->remove(__p)); }
@@ -513,8 +516,8 @@ namespace Clustering
         this->sort(); // Sort forward_list
 
         // Uncomment to display added Points
-//        std::cout << "Point " << right.getID() << ": " << right
-//        << " added to Cluster " << this->getID() << "!" << std::endl;
+        std::cout << "Point " << right.getID() << ": " << right
+        << " added to Cluster " << this->getID() << "!" << std::endl;
     }
 
     // Remove Point from Cluster; returns removed Point
@@ -586,6 +589,9 @@ namespace Clustering
         // Double loop through linked-list of Cluster
         for (pos; pos != list.end(); pos++)
         {
+            nxt = pos;
+            ++nxt; // Increment so we count each distance once
+
             for (nxt; nxt != list.end(); nxt++)
             {
                 // If Points are equal, add 0 to sum
@@ -618,8 +624,6 @@ namespace Clustering
             }
         }
 
-        sum /= 2.0; // Divide sum by two since we looped through twice
-
         // Uncomment to display sum
 //        std::cout << "Cluster " << this->getID() << " intraClusterDistance: " << sum << std::endl;
         return sum;
@@ -646,13 +650,16 @@ namespace Clustering
         auto pos2 = list2.begin();
 
         // Loop through linked-lists of both Clusters
-        for (pos1; pos1 != list1.end(); pos1++) {
-            for (pos2; pos2 != list2.end(); pos2++) {
+        for (pos1; pos1 != list1.end(); pos1++)
+        {
+            for (pos2; pos2 != list2.end(); pos2++)
+            {
                 // If Points are equal, add 0 to sum
                 if (*pos1 == *pos2)
                     sum += 0;
 
-                else {
+                else
+                {
                     // Create keys using Points to find distance in map
                     Key *key1 = new Key(pos1->getID(), pos2->getID());
                     Key *key2 = new Key(pos2->getID(), pos1->getID());
@@ -676,9 +683,6 @@ namespace Clustering
                 }
             }
         }
-
-        // Divide sum by 2 since we looped through both lists twice
-        sum /= 2.0;
 
         // Uncomment to display sum
 //        std::cout << "Clusters " << c1.getID() << " and " << c2.getID() << " interClusterDistance: " << sum << std::endl;
@@ -731,7 +735,7 @@ namespace Clustering
         if (__head.empty() && this->getSize() <= 0)
         {
             this->setCentroid(newCent);
-            throw RemoveFromEmptyEx(newCent.getId(), this->getID());
+            throw RemoveFromEmptyEx(newCent.getID(), this->getID());
         }
         else if (this->getSize() == 1)
         {
@@ -804,6 +808,7 @@ namespace Clustering
     {
         // TODO: Implement this
         // TODO: Throw OutOfBoundsEx
+        // Use forward_list
     }
     /************************************************************/
 
@@ -994,7 +999,7 @@ namespace Clustering
 
     // Subtract a Point from a Cluster
     template<typename T, int dim>
-    const Cluster<T, dim> operator- (const Cluster<T, dim> &left, const T &right)
+    const Cluster<T, dim> operator -(const Cluster<T, dim> &left, const T &right)
     {
         Cluster<T, dim> c(left); // Copy left Cluster
 

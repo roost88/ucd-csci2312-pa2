@@ -1,3 +1,5 @@
+/* NOTE: This file is not used in PA4 due to templates */
+
 //// Programming Assignment 4 - KMeans Clustering
 //
 //// Author:      Dylan Lang
@@ -72,7 +74,6 @@
 //        }
 //        else
 //        {
-//            // TODO: Throw DoesNotExistEx?
 //            // Display error message
 //            std::cout << "That element does not exist in __values vector!" << std::endl;
 //        }
@@ -88,7 +89,6 @@
 //        }
 //        else
 //        {
-//            // TODO: Throw OutOfBoundsEx
 //            throw OutOfBoundsEx(__dim, element);
 //        }
 //    }
@@ -108,7 +108,6 @@
 //
 //    Point &Point::operator /=(double d)
 //    {
-//        // TODO: Throw DivideByZeroEx
 //        // Check if d == 0
 //        if (d != 0)
 //        {
@@ -151,7 +150,6 @@
 //    /* Overloaded [] operator (member) */
 //    double &Point::operator [](unsigned int index)
 //    {
-//        // TODO: Throw OutOfBoundsEx
 //        if (index < 0 || index >= this->getDim())
 //            throw OutOfBoundsEx(this->getDim(), index);
 //
@@ -182,8 +180,6 @@
 //    // Overloaded extraction operator
 //    std::istream &operator >>(std::istream &input, Point &right)
 //    {
-//        // TODO: check for proper input formatting (x,y,z,,)
-//
 //        /* These are here in case we read directly from a file */
 //        // Create empty string
 //        std::string line;
@@ -203,8 +199,6 @@
 //        {
 //            // Decrement __idGenerator
 //            right.rewindIdGen();
-//
-//            // TODO: Throw DimensionalityMismatchEx
 //            throw DimensionalityMismatchEx(right.getDim(), num_com);
 //        }
 //
@@ -234,7 +228,6 @@
 //    /* Overloaded compound assignment operators (friends) */
 //    Point &operator +=(Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        // Throw DimensionalityMismatchEx exception
 //        if (left.getDim() != right.getDim())
 //            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
@@ -251,7 +244,6 @@
 //
 //    Point &operator -=(Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        // Throw DimensionalityMismatchEx exception
 //        if (left.getDim() != right.getDim())
 //            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
@@ -270,7 +262,6 @@
 //    /* Overloaded binary operators (friends) */
 //    const Point operator +(const Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        if (left.getDim() != right.getDim())
 //           throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 //
@@ -288,7 +279,6 @@
 //
 //    const Point operator -(const Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        if (left.getDim() != right.getDim())
 //            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
 //
@@ -308,7 +298,6 @@
 //    /* Overloaded comparison operators (friends) */
 //    bool operator ==(const Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        // Throw DimensionalityMismatchEx exception
 //        if (left.getDim() != right.getDim())
 //            throw DimensionalityMismatchEx(left.getDim(), right.getDim());
@@ -339,7 +328,6 @@
 //
 //    bool operator >(const Point &left, const Point &right)
 //    {
-//        // TODO: Throw DimensionalityMismatch exception
 //        // Throw DimensionalityMismatchEx exception
 //        if (left.getDim() != right.getDim())
 //            throw DimensionalityMismatchEx(left.getDim(), right.getDim());

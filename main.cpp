@@ -18,9 +18,9 @@ void testCluster();
 
 int main()
 {
-//    testKMeans();
+    testKMeans();
 //    testPoint();
-    testCluster();
+//    testCluster();
 
     return 0;
 }
@@ -32,10 +32,9 @@ void testKMeans()
 //    unsigned long int k = 4;
 //    Clustering::KMeans(k, numDims); // NON-TEMPLATE
 
-//    const int dims = 5;
-//    const int k = 4;
-//    using namespace Clustering;
-//    KMeans<Cluster<Point<double, dims>>, k, dims>; // TEMPLATE
+    const int dims = 5;
+    const int k = 4;
+    Clustering::KMeans<k, dims> kmeans; // TEMPLATE
 }
 
 void testPoint()
@@ -144,6 +143,125 @@ void testPoint()
 
 void testCluster()
 {
+    /* TEST DOUBLE */
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c1;
 
+    // Check extraction >> operator
+    // Also tests add() and sort()
+    std::ifstream inFile("input.csv");
+    inFile >> c1;
+    std::cout << "c1:\n" << c1 << std::endl;
+
+    // Check constructors
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c2(c1); // Check copy constructor
+    std::cout << "c2 (copy):\n" << c2 << std::endl;
+
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c3;
+    c3 = c2; // Check = operator
+    std::cout << "c3 (copy): \n" << c3 << std::endl;
+
+    Clustering::Point<double, 5> p1;
+    for (int i = 0; i < p1.getDim(); i++)
+        p1.setValue(i+1, 5.5);
+
+    // Member functions
+    c1.setCentroid(p1); // Check setCentroid
+    std::cout << "c1 Centroid: " << c1.getCentroid() << std::endl;
+
+    c1.setDistanceMap(); // Check setDistanceMap
+
+    std::cout << "c1.size: " << c1.getSize() << std::endl; // Check getSize
+    std::cout << "c1 ID: " << c1.getID() << std::endl; // Check getID
+    std::cout << "c1 dimensions: " << c1.getNumDimensions() << std::endl; // check getNumDimensions
+    std::cout << "c1 Centroid validity: " << c1.getCentroidValidity() << std::endl; // check getCentroidValidity (true)
+
+    std::forward_list<Clustering::Point<double, 5>> head = c1.getHead(); // Check getHead
+    auto pos = head.begin();
+    std::cout << "c1 list begin: " << *pos << std::endl;
+
+    c1.add(p1);
+    std::cout << "c1 (added p1):\n" << c1 << std::endl;
+    std::cout << "c1 new Centroid validity: " << c1.getCentroidValidity() << std::endl; // Should be false
+
+    // Check add exception
+    try { c1.add(p1); }
+    catch(Clustering::PointAlreadyExistsEx e) { std::cout << "In Cluster.add - " << e << std::endl; }
+
+    // Check getMap
+    std::unordered_map<Clustering::Key, double, Clustering::KeyHash, Clustering::KeyEqual> map = c1.getMap();
+    Clustering::Key key(1, 2);
+    auto search = map.find(key);
+    std::cout << "Distance at key: " << (map.at(key)) << std::endl;
+
+    Clustering::Point<double, 5> p2;
+    for (int i = 0; i < p2.getDim(); i++)
+        p2.setValue(i+1, 6.6);
+
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c4; // Empty cluster
+
+    // Check remove exception
+    try { c4.remove(p2); }
+    catch (Clustering::RemoveFromEmptyEx e) { std::cout << "In Cluster.remove - " << e << std::endl; }
+
+    c1.remove(p2); // Check remove if Point doesn't exist
+
+    std::cout << "Point removed: " << c1.remove(p1) << std::endl; // Check remove if Point does exist
+    std::cout << "c1 after remove:\n" << c1 << std::endl;
+
+    Clustering::Point<double, 5> p01;
+    for (int i = 0; i < p01.getDim(); i++)
+        p01.setValue(i+1, 1.0);
+
+    Clustering::Point<double, 5> p02;
+    for (int i = 0; i < p02.getDim(); i++)
+        p02.setValue(i+1, 2.0);
+
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c01;
+    c01.add(p01);
+    c01.add(p02);
+    c01.setDistanceMap();
+
+    std::cout << "c01 intraCluster distance: " << c01.intraClusterDistance() << std::endl; // Check intraClusterDistance
+
+    Clustering::Cluster<Clustering::Point<double, 5>, 5> c02;
+    c02.add(c01.remove(p02)); // Test add(remove());
+    std::cout << "c01:\n" << c01 << std::endl;
+    std::cout << "c02:\n" << c02 << std::endl;
+
+    // Check interClusterDistance - should be equal to intraClusterDistance above
+    std::cout << "c01 and c02 interCluster distance: "
+    << Clustering::interClusterDistance(c01, c02, c01.getMap()) << std::endl;
+
+    std::cout << "c01 cluster edges: " << c01.getClusterEdges() << std::endl; // Check getClusterEdges
+
+    // Check interClusterEdges
+    std::cout << "c01 and c02 cluster edges: " << Clustering::interClusterEdges(c01, c02) << std::endl;
+
+    c01.calcCentroid(); // Check calcCentroid
+    std::cout << "c01 Centroid: " << c01.getCentroid() << std::endl;
+
+    c01.add(c02.remove(p02));
+    std::cout << "c01:\n" << c01 << std::endl;
+    c01.calcCentroid(); // Check calcCentroid
+    std::cout << "c01 new Centroid: " << c01.getCentroid() << std::endl;
+
+    std::cout << "c01 == c02: " << (c01 == c02) << std::endl; // Check == (false)
+    std::cout << "c01 != c02: " << (c01 != c02) << std::endl; // Check != (true)
+
+    c02.add(c01.remove(p02));
+
+    std::cout << "c01 += c02:\n" << (c01 += c02) << std::endl; // Check += (Clusters)
+    std::cout << "c01 -= c02:\n" << (c01 -= c02) << std::endl; // Check -= (Clusters)
+
+    std::cout << "c01 += p02:\n" << (c01 += p02) << std::endl; // Check += (Point)
+    std::cout << "c01 -= p01:\n" << (c01 -= p01) << std::endl; // Check -= (Point)
+
+    c01.add(p01);
+    std::cout << "c01:\n" << c01 << std::endl;
+    std::cout << "c02:\n" << c02 << std::endl;
+
+    Clustering::Cluster<Clustering::Point<double, 5>, 5>::Move<Clustering::Point<double, 5>>(p01, &c01, &c02); // Check Move
+    std::cout << "c01 (moved):\n" << c01 << std::endl;
+    std::cout << "c02 (moved):\n" << c02 << std::endl;
 }
 

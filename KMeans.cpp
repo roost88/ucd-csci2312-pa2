@@ -1,3 +1,5 @@
+/* NOTE: This file is not used in PA4 due to templates */
+
 //// Programming Assignment 4 - KMeans Clustering
 //
 //// Author:      Dylan Lang
