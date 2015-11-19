@@ -23,112 +23,6 @@
 #include <exception>
 /************************************************************/
 
-
-///* NON-TEMPLATE POINT CLASS */
-///* namespace wrap */
-//namespace Clustering {
-//
-//    /* Point Class */
-//    class Point {
-//    private:
-//        unsigned int            __id;           // Unique Point ID
-//        static unsigned int     __idGenerator;  // Used to increment ID number
-//        unsigned long int       __dim;          // Point dimensions variable
-//        std::vector<double>     __values;       // Holds Point dimension values
-//
-//    public:
-//        static const char POINT_VALUE_DELIM;    // Static Point delimiter (for I/O)
-//
-//        /* Point Constructors */
-//        // Default
-//        Point() :
-//                __id(__idGenerator++),
-//                __dim(0),
-//                __values(__dim) { }
-//
-//        // Takes dimensions
-//        Point(unsigned long int dimensions) :
-//                __id(__idGenerator++),
-//                __dim(dimensions),
-//                __values(__dim) { }
-//
-//        // Copy constructor
-//        Point(const Point &right) :
-//                __id(right.getID()),
-//                __dim(right.getDim()),
-//                __values(right.getValuesVector()) { }
-//
-//        Point &operator=(const Point &); // Overloaded assignment operator
-//        ~Point() { } // Destructor
-//        /************************************************************/
-//
-//        /* Member functions (non-templates) */
-//        double distanceTo(const Point &) const; // Calculates distance between two points
-//        static void rewindIdGen() { __idGenerator--; } // Decrements __idGenerator
-//        /************************************************************/
-//
-//        /* Setters */
-//        void setValue(int, double); // Set value of Point
-//        /************************************************************/
-//
-//        /* Getters */
-//        unsigned int getID() const { return __id; }
-//        unsigned long int getDim() const { return __dim; } // Return dimensions of Point
-//        double getValue(unsigned int) const; // Return value in Point array
-//        std::vector<double> getValuesVector() const { return __values; } // Return values vector
-//        /************************************************************/
-//
-//        /* Overloaded operators dimension-wise (members) */
-//        Point &operator*=(double);
-//        Point &operator/=(double);
-//        /************************************************************/
-//
-//        /* Overloaded arithmetic operators (members) */
-//        const Point operator*(double) const;
-//        const Point operator/(double) const;
-//        /************************************************************/
-//
-//        /* Overloaded array operator (member) */
-//        double &operator[](unsigned int);
-//        /************************************************************/
-//
-//        /* Overloaded insertion/extraction operators (friends) */
-//        friend std::ostream &operator<<(std::ostream &, const Point &);
-//        friend std::istream &operator>>(std::istream &, Point &);
-//        /************************************************************/
-//
-//        /* Overloaded compound assignment operators (friends) */
-//        friend Point &operator+=(Point &, const Point &);
-//        friend Point &operator-=(Point &, const Point &);
-//        /************************************************************/
-//
-//        /* Overloaded binary operators (friends) */
-//        friend const Point operator+(const Point &, const Point &);
-//        friend const Point operator-(const Point &, const Point &);
-//        /************************************************************/
-//
-//        /* Overloaded comparison operators (friends) */
-//        friend bool operator==(const Point &, const Point &);
-//        friend bool operator!=(const Point &, const Point &);
-//        friend bool operator>(const Point &, const Point &);
-//        friend bool operator<(const Point &, const Point &);
-//        friend bool operator>=(const Point &, const Point &);
-//        friend bool operator<=(const Point &, const Point &);
-//        /************************************************************/
-//    };
-//} // end namespace Clustering
-//#endif //CLUSTERING_POINT_H
-
-
-
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-
-
-
 /* TEMPLATE POINT CLASS */
 /* namespace wrap */
 namespace Clustering {
@@ -619,6 +513,108 @@ namespace Clustering {
     }
     /************************************************************/
 
-
 } // end Clustering namespace
 #endif //CLUSTERING_POINT_H
+
+
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+
+
+///* NON-TEMPLATE POINT CLASS */
+///* namespace wrap */
+//namespace Clustering {
+//
+//    /* Point Class */
+//    class Point {
+//    private:
+//        unsigned int            __id;           // Unique Point ID
+//        static unsigned int     __idGenerator;  // Used to increment ID number
+//        unsigned long int       __dim;          // Point dimensions variable
+//        std::vector<double>     __values;       // Holds Point dimension values
+//
+//    public:
+//        static const char POINT_VALUE_DELIM;    // Static Point delimiter (for I/O)
+//
+//        /* Point Constructors */
+//        // Default
+//        Point() :
+//                __id(__idGenerator++),
+//                __dim(0),
+//                __values(__dim) { }
+//
+//        // Takes dimensions
+//        Point(unsigned long int dimensions) :
+//                __id(__idGenerator++),
+//                __dim(dimensions),
+//                __values(__dim) { }
+//
+//        // Copy constructor
+//        Point(const Point &right) :
+//                __id(right.getID()),
+//                __dim(right.getDim()),
+//                __values(right.getValuesVector()) { }
+//
+//        Point &operator=(const Point &); // Overloaded assignment operator
+//        ~Point() { } // Destructor
+//        /************************************************************/
+//
+//        /* Member functions (non-templates) */
+//        double distanceTo(const Point &) const; // Calculates distance between two points
+//        static void rewindIdGen() { __idGenerator--; } // Decrements __idGenerator
+//        /************************************************************/
+//
+//        /* Setters */
+//        void setValue(int, double); // Set value of Point
+//        /************************************************************/
+//
+//        /* Getters */
+//        unsigned int getID() const { return __id; }
+//        unsigned long int getDim() const { return __dim; } // Return dimensions of Point
+//        double getValue(unsigned int) const; // Return value in Point array
+//        std::vector<double> getValuesVector() const { return __values; } // Return values vector
+//        /************************************************************/
+//
+//        /* Overloaded operators dimension-wise (members) */
+//        Point &operator*=(double);
+//        Point &operator/=(double);
+//        /************************************************************/
+//
+//        /* Overloaded arithmetic operators (members) */
+//        const Point operator*(double) const;
+//        const Point operator/(double) const;
+//        /************************************************************/
+//
+//        /* Overloaded array operator (member) */
+//        double &operator[](unsigned int);
+//        /************************************************************/
+//
+//        /* Overloaded insertion/extraction operators (friends) */
+//        friend std::ostream &operator<<(std::ostream &, const Point &);
+//        friend std::istream &operator>>(std::istream &, Point &);
+//        /************************************************************/
+//
+//        /* Overloaded compound assignment operators (friends) */
+//        friend Point &operator+=(Point &, const Point &);
+//        friend Point &operator-=(Point &, const Point &);
+//        /************************************************************/
+//
+//        /* Overloaded binary operators (friends) */
+//        friend const Point operator+(const Point &, const Point &);
+//        friend const Point operator-(const Point &, const Point &);
+//        /************************************************************/
+//
+//        /* Overloaded comparison operators (friends) */
+//        friend bool operator==(const Point &, const Point &);
+//        friend bool operator!=(const Point &, const Point &);
+//        friend bool operator>(const Point &, const Point &);
+//        friend bool operator<(const Point &, const Point &);
+//        friend bool operator>=(const Point &, const Point &);
+//        friend bool operator<=(const Point &, const Point &);
+//        /************************************************************/
+//    };
+//} // end namespace Clustering
+//#endif //CLUSTERING_POINT_H

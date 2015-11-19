@@ -14,57 +14,6 @@
 #include <cfloat> // For DBL_MAX
 /************************************************************/
 
-
-///* NON-TEMPLATE KMEANS CLASS */
-///* namespace wrap */
-//namespace Clustering
-//{
-//    class KMeans
-//    {
-//    private:
-//        unsigned long int                                   __k; // Holds k (number of Clusters)
-//        Cluster*                                            __point_space; // Holds all Points
-//        std::vector<Cluster>                                __kClusterArray; // Holds k Clusters
-//        std::unordered_map<Key, double, KeyHash, KeyEqual>  __distanceMap; // Holds distances between Points
-//
-//    public:
-//        /* Member variables */
-//        static const double SCORE_DIFF_THRESHOLD;
-//        /************************************************************/
-//
-//        /* Constructors */
-//        KMeans(unsigned long int numClusters, unsigned long int numDims); // Default
-//        ~KMeans() { delete __point_space; } // Destructor
-//        /************************************************************/
-//
-//        /* Member functions */
-//        // Read Points from a file
-//        void readFromFile(std::string);
-//
-//        // Write Points to file
-//        void writeToFile(std::string);
-//
-//        // Run clustering algorithm
-//        void performClustering();
-//
-//        // Calculate clustering score
-//        // Implements Beta-CV criterion (coefficient variation)
-//        double computeClusteringScore();
-//        /************************************************************/
-//    };
-//} // end Clustering namespace
-//
-//#endif //CLUSTERING_KMEANS_H
-
-
-
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-
-
-
 /* TEMPLATE KMEANS CLASS */
 /* namespace wrap */
 namespace Clustering
@@ -99,7 +48,7 @@ namespace Clustering
 
     /* Member variables */
     template <int k, int dim>
-    const double KMeans<k, dim>::SCORE_DIFF_THRESHOLD = 0.2; // Must be less than 1.0 and greater than 0
+    const double KMeans<k, dim>::SCORE_DIFF_THRESHOLD = 0.6; // Must be less than 1.0 and greater than 0
     /************************************************************/
 
     /* Constructors */
@@ -145,9 +94,7 @@ namespace Clustering
 
         // Add __k-1 empty Clusters to kClusterArray
         for (int i = 0; i < (__k-1); i++)
-        {
             __kClusterArray.emplace_back(Cluster<Point<double, dim>, dim>());
-        }
 
         // Set Centroids of Clusters
         for (int i = 0; i < __k; i++)
@@ -167,8 +114,8 @@ namespace Clustering
         // Display kClusters
         for (int i = 0; i < __k; i++)
         {
-            std::cout << "\nkCluster " << i+1 << " (FINAL):\n"
-            << "Centroid: " << __kClusterArray[i].getCentroid() << "\n" << __kClusterArray[i];
+            std::cout << "\nkCluster " << __kClusterArray[i].getID() << " (FINAL):" << std::endl;
+            std::cout << "Centroid: " << __kClusterArray[i].getCentroid() << "\n" << __kClusterArray[i];
         }
 
         /************************************************************/
@@ -185,9 +132,7 @@ namespace Clustering
         std::cout << "\nPerforming cleanup..." << std::endl;
 
         for (int i = 0; i < __k; i++)
-        {
             delete centroidArray[i];
-        }
 
         delete [] centroidArray;
 
@@ -246,9 +191,7 @@ namespace Clustering
 
             // Loop through cluster array and output to file
             for (int i = 0; i < __k; i++)
-            {
                 outFile << __kClusterArray[i] << std::endl;
-            }
 
             std::cout << "Output successfully written to file!" << std::endl;
         }
@@ -319,10 +262,9 @@ namespace Clustering
                         }
 
                         // STEP 6 - Move current Point from current Cluster [i] to Cluster with closest Centroid
-                        // TODO: This will not allow any variables; only allows the integer 5
-                        Cluster<Point<double, 5>, 5>::Move<Point<double, 5>> *m =
-                                new Cluster<Point<double, 5>, 5>::Move<Point<double, 5>>
-                                        (*pos, &__kClusterArray[i], &__kClusterArray[count]);
+                        // TODO: This will not allow any variables or integers other than 5
+                        Cluster<Point<double, 5>, 5>::Move *m = new Cluster<Point<double, 5>, 5>
+                        ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
 
                         delete m;
                     }
@@ -344,7 +286,7 @@ namespace Clustering
                     }
                     catch (RemoveFromEmptyEx e)
                     {
-                        std::cerr << "In KMeans recalculate Centroids - " << e << std::endl;
+                        std::cout << "In KMeans recalculate Centroids - " << e << std::endl;
                     }
                 }
             }
@@ -363,7 +305,7 @@ namespace Clustering
             {
                 // If a DivideByZeroEx is caught, it means that all Clusters only contain one Point
                 // so the program must break out of the Clustering algorithm
-                std::cerr << "In KMeans computeClusteringScore - " << e << std::endl;
+                std::cout << "In KMeans computeClusteringScore - " << e << std::endl;
                 break;
             }
 
@@ -427,6 +369,54 @@ namespace Clustering
         return result;
     }
     /************************************************************/
-} // end Clustering namespace
 
+} // end Clustering namespace
 #endif //CLUSTERING_KMEANS_H
+
+
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+
+
+///* NON-TEMPLATE KMEANS CLASS */
+///* namespace wrap */
+//namespace Clustering
+//{
+//    class KMeans
+//    {
+//    private:
+//        unsigned long int                                   __k; // Holds k (number of Clusters)
+//        Cluster*                                            __point_space; // Holds all Points
+//        std::vector<Cluster>                                __kClusterArray; // Holds k Clusters
+//        std::unordered_map<Key, double, KeyHash, KeyEqual>  __distanceMap; // Holds distances between Points
+//
+//    public:
+//        /* Member variables */
+//        static const double SCORE_DIFF_THRESHOLD;
+//        /************************************************************/
+//
+//        /* Constructors */
+//        KMeans(unsigned long int numClusters, unsigned long int numDims); // Default
+//        ~KMeans() { delete __point_space; } // Destructor
+//        /************************************************************/
+//
+//        /* Member functions */
+//        // Read Points from a file
+//        void readFromFile(std::string);
+//
+//        // Write Points to file
+//        void writeToFile(std::string);
+//
+//        // Run clustering algorithm
+//        void performClustering();
+//
+//        // Calculate clustering score
+//        // Implements Beta-CV criterion (coefficient variation)
+//        double computeClusteringScore();
+//        /************************************************************/
+//    };
+//} // end Clustering namespace
+//
+//#endif //CLUSTERING_KMEANS_H

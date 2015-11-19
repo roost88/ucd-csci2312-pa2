@@ -32,8 +32,8 @@ void testKMeans()
 //    unsigned long int k = 4;
 //    Clustering::KMeans(k, numDims); // NON-TEMPLATE
 
+    const int k = 3;
     const int dims = 5;
-    const int k = 4;
     Clustering::KMeans<k, dims> kmeans; // TEMPLATE
 }
 
@@ -110,6 +110,7 @@ void testPoint()
     std::cout << "p2 != p4: " << (p2 != p4) << std::endl; // Check != (should be false)
 
     std::cout << "p1 > p4: " << (p1 > p4) << std::endl; // Check > (should be false)
+    std::cout << "p1 > p1: " << (p1 > p1) << std::endl; // (should be false)
     std::cout << "p1 < p4: " << (p1 < p4) << std::endl; // Check < (should be true)
 
     std::cout << "p1 >= p4: " << (p1 >= p4) << std::endl; // Check >= (should be false)
@@ -260,7 +261,7 @@ void testCluster()
     std::cout << "c01:\n" << c01 << std::endl;
     std::cout << "c02:\n" << c02 << std::endl;
 
-    Clustering::Cluster<Clustering::Point<double, 5>, 5>::Move<Clustering::Point<double, 5>>(p01, &c01, &c02); // Check Move
+    Clustering::Cluster<Clustering::Point<double, 5>, 5>::Move(p01, &c01, &c02); // Check Move
     std::cout << "c01 (moved):\n" << c01 << std::endl;
     std::cout << "c02 (moved):\n" << c02 << std::endl;
 }
