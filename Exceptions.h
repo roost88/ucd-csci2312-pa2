@@ -8,26 +8,24 @@
 #ifndef CLUSTERING_EXCEPTIONS_H
 #define CLUSTERING_EXCEPTIONS_H
 
-// TODO: Remove these?
 #include <string>
 #include <iostream>
-
-//#include "KMeans.h"
 
 namespace Clustering
 {
     /* Exceptions */
 
+    // Point dimensions and input dimensions don't match
     class DimensionalityMismatchEx
     {
     private:
         std::string     __name;
-        int             __currDim;
-        int             __inputDim;
+        int             __currDim;      // Current Point dimensions
+        int             __inputDim;     // Input Point dimensions
 
     public:
-        DimensionalityMismatchEx(int, int);
-        ~DimensionalityMismatchEx() { }
+        DimensionalityMismatchEx(int cDim, int iDim);   // Constructor
+        ~DimensionalityMismatchEx() { }                 // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -39,16 +37,17 @@ namespace Clustering
     };
     /************************************************************/
 
+    // Index is out of bounds
     class OutOfBoundsEx
     {
     private:
         std::string     __name;
-        int             __currSize;
-        unsigned int    __inputIndex;
+        int             __currSize;     // Size of Point or Cluster
+        unsigned int    __inputIndex;   // Index being searched for
 
     public:
-        OutOfBoundsEx(int, unsigned int);
-        ~OutOfBoundsEx() { }
+        OutOfBoundsEx(int size, unsigned int index);    // Constructor
+        ~OutOfBoundsEx() { }                            // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -60,16 +59,17 @@ namespace Clustering
     };
     /************************************************************/
 
+    // Attempt to remove Point from empty Cluster
     class RemoveFromEmptyEx
     {
     private:
         std::string     __name;
-        int             __PID;
-        int             __CID;
+        int             __PID;          // Point unique ID number
+        int             __CID;          // Cluster unique ID number
 
     public:
-        RemoveFromEmptyEx(int, int);
-        ~RemoveFromEmptyEx() { }
+        RemoveFromEmptyEx(int pid, int cid);            // Constructor
+        ~RemoveFromEmptyEx() { }                        // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -81,14 +81,15 @@ namespace Clustering
     };
     /************************************************************/
 
+    // Attempt to divide something by 0
     class DivideByZeroEx
     {
     private:
         std::string     __name;
 
     public:
-        DivideByZeroEx();
-        ~DivideByZeroEx() { }
+        DivideByZeroEx();                               // Constructor
+        ~DivideByZeroEx() { }                           // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -102,11 +103,11 @@ namespace Clustering
     {
     private:
         std::string     __name;
-        int             __PID;
+        int             __PID;          // Point unique ID number
 
     public:
-        PointAlreadyExistsEx(int);
-        ~PointAlreadyExistsEx() { }
+        PointAlreadyExistsEx(int pid);                  // Constructor
+        ~PointAlreadyExistsEx() { }                     // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -121,12 +122,12 @@ namespace Clustering
     {
     private:
         std::string     __name;
-        int             __PID;
-        int             __CID;
+        int             __PID;          // Point unique ID number
+        int             __CID;          // Cluster unique ID number
 
     public:
-        DoesNotExistEx(int, int);
-        ~DoesNotExistEx() { }
+        DoesNotExistEx(int pid, int cid);               // Constructor
+        ~DoesNotExistEx() { }                           // Destructor
 
         /* Getters */
         std::string getName() const { return __name; }

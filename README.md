@@ -2,7 +2,7 @@
 
 **KMeans Clustering**
 * Author:     Dylan Lang
-* Date:       28 October 2015
+* Date:       28 October 2015 - 21 November 2015
 
 **System Info -**
 * Operating System:   Windows 8.1 64-bit
@@ -101,8 +101,11 @@ Testing methods have been created in ClusteringTests.cpp
 The number of dimensions in the KMeans constructor should match the majority of the dimensions of the Points
 you intend to read in from the input file.
 
-SCORE_DIFF_THRESHOLD in Cluster.cpp must be set to a double that is less than 1.0 and greater than 0.
-This value should change depending on the amount of k Clusters you want to output.
+SCORE_DIFF_THRESHOLD in Cluster.h must be set to a double that is less than 1.0 and greater than 0.
+The value changes depending on the amount of Clusters (k) you want to output.
+The higher the value of "k", the lower the SCORE_DIFF_THRESHOLD can be.
+
+The computerClusteringScore function in KMeans has been fixed.
 
 
 

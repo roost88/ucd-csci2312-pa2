@@ -8,12 +8,12 @@
 // My tests
 void testKMeans()
 {
-    const int k = 3;                            // Set k
+    const int k = 8;                            // Set k
     const int dims = 5;                         // Set dims
     Clustering::KMeans<double, k, dims> kmeans; // Test KMeans
     /**********************************************************************/
 
-    std::cout << "PASS ALL KMEANS TESTING!" << std::endl;
+    std::cout << "PASSED ALL KMEANS TESTING!" << std::endl;
 }
 
 void testPoint()

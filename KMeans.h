@@ -254,7 +254,6 @@ namespace Clustering
                         }
 
                         // STEP 6 - Move current Point from current Cluster [i] to Cluster with closest Centroid
-                        // TODO: Why do we have to use typename for this?
                         typename Cluster<Point<T, dim>, dim>::Move *m = new typename Cluster<Point<T, dim>, dim>
                         ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
 
