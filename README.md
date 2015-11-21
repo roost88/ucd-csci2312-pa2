@@ -16,13 +16,17 @@
 * Debugger:       GDB 7.8
 
 **Included -**
-* main.cpp      - holds code snippets for testing
-* Point.cpp     - Point implementation file
-* Point.h       - Point function declaration/header file
-* Cluster.cpp   - Cluster implementation file
-* Cluster.h     - Cluster function declaration/header file
-* KMeans.cpp    - KMeans implementation file
-* KMeans.h      - KMeans function declaration/header file
+* main.cpp              - initializes program
+* Point.cpp             - Point implementation file
+* Point.h               - Point function declaration/header file
+* Cluster.cpp           - Cluster implementation file
+* Cluster.h             - Cluster function declaration/header file
+* KMeans.cpp            - KMeans implementation file
+* KMeans.h              - KMeans function declaration/header file
+* ClusteringTests.cpp   - Testing functions for Point, Cluster, and KMeans implementation file
+* ClusteringTests.h     - Testing functions declaration/header file
+* ErrorContext.cpp      - Testing suite implementation file
+* ErrorContext.h        - Testing suite declaration/header file
 * readme.md
 
 ####Purpose
@@ -34,50 +38,42 @@ Points will be assigned to the Cluster whose Centroid is closest to it.
 ####Design
 _Point Class -_
 * Points can contain an arbitrary number of dimensions.
-* Point dimensions are stored in an array call "values".
+* Point dimensions are stored in a vector called "values".
 * Points are allowed full functionality of the program by overloading arithmetic, assignment, comparison, and insertion
 operators that work with other Points, as well as integers (i.e. Points can be divided by 2, multiplied by 5, and
-assigned to another Point)
-* Points can be output using only the << operator and the name of the Point in the following format: x, y, z
+assigned to another Point, etc.)
+* Entire Points can be output using only the << operator and the name of the Point in the following format: x, y, z
+* ADDED: All Point class methods have been moved from Point.cpp to Point.h for template use.
+* ADDED: Templated to except any integer or floating-point types (except char), and dimensions
+* ADDED: Exceptions in Point methods
+* ADDED: Each Point has a unique ID number that corresponds ONLY to that Point
+* ADDED: The Point member variable "__values" is now a vector
 
 _Cluster Class -_
-* Clusters can contain an arbitrary number of Points, or even none at all.
-* Points are stored in a Node that is placed in a Cluster using a Linked List.
-* Each Cluster has a "head" that points to the first Node in the list.
-* Each Node contains a pointer to a Point, as well as a "next" that points to the next Node in the list.
+* Clusters can contain an arbitrary number of Points, or none at all.
+* Points are stored in a forward_list, represented by the Cluster variable "__head."
 * Clusters are allowed full functionality by overloading arithmetic, assignment, comparison, and insertion operators
 that work with Points, as well as other Clusters.
 * Cluster arithmetic is not allowed with integers.
-* Clusters can be output using the << operator and the name of the Cluster in the following format:
-x, y, z : (id of Cluster)
-* Added: Each Cluster contains a Centroid, which is a Point that is the center of the Cluster (mean of all Points in
+* Entire Clusters can be output using the << operator and the name of the Cluster
+* Each Cluster contains a Centroid, which is a Point that is the center of the Cluster (mean of all Points in
 Cluster).
-* Added: Function to calculate Centroid of a Cluster (uses sum of all Points in Cluster divided by the size).
-* Added: Function to set the Centroid of a Cluster
-* Added: Method to pick k Points from a Cluster to be Centroids for Clustering algorithm
-- This method divides the size of the Cluster by k, then picks the last Point in every k Points to be a Centroid.
-- This assures that each Centroid will be distributed semi-equally throughout the Point space.
-* Added: Functions to calculate sum of distances between each Point in a Cluster, each Point between two Clusters,
-and the unique "edges" between each Point in a Cluster.
+* ADDED: All Cluster class methods have been moved from Cluster.cpp to Cluster.h for template use.
+* ADDED: Templated to accept Point as a typename, as well as the dimensions of the Points within the Cluster
+* ADDED: Exceptions in Cluster methods, as well as Catch clauses to catch Point exceptions
+* ADDED: All Cluster methods have been changed to work with Points instead of Point pointers
+* ADDED: "contains" method, which checks if a Point already exists in a Cluster
+* ADDED: Distances between Points are stored in an unordered_map called "__distances."
+* ADDED: Structures for "Key", "KeyHash", and "KeyEquals" to create keys for the unordered_map
+* ADDED: "numberImported" and "numberFailed" methods to track Points that were successful or failed to import in.
+* REMOVED: Node structure and all linked-list methods and variables
 
 _KMeans Class -_
-* KMeans constructor takes the following parameters (in order):
-- An int for the number of dimensions of the Points being read in from file
-- An int to represent k, which is the amount of Clusters you want in the output
-- An input file name in a string
-- An output file name in a string
-* Contains private member variables for storing "k", all Points read in from file, and an array of Clusters used in
-Clustering algorithm.
-* Contains public static constant double member variable SCORE_DIFF_THRESHOLD that contains the initial double that
-will be used to break the Clustering algorithm loop (currently set to 0.3).
-* Contains method for computing Clustering score each time Clustering algorithm is run. This is used as an iterator for
-the Clustering algorithm.
-
-* Opens an input file and reads Points from file into a Cluster called "point_space"
-* Picks k initial Centroids evenly from throughout point_space and stores them in a Centroid array
-* Creates an array of k Clusters for use in Clustering algorithm. Each of these Clusters is assigned a unique Centroid
-from the Centroid array.
-* Runs the Clustering algorithm, then outputs the results to the output file.
+* Creates a Cluster that will hold all Points we'll use in the program (__point_space).
+* Opens a data file and reads all VALID Points into the Cluster.
+* Uses Cluster's "pickPoints" method to pick Points from the Cluster to use as Centroids
+- Uses the size of the Cluster to incrementally choose Points separated evenly throughout the Cluster
+* Creates k-1 empty Clusters that will be used to sort the data
 
 _Clustering Algorithm in KMeans -_
 * The Clustering algorithm in KMeans calculates the distance from a Point stored in point_space to each Centroid
@@ -91,24 +87,22 @@ getClusterEdges functions from Cluster.cpp.
 * The new Clustering score is subtracted from the SCORE_DIFF_THRESHOLD, and the absolute value of the difference is
 used to iterate the algorithm. Once this value is equal to or less than the SCORE_DIFF_THRESHOLD, the algorithm
 terminates.
+* ADDED: All KMeans class methods have been moved from KMeans.cpp to KMeans.h for template use.
+* ADDED: Templated to accept any integer or floating point type (except char), an integer for k, and an integer
+for the number of dimensions to be used throughout the program.
+* ADDED: Catch clauses to catch exceptions from the Cluster class
+* ADDED: The array that holds the k Clusters is now a vector
+* ADDED: Now reports the number of Points successfully imported (numberImported) and failed to import (numberFailed).
 
 ###Testing
-All classes and functions have been tested in main.cpp
+Testing methods have been created in ClusteringTests.cpp
 
 ####Notes
-The overloaded > operator for the Point class has been changed, as it was not reading Points into the Cluster in
-lexicographic order.
-
-Cluster constructor definitions have been moved from Cluster.cpp to Cluster.h
-
-Cluster destructor fixed.
-
-The numDims variable in the KMeans constructor should match the dimensions of the Points you intend to read in
-from the input file.
-
-The "k" value in the KMeans constructor should be greater than 0 and cannot be greater than the number of Points
-being read in from file.
+The number of dimensions in the KMeans constructor should match the majority of the dimensions of the Points
+you intend to read in from the input file.
 
 SCORE_DIFF_THRESHOLD in Cluster.cpp must be set to a double that is less than 1.0 and greater than 0.
-Best value found so far is 0.3.
+This value should change depending on the amount of k Clusters you want to output.
+
+
 

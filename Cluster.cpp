@@ -1,9 +1,9 @@
 /* NOTE: This file is not used in PA4 due to templates */
 
-//// Programming Assignment 4 - KMeans Clustering
-//
-//// Author:      Dylan Lang
-//// Date:        28 October 2015
+// Programming Assignment 4 - KMeans Clustering
+
+// Author:      Dylan Lang
+// Date:        28 October 2015 - 21 November 2015
 //
 //// Cluster class implementation
 //
@@ -459,8 +459,18 @@
 //    /* Overloaded [] operator */
 //    Point &Cluster::operator[](unsigned int index)
 //    {
-//        // implement this
-//        // Throw OutOfBoundsEx
+//        // Verify index
+//        if (index < 0 || index > __size)
+//            throw OutOfBoundsEx(this->getSize(), index);    // Throw exception
+//
+//        std::forward_list<Point> list = this->getHead();    // Copy Cluster forward_list
+//        auto pos = list.begin();                            // Set iterator equal to first Point in list
+//
+//        // Search for Point in list
+//        for (int i = 0; i <= index; i++)
+//            pos++;                                          // Increment pos with each loop
+//
+//        return *pos;
 //    }
 //    /************************************************************/
 //

@@ -1,7 +1,7 @@
 // Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        28 October 2015
+// Date:        28 October 2015 - 21 November 2015
 
 // KMeans Class header file
 
@@ -19,14 +19,14 @@
 namespace Clustering
 {
     /* KMeans Class */
-    template <int k, int dim>
+    template <typename T, int k, int dim>
     class KMeans
     {
     private:
-        int                                                 __k; // # of Clusters for algorithm
-        Cluster<Point<double, dim>, dim>*                   __point_space; // Holds all Points
-        std::vector<Cluster<Point<double, dim>, dim>>       __kClusterArray;
-        std::unordered_map<Key, double, KeyHash, KeyEqual>  __distanceMap; // Holds distances between Points
+        int                                                                 __k;                // # of Clusters
+        Cluster<Point<T, dim>, dim>*                                        __point_space;      // Holds all Points
+        std::vector<Clustering::Cluster<Clustering::Point<T, dim>, dim>>    __kClusterArray;    // Holds k Clusters
+        std::unordered_map<Key, double, KeyHash, KeyEqual>                  __distanceMap;      // Holds distances
 
     public:
         /* Member variables */
@@ -34,80 +34,84 @@ namespace Clustering
         /************************************************************/
 
         /* Constructors */
-        KMeans(); // Default
-        ~KMeans() { delete __point_space; } // Destructor
+        KMeans();                                               // Default
+        ~KMeans() { delete __point_space; }                     // Destructor
         /************************************************************/
 
         /* Member functions */
-        void readFromFile(std::string); // Read Points from a file
-        void writeToFile(std::string); // Write Points to file
-        void performClustering(); // Run clustering algorithm
-        double computeClusteringScore(); // Calculate clustering score using BetaCV criterion
+        void readFromFile(std::string);                         // Read Points from a file
+        void writeToFile(std::string);                          // Write Points to file
+        void performClustering();                               // Run clustering algorithm
+        double computeClusteringScore();                        // Calculate clustering score using BetaCV criterion
         /************************************************************/
     };
 
     /* Member variables */
-    template <int k, int dim>
-    const double KMeans<k, dim>::SCORE_DIFF_THRESHOLD = 0.6; // Must be less than 1.0 and greater than 0
+    template <typename T, int k, int dim>
+    const double KMeans<T, k, dim>::SCORE_DIFF_THRESHOLD = 0.6; // Must be less than 1.0 and greater than 0
     /************************************************************/
 
     /* Constructors */
-    template <int k, int dim>
-    KMeans<k, dim>::KMeans()
+    template <typename T, int k, int dim>
+    KMeans<T, k, dim>::KMeans()
     {
         /* Setup and Initialization */
 
-        // Initialize file strings
-        std::string inputFile = "input.csv";
-        std::string outputFile = "output.csv";
+        std::string inputFile = "input.csv";                    // Insert input file string name here
+        std::string outputFile = "output.csv";                  // Insert output file string name here
 
-        // Set __k and check if it is less than or equal to zero
-        __k = k;
+        __k = k;                                                // Initialize k
 
+        // Check if k is less than or equal to 0
         if (__k <= 0)
         {
-            // Display error
             std::cerr << "__k cannot be less than or equal to zero!\n" << "Exiting program!";
             exit(0);
         }
 
-        // Create a new Cluster to hold all Points
-        __point_space = new Cluster<Point<double, dim>, dim>;
+        __point_space = new Cluster<Point<T, dim>, dim>;            // Create a new Cluster to hold all Points
 
-        // Read Points from inputFile into __point_space
-        this->readFromFile(inputFile);
+        this->readFromFile(inputFile);                              // Read Points from inputFile into __point_space
 
-        // Sort __point_space
-        __point_space->sort();
+        std::cout << std::endl << "Number of Points SUCCESSFULLY read in from file: "
+        << __point_space->numberImported() << std::endl;            // Display imported Points
 
-        // Calculate distances between all Points in __point_space and store in __distances
-        __point_space->setDistanceMap();
+        // Display number of Points failed to import
+        std::cout << "Number of Points that FAILED to read in from file: "
+        << __point_space->numberFailed() << std::endl;              // Display failed Points
 
-        // Copy __point_space distances into __distanceMap
-        __distanceMap = __point_space->getMap();
+        // Check number of Points imported
+        if (__point_space->numberImported() <= 0)
+        {
+            std::cout << "No Points were read in successfully!" << std::endl;
+            std::cout << "Exiting program!";
+            exit(0);                                                // If no Points read in successfully, exit program
+        }
 
-        // Create Centroid array and pick Points from __point_space
-        Point<double, dim> **centroidArray = new Point<double, dim>*[__k];
-        __point_space->pickPoints(__k, dim, centroidArray);
+        __point_space->sort();                                      // Sort __point_space
 
+        __point_space->setDistanceMap();                            // Initialize distances map for __point_space
+
+        __distanceMap = __point_space->getMap();                    // Initialize __distance map for KMeans
+
+        Point<T, dim> **centroidArray = new Point<T, dim>*[__k];    // Create Centroid array
+        __point_space->pickPoints(__k, dim, centroidArray);         // Pick Points for Centroids
 
         /* Initialize __kClusterArray */
-        unsigned long int res = (unsigned long int) __k;
-        __kClusterArray.reserve(res); // Reserve memory
-        __kClusterArray.push_back(*__point_space); // Add __point_space to kClusterArray
+        unsigned long int res = (unsigned long int) __k;            // Variable for reserve memory
+        __kClusterArray.reserve(res);                               // Reserve memory
+        __kClusterArray.push_back(*__point_space);                  // Add __point_space to kClusterArray
 
-        // Add __k-1 empty Clusters to kClusterArray
         for (int i = 0; i < (__k-1); i++)
-            __kClusterArray.emplace_back(Cluster<Point<double, dim>, dim>());
+            __kClusterArray.emplace_back(Cluster<Point<T, dim>, dim>());   // Create k-1 empty clusters
 
-        // Set Centroids of Clusters
         for (int i = 0; i < __k; i++)
         {
-            __kClusterArray[i].setCentroid(*centroidArray[i]);
+            __kClusterArray[i].setCentroid(*centroidArray[i]);             // Set Centroids of Clusters
 
-            // Display initial Centroids
-            std::cout << "Initial kCluster " << __kClusterArray[i].getID()
-            << " Centroid: " << __kClusterArray[i].getCentroid() << std::endl;
+            // Uncomment to display initial Centroids
+//            std::cout << "Initial kCluster " << __kClusterArray[i].getID()
+//                << " Centroid: " << __kClusterArray[i].getCentroid() << std::endl;
         }
 
         /************************************************************/
@@ -115,105 +119,92 @@ namespace Clustering
         /* Run clustering algorithm */
         performClustering();
 
-        // Display kClusters
-        for (int i = 0; i < __k; i++)
-        {
-            std::cout << "\nkCluster " << __kClusterArray[i].getID() << " (FINAL):" << std::endl;
-            std::cout << "Centroid: " << __kClusterArray[i].getCentroid() << "\n" << __kClusterArray[i];
-        }
+        // Uncomment to display kClusters to console
+//        for (int i = 0; i < __k; i++)
+//        {
+//            std::cout << "\nkCluster " << __kClusterArray[i].getID() << " (FINAL):" << std::endl;
+//            std::cout << "Centroid: " << __kClusterArray[i].getCentroid() << "\n" << __kClusterArray[i];
+//        }
 
         /************************************************************/
 
         /* Write results to file */
-        // Write out the Clustering results to a file
         this->writeToFile(outputFile);
 
         /************************************************************/
 
         /* Cleanup */
-        // All Clusters and Points are destroyed by KMeans destructor
-        // Destroy centroidArray
         std::cout << "\nPerforming cleanup..." << std::endl;
 
         for (int i = 0; i < __k; i++)
-            delete centroidArray[i];
+            delete centroidArray[i];        // Delete Points in Centroid array
 
-        delete [] centroidArray;
+        delete [] centroidArray;            // Destroy Centroid array
 
         std::cout << "Centroid array destroyed!" << std::endl;
+
     } // End KMeans constructor
     /******************************************************************************************************************/
 
     /* Member functions */
     // METHOD - Read Points from a file into __point_space
-    template <int k, int dim>
-    void KMeans<k, dim>::readFromFile(std::string input)
+    template <typename T, int k, int dim>
+    void KMeans<T, k, dim>::readFromFile(std::string input)
     {
-        // Open data file and read Points into __point_space
-        std::ifstream inFile(input); // Create a new input file stream
+        std::ifstream inFile(input);                                // Open input file
 
         // Check if file opened
         if (inFile)
         {
-            // Display confirmation message
-            std::cout << "\nInput file opened!" << std::endl;
+            std::cout << "\nInput file opened!" << std::endl;       // Display confirmation message
             std::cout << "Reading Points from input file into point_space..." << std::endl;
 
-            // Read Points from file into point_space Cluster
-            inFile >> *__point_space;
-            inFile.close();
-
-            // Display number of Points successfully imported
-            std::cout << std::endl << "Number of Points successfully read in from file: "
-            << __point_space->numberImported() << std::endl;
-
-            // Display number of Points failed to import
-            std::cout << "Number of Points that failed to read in from file: "
-            << __point_space->numberFailed() << std::endl;
+            inFile >> *__point_space;                               // Read Points from file into point_space Cluster
+            inFile.close();                                         // Close input file file
         }
         else
         {
-            // Display error message and exit
-            std::cout << "Input file did not open!" << std::endl;
+            // If file doesn't open
+            std::cout << "Input file did not open!" << std::endl;   // Display error message and exit
             exit(EXIT_FAILURE);
         }
     } // End readFromFile
 
 
     // METHOD - Write output to file
-    template <int k, int dim>
-    void KMeans<k, dim>::writeToFile(std::string output)
+    template <typename T, int k, int dim>
+    void KMeans<T, k, dim>::writeToFile(std::string output)
     {
-        std::ofstream outFile(output); // Open output file
+        std::ofstream outFile(output);                              // Open output file
 
+        // Check if file opened
         if (outFile)
         {
-            std::cout << "\nOutput file opened!" << std::endl;
+            std::cout << "\nOutput file opened!" << std::endl;      // Display confirmation message
             std::cout << "Writing data to output file..." << std::endl;
 
             // Loop through cluster array and output to file
             for (int i = 0; i < __k; i++)
-                outFile << __kClusterArray[i] << std::endl;
+                outFile << __kClusterArray[i] << std::endl;         // Output Clusters to file
 
             std::cout << "Output successfully written to file!" << std::endl;
         }
         else
         {
-            // Display error message and exit
-            std::cout << "Output file did not open!" << std::endl;
+            // If file doesn't open
+            std::cout << "Output file did not open!" << std::endl;  // Display error message and exit
             exit(EXIT_FAILURE);
         }
     } // End writeToFile
 
 
     // METHOD - Run clustering algorithm
-    template <int k, int dim>
-    void KMeans<k, dim>::performClustering()
+    template <typename T, int k, int dim>
+    void KMeans<T, k, dim>::performClustering()
     {
-        // Create variables to hold Clustering score and scoreDiff
-        int iterations = 0; // Keep track of iterations
-        double score, scoreDiff;
-        scoreDiff = SCORE_DIFF_THRESHOLD + 1; // Ensures we iterate at least once
+        int iterations = 0;                     // Keep track of iterations
+        double score, scoreDiff;                // Create variables
+        scoreDiff = SCORE_DIFF_THRESHOLD + 1;   // Ensures we iterate at least once
 
         std::cout << "\nRunning Clustering algorithm..." << std::endl << std::endl;
 
@@ -223,18 +214,16 @@ namespace Clustering
             // STEP 2 - Loop through all Clusters
             for (int i = 0; i < __k; i++)
             {
-                // Copy forward list of current Cluster[i]
-                auto list = __kClusterArray[i].getHead();
 
-                // Create iterator for above list
-                auto pos = list.begin();
+                auto list = __kClusterArray[i].getHead();   // Copy forward list of current Cluster[i]
+                auto pos = list.begin();                    // Iterator set to first Point in list
 
                 // STEP 3 - Loop through all Points in current Cluster[i]
                 while (pos != list.end())
                 {
-                    double minDist = DBL_MAX; // Will store smallest distance found from a Point to a Centroid
+                    double minDist = DBL_MAX;               // Stores distance from Point to Centroid
 
-                    int centCounter = 0; // Will store index number for Centroid corresponding to minDist
+                    int centCounter = 0;                    // Stores index of closest Centroid
 
                     // Loop through all Clusters (again)
                     for (int j = 0; j < __k; j++)
@@ -245,75 +234,67 @@ namespace Clustering
                         // Save the smallest difference between current Point and whichever Centroid
                         if (minDist > currDist)
                         {
-                            minDist = currDist; // Save smallest distance each iteration
-                            centCounter = j; // Save index of Cluster that has closest Centroid
+                            minDist = currDist;             // Save smallest distance each iteration
+                            centCounter = j;                // Save index of Cluster that has closest Centroid
                         }
                     }
 
                     // STEP 5 - Check if Centroid is not equal to the Centroid of the current Cluster[i]
                     if (__kClusterArray[centCounter].getCentroid() != __kClusterArray[i].getCentroid())
                     {
-                        int count = 0; // Will store
+                        int count = 0;                      // Stores index of Cluster with matching Centroid
 
                         // Search for Cluster that has matching Centroid
                         for (int h = 0; h < __k; h++)
                         {
                             if (__kClusterArray[centCounter].getCentroid() == __kClusterArray[h].getCentroid())
                             {
-                                count = h;
+                                count = h;                  // Save index of Cluster with matching Centroid
                             }
                         }
 
                         // STEP 6 - Move current Point from current Cluster [i] to Cluster with closest Centroid
-                        // TODO: This will not allow any variables or integers other than 5
-//                        Cluster<Point<double, dim>, dim>::Move *m = new Cluster<Point<double, dim>, dim>
-//                        ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
-
-                        Cluster<Point<double, 5>, 5>::Move *m = new Cluster<Point<double, 5>, 5>
+                        // TODO: Why do we have to use typename for this?
+                        typename Cluster<Point<T, dim>, dim>::Move *m = new typename Cluster<Point<T, dim>, dim>
                         ::Move(*pos, &__kClusterArray[i], &__kClusterArray[count]);
 
                         delete m;
                     }
 
-                    // Increment iterator
-                    pos++;
+                    pos++;      // Increment iterator
                 }
             }
 
             // If Centroids are invalid, recalculate Centroids for each Cluster
-            std::cout << "Recalculating Centroids..." << std::endl;
             for (int i = 0; i < __k; i++)
             {
                 if (!__kClusterArray[i].getCentroidValidity())
                 {
                     try
                     {
-                        __kClusterArray[i].sort(); // Sort Cluster first
-                        __kClusterArray[i].calcCentroid();
+                        __kClusterArray[i].sort();          // Sort Cluster
+                        __kClusterArray[i].calcCentroid();  // Recalculate Centroid of each Cluster
                     }
                     catch (RemoveFromEmptyEx e)
                     {
-                        std::cout << "In KMeans recalculate Centroids - " << e << std::endl;
+                        std::cout << "In KMeans recalculate Centroids: " << e << std::endl;
                     }
                 }
             }
 
             try
             {
-                // Compute new clusteringScore
-                score = computeClusteringScore();
-
-                // Compute absolute difference and set scoreDiff
-                scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score);
+                score = computeClusteringScore();               // Compute new clusteringScore
+                scoreDiff = fabs(SCORE_DIFF_THRESHOLD - score); // Compute difference and set scoreDiff
 
                 // Uncomment to display scoreDiff
 //                std::cout << "scoreDiff: " << scoreDiff << std::endl;
             }
             catch (DivideByZeroEx e)
             {
-                // If a DivideByZeroEx is caught, it means that all Clusters only contain one Point
-                // so the program must break out of the Clustering algorithm
-                std::cout << "In KMeans computeClusteringScore - " << e << std::endl;
+                /* If a DivideByZeroEx is caught, it means that all Clusters only contain one Point
+                ** so the program must break out of the Clustering algorithm */
+                std::cout << "In KMeans computeClusteringScore: " << e << std::endl;
                 break;
             }
 
@@ -326,14 +307,14 @@ namespace Clustering
 
 
     // METHOD - Implement Beta-CV criterion (coefficient of variation)
-    template <int k, int dim>
-    double KMeans<k, dim>::computeClusteringScore()
+    template <typename T, int k, int dim>
+    double KMeans<T, k, dim>::computeClusteringScore()
     {
-        double W_in = 0;
-        double W_out = 0;
-        double N_in = 0;
-        double N_out = 0;
-        double result = 0;
+        double W_in = 0;        // Numerator for intraCluster distances
+        double W_out = 0;       // Denominator for interCluster distances
+        double N_in = 0;        // Numerator for intraCluster edges
+        double N_out = 0;       // Denominator interCluster edges
+        double result = 0;      // = (W_in / W_out) / (N_in / N_out)
 
         // Calculate W_in: sum of intraCluster distances (distances between Points within Cluster)
         for (int i = 0; i < __k; i++)
@@ -367,11 +348,11 @@ namespace Clustering
             }
         }
 
-        if (N_in != 0 && N_out != 0)
-            result = (W_in / N_in) / (W_out / N_out);
-
-        else
+        // Check denominators for zeros
+        if (N_in == 0 || N_out == 0)
             throw DivideByZeroEx();
+
+        result = (W_in / N_in) / (W_out / N_out);   // Calculate result
 
         // Uncomment to display clustering score
 //        std::cout << "Clustering Score: " << result << std::endl;

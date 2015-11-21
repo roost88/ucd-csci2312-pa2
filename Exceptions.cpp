@@ -1,7 +1,7 @@
 // Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        28 October 2015
+// Date:        28 October 2015 - 21 November 2015
 
 // Exceptions implementation file
 
@@ -19,15 +19,13 @@ namespace Clustering
         __inputDim = r;
     }
 
-    DimensionalityMismatchEx::~DimensionalityMismatchEx(){}
-
     std::ostream &operator <<(std::ostream &out, const DimensionalityMismatchEx &exc)
     {
         out << exc.getName() << " Comparison of Points with dimensionalities "
         << exc.getCurr() << " and " << exc.getInput() << " is undefined!";
         return out;
     }
-    // ******************************************
+    /************************************************************/
 
     // Input index does not exist in the array
     OutOfBoundsEx::OutOfBoundsEx(int c, unsigned int i)
@@ -37,8 +35,6 @@ namespace Clustering
         __inputIndex = i;
     }
 
-    OutOfBoundsEx::~OutOfBoundsEx(){}
-
     std::ostream &operator <<(std::ostream &out, const OutOfBoundsEx &exc)
     {
         out << exc.getName() << " Attempt to return value from Index " << exc.getIndex()
@@ -46,17 +42,15 @@ namespace Clustering
         return out;
     }
 
-    // ******************************************
+    /************************************************************/
 
     // Cannot remove a Point from an empty Cluster
-    RemoveFromEmptyEx::RemoveFromEmptyEx(unsigned int p, unsigned int c)
+    RemoveFromEmptyEx::RemoveFromEmptyEx(int p, int c)
     {
         __name = "EXCEPTION! Remove from Empty Cluster:";
-        __pointID = p;
-        __clusterID = c;
+        __PID = p;
+        __CID = c;
     }
-
-    RemoveFromEmptyEx::~RemoveFromEmptyEx(){}
 
     std::ostream &operator <<(std::ostream &out, const RemoveFromEmptyEx &exc)
     {
@@ -65,7 +59,7 @@ namespace Clustering
         return out;
     }
 
-    // ******************************************
+    /************************************************************/
 
     // Cannot divide by zero
     DivideByZeroEx::DivideByZeroEx()
@@ -73,28 +67,40 @@ namespace Clustering
         __name = "EXCEPTION! Divide by zero:";
     }
 
-    DivideByZeroEx::~DivideByZeroEx() {}
-
     std::ostream &operator <<(std::ostream &out, const DivideByZeroEx &exc)
     {
         out << exc.getName() << " Attempt to divide by zero is undefined!";
         return out;
     }
 
-    // ******************************************
+    /************************************************************/
 
     // Point already exists in Cluster
-    PointAlreadyExistsEx::PointAlreadyExistsEx(const int &p)
+    PointAlreadyExistsEx::PointAlreadyExistsEx(int p)
     {
         __name = "EXCEPTION! Point already exists:";
         __PID = p;
     }
 
-    PointAlreadyExistsEx::~PointAlreadyExistsEx() {}
-
     std::ostream &operator <<(std::ostream &out, const PointAlreadyExistsEx &exc)
     {
-        out << exc.getName() << " Point " << exc.getPoint() << " already exists in Cluster!";
+        out << exc.getName() << " Point " << exc.getPID() << " already exists in Cluster!";
+        return out;
+    }
+
+    /************************************************************/
+
+    // Point does not exist in Cluster
+    DoesNotExistEx::DoesNotExistEx(int p, int c)
+    {
+        __name = "EXCEPTION! Point does not exist:";
+        __PID = p;
+        __CID = c;
+    }
+
+    std::ostream &operator <<(std::ostream &out, const DoesNotExistEx &exc)
+    {
+        out << exc.getName() << " Point " << exc.getPID() << " does not exist in Cluster " << exc.getCID() << "!";
         return out;
     }
 } // end namespace Clustering

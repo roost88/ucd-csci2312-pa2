@@ -1,9 +1,9 @@
 /* NOTE: This file is not used in PA4 due to templates */
 
-//// Programming Assignment 4 - KMeans Clustering
-//
-//// Author:      Dylan Lang
-//// Date:        28 October 2015
+// Programming Assignment 4 - KMeans Clustering
+
+// Author:      Dylan Lang
+// Date:        28 October 2015 - 21 November 2015
 //
 //// KMeans class implementation
 //

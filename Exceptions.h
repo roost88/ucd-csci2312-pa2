@@ -1,7 +1,7 @@
 // Programming Assignment 4 - KMeans Clustering
 
 // Author:      Dylan Lang
-// Date:        28 October 2015
+// Date:        28 October 2015 - 21 November 2015
 
 // Exceptions header file
 
@@ -21,13 +21,13 @@ namespace Clustering
     class DimensionalityMismatchEx
     {
     private:
-        std::string         __name;
-        int                 __currDim;
-        int                 __inputDim;
+        std::string     __name;
+        int             __currDim;
+        int             __inputDim;
 
     public:
         DimensionalityMismatchEx(int, int);
-        ~DimensionalityMismatchEx();
+        ~DimensionalityMismatchEx() { }
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -42,13 +42,13 @@ namespace Clustering
     class OutOfBoundsEx
     {
     private:
-        std::string         __name;
-        int                 __currSize;
-        unsigned int        __inputIndex;
+        std::string     __name;
+        int             __currSize;
+        unsigned int    __inputIndex;
 
     public:
         OutOfBoundsEx(int, unsigned int);
-        ~OutOfBoundsEx();
+        ~OutOfBoundsEx() { }
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -64,17 +64,17 @@ namespace Clustering
     {
     private:
         std::string     __name;
-        unsigned int    __pointID;
-        unsigned int    __clusterID;
+        int             __PID;
+        int             __CID;
 
     public:
-        RemoveFromEmptyEx(unsigned int, unsigned int);
-        ~RemoveFromEmptyEx();
+        RemoveFromEmptyEx(int, int);
+        ~RemoveFromEmptyEx() { }
 
         /* Getters */
         std::string getName() const { return __name; }
-        unsigned int getPID() const { return __pointID; }
-        unsigned int getCID() const { return __clusterID; }
+        int getPID() const { return __PID; }
+        int getCID() const { return __CID; }
 
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const RemoveFromEmptyEx &);
@@ -88,7 +88,7 @@ namespace Clustering
 
     public:
         DivideByZeroEx();
-        ~DivideByZeroEx();
+        ~DivideByZeroEx() { }
 
         /* Getters */
         std::string getName() const { return __name; }
@@ -105,12 +105,12 @@ namespace Clustering
         int             __PID;
 
     public:
-        PointAlreadyExistsEx(const int &);
-        ~PointAlreadyExistsEx();
+        PointAlreadyExistsEx(int);
+        ~PointAlreadyExistsEx() { }
 
         /* Getters */
         std::string getName() const { return __name; }
-        int getPoint() const { return __PID; }
+        int getPID() const { return __PID; }
 
         /* Overloaded Operators */
         friend std::ostream &operator <<(std::ostream &, const PointAlreadyExistsEx &);
@@ -121,8 +121,22 @@ namespace Clustering
     {
     private:
         std::string     __name;
-        int             __index;
+        int             __PID;
+        int             __CID;
+
+    public:
+        DoesNotExistEx(int, int);
+        ~DoesNotExistEx() { }
+
+        /* Getters */
+        std::string getName() const { return __name; }
+        int getPID() const { return __PID; }
+        int getCID() const { return __CID; }
+
+        /* Overloaded Operators */
+        friend std::ostream &operator <<(std::ostream &, const DoesNotExistEx &);
     };
+    /************************************************************/
 
 } // end namespace Clustering
 
