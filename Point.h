@@ -66,7 +66,7 @@ namespace Clustering {
         // Copy constructor
         Point(const Point<T, dim> &right) :
                 __id(right.getID()),
-                __dim(right.getDim()),
+                __dim(right.getDims()),
                 __values(right.getValuesVector())
         { }
 
@@ -85,7 +85,7 @@ namespace Clustering {
 
         /* Getters */
         unsigned int getID() const { return __id; }                 // Get the ID of the Point
-        int getDim() const { return __dim; }                        // Return dimensions of Point
+        int getDims() const { return __dim; }                        // Return dimensions of Point
         T getValue(unsigned int) const;                             // Return value in Point array
         std::vector<T> getValuesVector() const { return __values; } // Return values vector
         /************************************************************/
@@ -143,7 +143,7 @@ namespace Clustering {
     Point<T, dim> &Point<T, dim>::operator =(const Point<T, dim> &right)
     {
         __id = right.getID();   // Copy ID
-        __dim = right.getDim(); // Copy dimensions
+        __dim = right.getDims(); // Copy dimensions
         __values.clear();       // Empty the __values vector
 
         // Copy __values
@@ -266,11 +266,11 @@ namespace Clustering {
     {
         // Output will look like: x, y, z
         // Loop through __values
-        for (int i = 0; i < right.getDim(); i++)
+        for (int i = 0; i < right.getDims(); i++)
         {
             output << std::fixed << std::setprecision(1) << right.__values[i]; // Output Point values
 
-            if (i < (right.getDim()) - 1)
+            if (i < (right.getDims()) - 1)
                 output << Point<T, dim>::POINT_VALUE_DELIM << " "; // Add in ',' and space if not the end of array
         }
         return output;
@@ -291,16 +291,16 @@ namespace Clustering {
         num_com += 1; // Add one to number of commas to use as Point dimensions
 
         // Verify commas and dimensions
-        if (num_com != right.getDim())
+        if (num_com != right.getDims())
         {
             right.rewindIdGen(); // Decrement __idGenerator
-            throw Clustering::DimensionalityMismatchEx(right.getDim(), num_com); // Throw exception
+            throw Clustering::DimensionalityMismatchEx(right.getDims(), num_com); // Throw exception
         }
 
         std::stringstream lineStr(line); // Turn string into a stream
 
         // Loop through comma-separated __values
-        for (int i = 1; i <= right.getDim(); i++)
+        for (int i = 1; i <= right.getDims(); i++)
         {
             std::string value; // Create string to hold value
             std::getline(lineStr, value, Clustering::Point<T, dim>::POINT_VALUE_DELIM); // Get value from stringstream
@@ -325,10 +325,10 @@ namespace Clustering {
     Point<T, dim> &operator +=(Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
-        for (int i = 0; i < right.getDim(); i++)
+        for (int i = 0; i < right.getDims(); i++)
             left.__values[i] += right.__values[i]; // Add right values to left values
 
         return left;
@@ -338,10 +338,10 @@ namespace Clustering {
     Point<T, dim> &operator -=(Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
-        for (int i = 0; i < left.getDim(); i++)
+        for (int i = 0; i < left.getDims(); i++)
             left.__values[i] -= right.__values[i]; // Subtract right values from left values
 
         return left;
@@ -353,12 +353,12 @@ namespace Clustering {
     const Point<T, dim> operator +(const Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
         Point<T, dim> result(left); // Copy left hand Point
 
-        for (int i = 0; i < result.getDim(); i++)
+        for (int i = 0; i < result.getDims(); i++)
             result.__values[i] += right.__values[i]; // Add right values to left values
 
         return result;
@@ -368,12 +368,12 @@ namespace Clustering {
     const Point<T, dim> operator -(const Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
         Point<T, dim> result(left); // Copy left hand Point
 
-        for (int i = 0; i < result.getDim(); i++)
+        for (int i = 0; i < result.getDims(); i++)
             result.__values[i] -= right.__values[i]; // Subtract right values from left values
 
         return result;
@@ -385,14 +385,14 @@ namespace Clustering {
     bool operator ==(const Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
         // Compare IDs of both Points
         else if (left.getID() != right.getID())
         {
             // Loop through values of Points
-            for (int i = 0; i < left.getDim(); i++)
+            for (int i = 0; i < left.getDims(); i++)
             {
                 // Check equality of values
                 if (left.__values[i] != right.__values[i])
@@ -414,11 +414,11 @@ namespace Clustering {
     bool operator >(const Point<T, dim> &left, const Point<T, dim> &right)
     {
         // Check dimensions of both Points
-        if (left.getDim() != right.getDim())
-            throw DimensionalityMismatchEx(left.getDim(), right.getDim()); // Throw exception
+        if (left.getDims() != right.getDims())
+            throw DimensionalityMismatchEx(left.getDims(), right.getDims()); // Throw exception
 
         // Loop through __values
-        for (int i = 0; i < left.getDim(); i++)
+        for (int i = 0; i < left.getDims(); i++)
         {
             // Compare __values
             if (left.__values[i] > right.__values[i])

@@ -20,7 +20,7 @@ void testPoint()
 {
     /* Test double */
     Clustering::Point<double, 10> p1; // Constructor
-    for (int i = 0; i < p1.getDim(); i++)
+    for (int i = 0; i < p1.getDims(); i++)
     {
         p1.setValue(i+1, 4.4); // setValue
     }
@@ -46,7 +46,7 @@ void testPoint()
 
     Clustering::Point<double, 10> p5;
 
-    for (int i = 0; i < p5.getDim(); i++)
+    for (int i = 0; i < p5.getDims(); i++)
         p5.setValue(i+1, 6.6);
 
     std::cout << "p4: " << p4 << "\np5: " << p5 << std::endl;
@@ -111,7 +111,7 @@ void testPoint()
 
     /* Test float */
     Clustering::Point<float, 5> p30;
-    for (int i = 0; i < p30.getDim(); i++)
+    for (int i = 0; i < p30.getDims(); i++)
     {
         p30.setValue(i+1, 7.735);
     }
@@ -141,7 +141,7 @@ void testCluster()
     std::cout << "c3 (copy): \n" << c3 << std::endl;
 
     Clustering::Point<double, 5> p1;
-    for (int i = 0; i < p1.getDim(); i++)
+    for (int i = 0; i < p1.getDims(); i++)
         p1.setValue(i+1, 5.5);
 
     // Member functions
@@ -174,7 +174,7 @@ void testCluster()
     std::cout << "Distance at key: " << (map.at(key)) << std::endl;
 
     Clustering::Point<double, 5> p2;
-    for (int i = 0; i < p2.getDim(); i++)
+    for (int i = 0; i < p2.getDims(); i++)
         p2.setValue(i+1, 6.6);
 
     Clustering::Cluster<Clustering::Point<double, 5>, 5> c4; // Empty cluster
@@ -189,11 +189,11 @@ void testCluster()
     std::cout << "c1 after remove:\n" << c1 << std::endl;
 
     Clustering::Point<double, 5> p01;
-    for (int i = 0; i < p01.getDim(); i++)
+    for (int i = 0; i < p01.getDims(); i++)
         p01.setValue(i+1, 1.0);
 
     Clustering::Point<double, 5> p02;
-    for (int i = 0; i < p02.getDim(); i++)
+    for (int i = 0; i < p02.getDims(); i++)
         p02.setValue(i+1, 2.0);
 
     Clustering::Cluster<Clustering::Point<double, 5>, 5> c01;
